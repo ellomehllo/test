@@ -70,14 +70,32 @@
   /* ---------- Backdrop & 3D stage ---------- */
   #backdrop {
     position: fixed; inset: 0; z-index: 0;
-    background:
-      radial-gradient(60% 42% at 50% 30%, rgba(240,138,36,.20), rgba(240,138,36,0) 70%),
-      radial-gradient(120% 80% at 50% 115%, #35251a 0%, #1c1611 55%, #120e0b 100%);
+    background: #17120E url('assets/bg.avif') center / cover no-repeat;
     transition: filter 1.4s ease;
   }
   body[data-view="active"] #backdrop,
   body[data-view="breath"] #backdrop { filter: brightness(.82) saturate(1.15); }
-  #stage { position: fixed; inset: 0; z-index: 10; }
+  #stage { position: fixed; inset: 0; z-index: 10; transition: opacity 1s ease; }
+  body.hv-on #stage { opacity: 0; }           /* 3D Hanuman hidden while the video Hanuman is on screen */
+
+  /* ---------- Video Hanuman (idle ping-pong loop → full clip on Start) ---------- */
+  #hv {
+    --size: min(88vw, 36dvh); --cx: 50vw; --top: calc(var(--safe-t) + 56px);
+    position: fixed; z-index: 11; pointer-events: none;
+    width: var(--size); height: var(--size); left: calc(var(--cx) - var(--size) / 2); top: var(--top);
+    transition: width 1.5s cubic-bezier(.65,0,.35,1), height 1.5s cubic-bezier(.65,0,.35,1), left 1.5s cubic-bezier(.65,0,.35,1), top 1.5s cubic-bezier(.65,0,.35,1), opacity .9s ease, filter .9s ease, transform .9s ease;
+  }
+  #hv video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; }
+  #hv-full { opacity: 0; }
+  #hv.playing #hv-full { opacity: 1; }
+  #hv.playing #hv-loop { opacity: 0; }
+  #hv.gone { opacity: 0; filter: blur(12px) brightness(1.8); transform: scale(1.06); }
+  body:not([data-view="setup"]) #hv { --size: min(100vw, 60dvh); --top: 14dvh; }
+  body.locked #hv { --size: min(100vw, 50dvh); --top: 27dvh; }
+  @media (min-aspect-ratio: 11/10) and (min-width: 760px) {
+    #hv { --size: min(80dvh, 46vw); --cx: 32vw; --top: calc(50dvh - var(--size) / 2); }
+    body:not([data-view="setup"]) #hv { --size: min(64dvh, 60vw); --cx: 50vw; --top: 14dvh; }
+  }
   #stage canvas { display: block; width: 100%; height: 100%; }
   #stage-fallback {
     position: fixed; inset: 0; z-index: 10; display: flex; align-items: flex-start; justify-content: center;
@@ -268,6 +286,11 @@
 
 <div id="backdrop" aria-hidden="true"></div>
 <div id="stage" aria-hidden="true"></div>
+<!-- Video Hanuman: colour-keyed clip shown on setup; plays through on Start, then hands over to the 3D Hanuman -->
+<div id="hv" aria-hidden="true">
+  <video id="hv-loop" muted playsinline autoplay loop preload="auto" poster="assets/hanuman-poster.webp"></video>
+  <video id="hv-full" muted playsinline preload="auto"></video>
+</div>
 <div id="stage-fallback" class="font-deva" aria-hidden="true" hidden>राम</div>
 
 <!-- ═════════════════════════ VIEW 1 · SETUP ═════════════════════════ -->
@@ -1346,6 +1369,7 @@ function startSadhna() {
   Haptics.commence();
   AudioEngine.startProfile(settings.sound);
   Guard.enable(session.lockout);
+  VideoHanuman.playFull();
   Wake.on();
 
   session.settleTimer = setTimeout(() => {
@@ -1517,6 +1541,7 @@ function abandonSadhna() {
   session = null;
   refreshSetup();
   showView('setup');
+  VideoHanuman.showIdle();
   Stage.setMode('float');
   Stage.setView('setup');
   toast(s.count ? `Sadhna released · ${fmtNum(s.count)} Naam saved` : 'Sadhna released');
@@ -1529,18 +1554,73 @@ holdToConfirm($('#btn-end'), abandonSadhna);
 holdToConfirm($('#btn-abandon'), abandonSadhna);
 $('#b-skip').addEventListener('click', () => finishSession(false));
 $('#btn-again').addEventListener('click', () => {
-  refreshSetup(); showView('setup'); Stage.setView('setup');
+  refreshSetup(); showView('setup'); Stage.setView('setup'); VideoHanuman.showIdle();
 });
 document.addEventListener('visibilitychange', () => {
   if (document.visibilityState === 'visible' && session) { Wake.on(); renderTimer(); }
 });
 WIDE_MQ.addEventListener && WIDE_MQ.addEventListener('change', () => dispatchEvent(new Event('resize')));
 
+/* ── Video Hanuman ─────────────────────────────────────────────────────
+ * Setup shows a ping-pong loop of the clip's first second (frames 1→24→2).
+ * Start Sadhna jumps the full clip to the loop's current frame and plays it
+ * through once, then the video Hanuman dissolves and the 3D Hanuman appears. */
+const VideoHanuman = (() => {
+  const wrap = $('#hv'), loop = $('#hv-loop'), full = $('#hv-full');
+  const FPS = 24, FWD = 24, LOOP_FRAMES = 46;
+  // Safari and every iOS browser (WebKit) only render transparency from HEVC; the rest use VP9 WebM
+  const ua = navigator.userAgent;
+  const ext = /AppleWebKit/.test(ua) && !/Chrome|Chromium|Edg|OPR|Android/.test(ua) ? 'mov' : 'webm';
+  loop.src = `assets/hanuman-loop.${ext}`;
+  full.src = `assets/hanuman-full.${ext}`;
+  let state = 'idle', timer = 0;
+
+  const handOver = () => { document.body.classList.remove('hv-on'); };
+  function vanish() {
+    if (state !== 'full') return;
+    state = 'gone'; clearTimeout(timer);
+    wrap.classList.add('gone'); handOver();
+    timer = setTimeout(() => { if (state === 'gone') { wrap.hidden = true; loop.pause(); full.pause(); } }, 950);
+  }
+  function showIdle() {
+    state = 'idle'; clearTimeout(timer);
+    full.pause();
+    wrap.hidden = false; void wrap.offsetWidth;
+    wrap.classList.remove('playing', 'gone');
+    document.body.classList.add('hv-on');
+    try { full.currentTime = 0; loop.currentTime = 0; } catch (_) {}
+    loop.play().catch(() => {});
+  }
+  function playFull() {
+    if (state !== 'idle') return;
+    state = 'full';
+    // same frame the loop is showing right now → seamless switch
+    const f = Math.round(loop.currentTime * FPS) % LOOP_FRAMES;
+    const src = f < FWD ? f : LOOP_FRAMES - f;
+    try { full.currentTime = src / FPS; } catch (_) {}
+    const swap = () => { if (state === 'full') { wrap.classList.add('playing'); loop.pause(); } };
+    full.play().then(() => {
+      if (full.requestVideoFrameCallback) full.requestVideoFrameCallback(swap); else swap();
+    }).catch(vanish);
+    timer = setTimeout(vanish, ((full.duration || 6.6) - src / FPS) * 1000 + 1500);   // safety net if 'ended' never fires
+  }
+  full.addEventListener('ended', vanish);
+  // keep the idle loop running even if the browser skipped autoplay
+  loop.muted = full.muted = true;
+  const nudge = () => { if (state === 'idle' && loop.paused) loop.play().catch(() => {}); };
+  loop.addEventListener('canplay', nudge);
+  document.addEventListener('visibilitychange', nudge);
+  document.addEventListener('pointerdown', nudge, { capture: true });
+  loop.addEventListener('error', () => { state = 'off'; wrap.hidden = true; handOver(); });
+  return { showIdle, playFull };
+})();
+
 /* Boot */
 if (!Stage.ready) $('#stage-fallback').hidden = false;
 refreshSetup();
 showView('setup');
 Stage.setView('setup');
+VideoHanuman.showIdle();
 if (FAST) toast('Fast mode: minutes run as seconds');
 </script>
 </body>
