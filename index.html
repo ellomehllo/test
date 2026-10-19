@@ -37,10 +37,6 @@
   };
 </script>
 
-<!-- Three.js r128 (classic global build). For a real rig also add:
-     https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-
 <style>
   :root {
     --saffron: #F08A24;
@@ -75,10 +71,7 @@
   }
   body[data-view="active"] #backdrop,
   body[data-view="breath"] #backdrop { filter: brightness(.82) saturate(1.15); }
-  #stage { position: fixed; inset: 0; z-index: 10; transition: opacity 1s ease; }
-  body.hv-on #stage { opacity: 0; }           /* 3D Hanuman hidden while the video Hanuman is on screen */
-
-  /* ---------- Video Hanuman (idle ping-pong loop → full clip on Start) ---------- */
+  /* ---------- Video Hanuman (idle ping-pong loop → full turn on Start → loop again) ---------- */
   #hv {
     --size: min(88vw, 36dvh); --cx: 50vw; --top: calc(var(--safe-t) + 56px);
     position: fixed; z-index: 11; pointer-events: none;
@@ -89,20 +82,14 @@
   #hv-full { opacity: 0; }
   #hv.playing #hv-full { opacity: 1; }
   #hv.playing #hv-loop { opacity: 0; }
-  #hv.gone { opacity: 0; filter: blur(12px) brightness(1.8); transform: scale(1.06); }
-  body:not([data-view="setup"]) #hv { --size: min(100vw, 60dvh); --top: 14dvh; }
+  body[data-view="active"] #hv { --size: min(100vw, 60dvh); --top: 14dvh; }
   body.locked #hv { --size: min(100vw, 50dvh); --top: 27dvh; }
+  body[data-view="breath"] #hv { --size: min(90vw, 40dvh); --top: calc(var(--safe-t) + 104px); }
   @media (min-aspect-ratio: 11/10) and (min-width: 760px) {
     #hv { --size: min(80dvh, 46vw); --cx: 32vw; --top: calc(50dvh - var(--size) / 2); }
-    body:not([data-view="setup"]) #hv { --size: min(64dvh, 60vw); --cx: 50vw; --top: 14dvh; }
+    body[data-view="active"] #hv { --size: min(64dvh, 60vw); --cx: 50vw; --top: 14dvh; }
+    body[data-view="breath"] #hv { --size: min(80dvh, 46vw); --cx: 30vw; --top: calc(50dvh - var(--size) / 2); }
   }
-  #stage canvas { display: block; width: 100%; height: 100%; }
-  #stage-fallback {
-    position: fixed; inset: 0; z-index: 10; display: flex; align-items: flex-start; justify-content: center;
-    padding-top: 16vh; font-size: 22vmin; color: var(--saffron);
-    text-shadow: 0 0 60px rgba(240,138,36,.6); animation: floaty 5s ease-in-out infinite;
-  }
-  @keyframes floaty { 50% { transform: translateY(-14px); } }
 
   /* ---------- Views ---------- */
   .view {
@@ -277,7 +264,6 @@
   @media (prefers-reduced-motion: reduce) {
     .view, #lockout { transition-duration: .01ms !important; }
     .ripple, #lockout::after { animation: none; }
-    #stage-fallback { animation: none; }
   }
 </style>
 </head>
@@ -285,13 +271,11 @@
 <body data-view="setup">
 
 <div id="backdrop" aria-hidden="true"></div>
-<div id="stage" aria-hidden="true"></div>
-<!-- Video Hanuman: colour-keyed clip shown on setup; plays through on Start, then hands over to the 3D Hanuman -->
+<!-- Video Hanuman: colour-keyed clip; floats on setup, turns once on Start, then keeps floating through the session -->
 <div id="hv" aria-hidden="true">
   <video id="hv-loop" muted playsinline autoplay loop preload="auto" poster="assets/hanuman-poster.webp"></video>
   <video id="hv-full" muted playsinline preload="auto"></video>
 </div>
-<div id="stage-fallback" class="font-deva" aria-hidden="true" hidden>राम</div>
 
 <!-- ═════════════════════════ VIEW 1 · SETUP ═════════════════════════ -->
 <section id="view-setup" class="view is-on" aria-label="Sadhna setup">
@@ -518,7 +502,7 @@
 /* ════════════════════════════════════════════════════════════════════════════
  *  NAAM JAAP SADHNA — Spiritual Pomodoro
  *  Sections:  1 Config & storage · 2 Haptics · 3 Audio engine (Web Audio)
- *             4 Stage (Three.js character) · 5 App flow & UI
+ *             4 Stage stub · 5 App flow & UI (incl. the video Hanuman)
  *  Dev tip:   open with ?fast to turn minutes into seconds (12 min → 12 s) for testing.
  * ════════════════════════════════════════════════════════════════════════════ */
 
@@ -775,419 +759,10 @@ const AudioEngine = (() => {
   return api;
 })();
 
-/* ───────────────────────── 4 · STAGE — THREE.JS CHARACTER ─────────────────────────
- *
- *  ╔══════════════════════════════════════════════════════════════════════════╗
- *  ║  MODEL SWAP POINT — replacing the placeholder cubes with a real Hanuman   ║
- *  ╠══════════════════════════════════════════════════════════════════════════╣
- *  ║  Everything animates through the `rig` handles (joint Groups) and the    ║
- *  ║  POSES table. A real model only has to provide the same handles:         ║
- *  ║                                                                          ║
- *  ║  1. Load GLTFLoader (see <head>) and, inside buildCharacter():           ║
- *  ║       new THREE.GLTFLoader().load('hanuman.glb', gltf => {               ║
- *  ║         const m = gltf.scene; rig.body.add(m);                           ║
- *  ║         rig.legL.hip  = m.getObjectByName('LeftUpLeg');   // bone names  ║
- *  ║         rig.legL.knee = m.getObjectByName('LeftLeg');     // depend on   ║
- *  ║         rig.armR.shoulder = m.getObjectByName('RightArm');// your rig    ║
- *  ║         rig.potli = m.getObjectByName('Potli'); ...                      ║
- *  ║       });                                                                ║
- *  ║     then retune the POSES angles to the bones' local axes.               ║
- *  ║                                                                          ║
- *  ║  2. OR skip POSES and play authored clips instead:                       ║
- *  ║       mixer = new THREE.AnimationMixer(m);                               ║
- *  ║       idle = mixer.clipAction(clip('Idle_Float'));                       ║
- *  ║       sit  = mixer.clipAction(clip('Padmasana_Sit'));                    ║
- *  ║       // in setMode('sadhna'): idle.crossFadeTo(sit, 1.5)                 ║
- *  ║       // in loop(): mixer.update(dt)                                      ║
- *  ║                                                                          ║
- *  ║  Keep root/body/potli as wrappers: the float bob, potli pulse, breathing ║
- *  ║  and camera framing all work on them unchanged.                          ║
- *  ╚══════════════════════════════════════════════════════════════════════════╝ */
-const Stage = (() => {
-  const api = { ready: false, setMode() {}, setView() {}, setBreath() {}, pulsePotli() {}, flash() {}, setExternalPulse() {}, setPaused() {} };
-  if (!window.THREE) return api;
-
-  let renderer;
-  try { renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, powerPreference: 'low-power' }); }
-  catch (_) { return api; }
-
-  const container = document.getElementById('stage');
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
-  renderer.setSize(innerWidth, innerHeight);
-  renderer.setClearColor(0x000000, 0);          // transparent: the CSS gradient is the ambient background
-  container.appendChild(renderer.domElement);
-
-  const scene = new THREE.Scene();
-  const camera = new THREE.PerspectiveCamera(35, innerWidth / innerHeight, 0.1, 200);
-
-  /* Lighting: warm sky, key light, saffron rim */
-  scene.add(new THREE.HemisphereLight(0xffe6c7, 0x2a1a10, 0.8));
-  const key = new THREE.DirectionalLight(0xffd6a8, 1.05); key.position.set(2.5, 4, 5); scene.add(key);
-  const rim = new THREE.DirectionalLight(0xff8a3d, 0.9); rim.position.set(-3, 2.5, -3.5); scene.add(rim);
-
-  const mat = (color, o = {}) => new THREE.MeshStandardMaterial(Object.assign({ color, flatShading: true, roughness: 0.72, metalness: 0 }, o));
-  const M = {
-    fur:     mat(0xD8642A),
-    furDark: mat(0xA9441A),
-    face:    mat(0xF1C08A),
-    dhoti:   mat(0xE9A93A),
-    sash:    mat(0xB8321B),
-    gold:    mat(0xE7B54C, { metalness: 0.35, roughness: 0.38, emissive: 0x3a2600 }),
-    eye:     mat(0x1a0f0a, { roughness: 0.4 }),
-    potli:   mat(0x9E1F2E, { roughness: 0.85, emissive: 0x1a0306 }),
-    pad:     mat(0x4E6B3A),
-    petal:   mat(0xF2B8A2, { emissive: 0x4a2418, side: THREE.DoubleSide }),
-    petalIn: mat(0xF8DCC8, { emissive: 0x4a3020, side: THREE.DoubleSide })
-  };
-  function box(w, h, d, m, x = 0, y = 0, z = 0) {
-    const mesh = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), m);
-    mesh.position.set(x, y, z); return mesh;
-  }
-  function radialTexture(stops) {
-    const c = document.createElement('canvas'); c.width = c.height = 128;
-    const g = c.getContext('2d'), grd = g.createRadialGradient(64, 64, 0, 64, 64, 64);
-    stops.forEach(([o, col]) => grd.addColorStop(o, col));
-    g.fillStyle = grd; g.fillRect(0, 0, 128, 128);
-    return new THREE.CanvasTexture(c);
-  }
-
-  const rig = {};
-
-  /* ── PLACEHOLDER CHARACTER ─────────────────────────────────────────────
-   * Blocky low-poly stand-in for the floating Hanuman asset.
-   * Hierarchy (each joint is a Group pivot so poses are plain rotations):
-   *   root (float bob) ─┬─ body (pose height) ─┬─ pelvis
-   *                     │                      ├─ spine ─┬─ torso, sash, necklace
-   *                     │                      │         ├─ neck ─ head ─ crown/mukut, halo
-   *                     │                      │         └─ shoulderL/R ─ elbow ─ hand
-   *                     │                      ├─ hipL/R ─ knee ─ ankle ─ foot
-   *                     │                      ├─ tail (9 chained segments)
-   *                     │                      └─ potli (Sadhna bead bag)
-   *                     └─ lotus seat (blooms when seated)                       */
-  function buildPlaceholderCharacter() {
-    const root = new THREE.Group(); scene.add(root);
-    const body = new THREE.Group(); root.add(body);
-
-    body.add(box(0.82, 0.32, 0.52, M.dhoti, 0, 0.02, 0));                   // pelvis / dhoti
-
-    const spine = new THREE.Group(); spine.position.y = 0.12; body.add(spine);
-    const torso = box(0.9, 1.0, 0.55, M.fur, 0, 0.5, 0); spine.add(torso);
-    const sash = box(0.12, 1.12, 0.585, M.sash, 0, 0.5, 0); sash.rotation.z = 0.6; spine.add(sash);  // janeu / sash
-    spine.add(box(0.64, 0.08, 0.6, M.gold, 0, 0.95, 0));                    // necklace
-    spine.add(box(0.94, 0.1, 0.6, M.gold, 0, 0.04, 0));                     // waist belt
-
-    // Head
-    const neck = new THREE.Group(); neck.position.y = 1.05; spine.add(neck);
-    const head = new THREE.Group(); head.position.y = 0.36; neck.add(head);
-    head.add(box(0.62, 0.6, 0.58, M.fur));
-    head.add(box(0.48, 0.26, 0.14, M.face, 0, -0.13, 0.33));                // muzzle
-    head.add(box(0.12, 0.06, 0.03, M.eye, 0, -0.04, 0.41));                 // nose
-    head.add(box(0.2, 0.025, 0.02, M.furDark, 0, -0.19, 0.405));            // mouth line
-    head.add(box(0.56, 0.08, 0.06, M.furDark, 0, 0.15, 0.3));               // brow
-    head.add(box(0.05, 0.1, 0.03, M.sash, 0, 0.245, 0.3));                  // tilak
-    const eyeL = box(0.09, 0.09, 0.04, M.eye, -0.14, 0.07, 0.3);
-    const eyeR = box(0.09, 0.09, 0.04, M.eye, 0.14, 0.07, 0.3);
-    head.add(eyeL, eyeR);
-    head.add(box(0.12, 0.2, 0.12, M.face, -0.36, 0.02, 0), box(0.12, 0.2, 0.12, M.face, 0.36, 0.02, 0));  // ears
-
-    // Mukut (crown): stacked tiers + pyramid spire + jewel
-    const crown = new THREE.Group(); crown.position.y = 0.3; head.add(crown);
-    crown.add(box(0.68, 0.12, 0.64, M.gold, 0, 0.06, 0));
-    crown.add(box(0.5, 0.16, 0.48, M.gold, 0, 0.2, 0));
-    crown.add(box(0.34, 0.16, 0.32, M.gold, 0, 0.36, 0));
-    const spire = new THREE.Mesh(new THREE.ConeGeometry(0.2, 0.42, 4), M.gold);
-    spire.position.y = 0.64; spire.rotation.y = Math.PI / 4; crown.add(spire);
-    crown.add(box(0.1, 0.1, 0.04, M.sash, 0, 0.07, 0.33));
-
-    // Halo behind the head
-    const halo = new THREE.Mesh(new THREE.TorusGeometry(0.62, 0.028, 6, 48),
-      new THREE.MeshBasicMaterial({ color: 0xF5B54A, transparent: true, opacity: 0.5 }));
-    halo.position.set(0, 0.15, -0.42); head.add(halo);
-
-    // Arms
-    function makeArm(side) {
-      const shoulder = new THREE.Group(); shoulder.position.set(0.58 * side, 0.92, 0); spine.add(shoulder);
-      shoulder.add(box(0.3, 0.26, 0.3, M.fur, 0, -0.05, 0));                // deltoid
-      shoulder.add(box(0.24, 0.55, 0.24, M.fur, 0, -0.3, 0));               // upper arm
-      shoulder.add(box(0.27, 0.07, 0.27, M.gold, 0, -0.2, 0));              // bajuband
-      const elbow = new THREE.Group(); elbow.position.y = -0.56; shoulder.add(elbow);
-      elbow.add(box(0.22, 0.48, 0.22, M.fur, 0, -0.24, 0));                 // forearm
-      elbow.add(box(0.25, 0.07, 0.25, M.gold, 0, -0.42, 0));                // kada
-      const hand = box(0.22, 0.2, 0.24, M.face, 0, -0.56, 0); elbow.add(hand);
-      return { shoulder, elbow, hand };
-    }
-    // Legs (hip uses YXZ so x folds the thigh forward, then y swings it outward)
-    function makeLeg(side) {
-      const hip = new THREE.Group(); hip.rotation.order = 'YXZ'; hip.position.set(0.24 * side, 0, 0); body.add(hip);
-      hip.add(box(0.32, 0.62, 0.32, M.dhoti, 0, -0.3, 0));                  // thigh
-      const knee = new THREE.Group(); knee.position.y = -0.6; hip.add(knee);
-      knee.add(box(0.25, 0.56, 0.25, M.fur, 0, -0.28, 0));                  // shin
-      knee.add(box(0.28, 0.06, 0.28, M.gold, 0, -0.5, 0));                  // anklet
-      const ankle = new THREE.Group(); ankle.position.y = -0.58; knee.add(ankle);
-      ankle.add(box(0.24, 0.12, 0.36, M.face, 0, -0.04, 0.08));             // foot
-      return { hip, knee, ankle };
-    }
-
-    // Tail: chained segments that curl up behind
-    const tail = new THREE.Group(); tail.position.set(0, 0.05, -0.3); body.add(tail);
-    const tailSegs = []; let parent = tail;
-    for (let i = 0; i < 9; i++) {
-      const seg = new THREE.Group(); seg.position.y = i === 0 ? 0 : 0.17; parent.add(seg);
-      seg.add(box(0.11 - i * 0.005, 0.18, 0.11 - i * 0.005, i === 8 ? M.furDark : M.fur, 0, 0.085, 0));
-      tailSegs.push(seg); parent = seg;
-    }
-    tailSegs[0].rotation.x = -2.3;
-
-    // Sadhna Potli — prayer-bead bag
-    const potli = new THREE.Group(); body.add(potli);
-    const bag = new THREE.Mesh(new THREE.IcosahedronGeometry(0.26, 1), M.potli); bag.scale.set(1, 0.9, 1); potli.add(bag);
-    const pNeck = new THREE.Mesh(new THREE.CylinderGeometry(0.07, 0.12, 0.14, 6), M.potli); pNeck.position.y = 0.25; potli.add(pNeck);
-    const tie = new THREE.Mesh(new THREE.TorusGeometry(0.09, 0.025, 5, 10), M.gold); tie.rotation.x = Math.PI / 2; tie.position.y = 0.26; potli.add(tie);
-    potli.add(box(0.04, 0.12, 0.04, M.gold, 0.08, 0.2, 0.08));               // tassel
-    [[-0.05, 0.36, 0.02], [0.04, 0.35, -0.03], [0, 0.4, 0.04]].forEach(p => {   // beads peeking out
-      const b = new THREE.Mesh(new THREE.IcosahedronGeometry(0.035, 0), M.gold); b.position.set(...p); potli.add(b);
-    });
-    const potliLight = new THREE.PointLight(0xff9a40, 0.2, 2.4); potliLight.position.y = 0.3; potli.add(potliLight);
-
-    // Lotus seat (scales/blooms in with the seated pose)
-    const lotus = new THREE.Group(); lotus.position.y = -0.46; root.add(lotus);
-    lotus.add(new THREE.Mesh(new THREE.CylinderGeometry(0.95, 0.75, 0.1, 10), M.pad));
-    const petals = [];
-    [[8, 0.52, 0.58, 0.3, M.petal, 0.12, 0.72], [8, 0.32, 0.46, 0.24, M.petalIn, 0.08, 0.36]].forEach(([n, r, len, w, m, closed, open], ring) => {
-      for (let i = 0; i < n; i++) {
-        const pivot = new THREE.Group(); pivot.rotation.y = (i + ring * 0.5) / n * Math.PI * 2; lotus.add(pivot);
-        const tilt = new THREE.Group(); tilt.position.set(0, 0.05, r); pivot.add(tilt);
-        const petal = new THREE.Mesh(new THREE.ConeGeometry(w, len, 4), m); petal.scale.z = 0.35; petal.position.y = len / 2; tilt.add(petal);
-        petals.push({ tilt, closed, open });
-      }
-    });
-    const pod = new THREE.Mesh(new THREE.CylinderGeometry(0.3, 0.25, 0.12, 8), M.gold); pod.position.y = 0.08; lotus.add(pod);
-
-    Object.assign(rig, {
-      root, body, spine, torso, neck, head, halo, eyes: [eyeL, eyeR],
-      armL: makeArm(-1), armR: makeArm(1), legL: makeLeg(-1), legR: makeLeg(1),
-      tailSegs, tailCurl: 0.25, potli, bag, potliLight, lotus, petals
-    });
-  }
-
-  function buildCharacter() {
-    // ↓↓↓ Swap this call for a GLTFLoader load that fills `rig` (see MODEL SWAP POINT above)
-    buildPlaceholderCharacter();
-  }
-  buildCharacter();
-
-  /* Environment: aura glow, floor yantra, rising golden motes */
-  const aura = new THREE.Sprite(new THREE.SpriteMaterial({
-    map: radialTexture([[0, 'rgba(255,255,255,1)'], [0.35, 'rgba(255,255,255,.35)'], [1, 'rgba(255,255,255,0)']]),
-    color: 0xff9a3c, transparent: true, opacity: 0.3, depthWrite: false, blending: THREE.AdditiveBlending
-  }));
-  aura.position.set(0, 1.0, -0.8); aura.scale.set(5, 5, 1); rig.root.add(aura);
-
-  const yantra = new THREE.Group(); yantra.position.y = -1.45; yantra.rotation.x = -Math.PI / 2; scene.add(yantra);
-  const yMat = new THREE.MeshBasicMaterial({ color: 0xE7B54C, transparent: true, opacity: 0.22, side: THREE.DoubleSide, depthWrite: false });
-  yantra.add(new THREE.Mesh(new THREE.RingGeometry(1.55, 1.58, 72), yMat));
-  yantra.add(new THREE.Mesh(new THREE.RingGeometry(1.85, 1.865, 72), yMat));
-  [0, Math.PI / 4].forEach(r => { const sq = new THREE.Mesh(new THREE.RingGeometry(1.3, 1.33, 4, 1), yMat); sq.rotation.z = r; yantra.add(sq); });
-
-  const P = 140, pPos = new Float32Array(P * 3), pSpd = new Float32Array(P);
-  for (let i = 0; i < P; i++) {
-    pPos[i * 3] = (Math.random() - 0.5) * 10; pPos[i * 3 + 1] = Math.random() * 8 - 3; pPos[i * 3 + 2] = (Math.random() - 0.5) * 6 - 1;
-    pSpd[i] = 0.08 + Math.random() * 0.22;
-  }
-  const pGeo = new THREE.BufferGeometry(); pGeo.setAttribute('position', new THREE.BufferAttribute(pPos, 3));
-  const motes = new THREE.Points(pGeo, new THREE.PointsMaterial({
-    size: 0.07, map: radialTexture([[0, 'rgba(255,255,255,1)'], [1, 'rgba(255,255,255,0)']]),
-    color: 0xffc27a, transparent: true, opacity: 0.75, depthWrite: false, blending: THREE.AdditiveBlending
-  }));
-  scene.add(motes);
-
-  /* ── POSES ─────────────────────────────────────────────────────────────
-   * Euler angles (radians) per joint: [x, y, z]. `lotus` doubles as a 0→1 "seatedness" weight. */
-  const POSES = {
-    float: {
-      bodyY: 0.25, lean: 0, headX: -0.04, eyes: 1, lotus: 0, tailCurl: 0.24,
-      hipL: [-0.28, 0, -0.06], hipR: [-0.12, 0, 0.07],
-      kneeL: [0.55, 0, 0], kneeR: [0.38, 0, 0],
-      ankleL: [0.25, 0, 0], ankleR: [0.2, 0, 0],
-      shL: [-0.12, 0, -0.2], shR: [-0.4, 0, 0.14],
-      elL: [-0.35, 0, 0], elR: [-0.5, 0, 0],
-      potli: [0.7, -0.22, 0.6]
-    },
-    padmasana: {
-      bodyY: 0, lean: 0.06, headX: 0.16, eyes: 0.12, lotus: 1, tailCurl: 0.3,
-      hipL: [-1.45, -0.45, 0], hipR: [-1.45, 0.45, 0],
-      kneeL: [-0.18, 0, 2.3], kneeR: [0.06, 0, -2.3],
-      ankleL: [-0.3, 0, 0], ankleR: [-0.3, 0, 0],
-      shL: [-0.15, 0.7, -0.1], shR: [-0.15, -0.7, 0.1],
-      elL: [-1.3, 0, 0], elR: [-1.3, 0, 0],
-      potli: [0, 0.32, 0.56]
-    }
-  };
-  const clonePose = p => JSON.parse(JSON.stringify(p));
-  const lerpPose = (a, b, k) => {
-    const o = {};
-    for (const key in a) o[key] = Array.isArray(a[key]) ? a[key].map((v, i) => v + (b[key][i] - v) * k) : a[key] + (b[key] - a[key]) * k;
-    return o;
-  };
-  const easeInOut = k => (k < 0.5 ? 4 * k * k * k : 1 - Math.pow(-2 * k + 2, 3) / 2);
-  const setRot = (o, r) => o.rotation.set(r[0], r[1], r[2], o.rotation.order);
-
-  let pose = clonePose(POSES.float), poseName = 'float', trans = null;
-  function goToPose(name, ms) {
-    if (poseName === name && !trans) return;
-    poseName = name;
-    trans = { from: clonePose(pose), to: POSES[name], start: performance.now(), dur: ms };
-  }
-  function applyPose(p) {
-    rig.body.position.y = p.bodyY;
-    rig.spine.rotation.x = p.lean;
-    rig.neck.rotation.x = p.headX;
-    setRot(rig.legL.hip, p.hipL);     setRot(rig.legR.hip, p.hipR);
-    setRot(rig.legL.knee, p.kneeL);   setRot(rig.legR.knee, p.kneeR);
-    setRot(rig.legL.ankle, p.ankleL); setRot(rig.legR.ankle, p.ankleR);
-    setRot(rig.armL.shoulder, p.shL); setRot(rig.armR.shoulder, p.shR);
-    setRot(rig.armL.elbow, p.elL);    setRot(rig.armR.elbow, p.elR);
-    rig.potli.position.set(p.potli[0], p.potli[1], p.potli[2]);
-    rig.eyes.forEach(e => { e.scale.y = p.eyes; });
-    rig.lotus.scale.setScalar(Math.max(0.001, p.lotus));
-    rig.petals.forEach(pt => { pt.tilt.rotation.x = pt.closed + (pt.open - pt.closed) * p.lotus; });
-    rig.tailCurl = p.tailCurl;
-  }
-
-  /* ── CAMERA FRAMING ────────────────────────────────────────────────────
-   * Each view places the character inside a vertical band of the screen
-   * [top, bottom] at horizontal position x (fractions of the viewport).   */
-  const FRAMES = {
-    setup:         { tall: [0.11, 0.40, 0.5], wide: [0.14, 0.86, 0.32] },
-    active:        { tall: [0.19, 0.60, 0.5], wide: [0.19, 0.62, 0.5] },
-    'active-lock': { tall: [0.32, 0.63, 0.5], wide: [0.3, 0.63, 0.5] },
-    breath:        { tall: [0.17, 0.44, 0.5], wide: [0.14, 0.86, 0.3] },
-    complete:      { tall: [0.10, 0.38, 0.5], wide: [0.14, 0.86, 0.32] }
-  };
-  const EXTENT = { float: [-1.1, 3.0], padmasana: [-0.62, 2.75] };   // character's world-space height span
-  let viewName = 'setup';
-  const camTgt = { x: 0, y: 0.8, z: 14 }, camCur = { x: 0, y: 0.8, z: 22 };
-  function computeTarget() {
-    const a = innerWidth / innerHeight;
-    const f = FRAMES[viewName][WIDE_MQ.matches ? 'wide' : 'tall'];
-    const [yb, yt] = EXTENT[poseName];
-    const tanH = Math.tan(THREE.MathUtils.degToRad(camera.fov / 2));
-    let H = (yt - yb) / (f[1] - f[0]);
-    H = Math.max(H, 3.0 / (0.9 * a));                       // keep it inside narrow screens too
-    camTgt.z = H / (2 * tanH);
-    camTgt.y = yt + f[0] * H - H / 2;
-    camTgt.x = (0.5 - f[2]) * H * a;
-  }
-  computeTarget();
-  camCur.x = camTgt.x; camCur.y = camTgt.y;
-
-  /* ── STATE & LOOP ─────────────────────────────────────────────────────── */
-  let mode = 'float', externalPulse = false, paused = false;
-  let pulse = 0, pulseClock = 0, breath = 0, flashV = 0, t = 0;
-  const clock = new THREE.Clock();
-
-  function loop() {
-    requestAnimationFrame(loop);
-    const dt = Math.min(clock.getDelta(), 0.05); t += dt;
-
-    if (trans) {
-      const k = Math.min(1, (performance.now() - trans.start) / trans.dur);
-      pose = lerpPose(trans.from, trans.to, easeInOut(k));
-      if (k >= 1) trans = null;
-    }
-    applyPose(pose);
-    const seat = pose.lotus, idle = 1 - seat;
-
-    // Floating: gentle sine bob on Y, slow sway (smaller once seated)
-    const bob = REDUCED_MOTION ? 0.03 : 0.06 + 0.08 * idle;
-    rig.root.position.y = Math.sin(t * 0.85) * bob;
-    rig.root.rotation.y = Math.sin(t * 0.21) * (0.06 + 0.16 * idle);
-    rig.root.rotation.z = Math.sin(t * 0.63) * 0.025 * (0.3 + idle);
-
-    // Idle limb drift (fades out as he sits)
-    rig.armL.shoulder.rotation.x += Math.sin(t * 0.9) * 0.05 * idle;
-    rig.armR.shoulder.rotation.x += Math.sin(t * 0.9 + 1.2) * 0.04 * idle;
-    rig.legL.knee.rotation.x += Math.sin(t * 0.8) * 0.07 * idle;
-    rig.legR.knee.rotation.x += Math.sin(t * 0.8 + 0.7) * 0.07 * idle;
-
-    // Tail sway
-    for (let i = 1; i < rig.tailSegs.length; i++) {
-      rig.tailSegs[i].rotation.x = rig.tailCurl + Math.sin(t * 1.3 - i * 0.5) * 0.05;
-      rig.tailSegs[i].rotation.z = Math.sin(t * 0.9 - i * 0.45) * 0.12;
-    }
-
-    // Potli: pulses as if beads are being turned; right hand twitches with each bead
-    if (mode === 'sadhna' && !externalPulse && !paused) {
-      pulseClock += dt;
-      if (pulseClock > 1.6) { pulseClock = 0; pulse = 1; }
-    }
-    pulse *= Math.exp(-dt * 5.5);
-    const ps = 1 + 0.1 * pulse;
-    rig.bag.scale.set(ps, 0.9 * (1 + 0.05 * pulse), ps);
-    rig.potli.rotation.y = Math.sin(t * 0.5) * 0.15 + pulse * 0.14;
-    rig.armR.elbow.rotation.x -= 0.14 * pulse * seat;
-    rig.armR.shoulder.rotation.y -= 0.08 * pulse * seat;
-    rig.armL.elbow.rotation.x += 0.05 * pulse * seat;
-    rig.potliLight.intensity = 0.2 + 0.9 * pulse * seat + 0.4 * flashV;
-
-    // Breathing: subtle always, full amplitude in Pranayama
-    const b = mode === 'breath' ? breath : 0.5 + 0.5 * Math.sin(t * 1.1);
-    const bAmp = mode === 'breath' ? 1 : 0.3;
-    rig.torso.scale.set(1 + 0.035 * b * bAmp, 1 + 0.02 * b * bAmp, 1 + 0.07 * b * bAmp);
-
-    // Halo, aura, yantra
-    flashV *= Math.exp(-dt * 1.4);
-    rig.halo.rotation.z += dt * 0.15;
-    rig.halo.material.opacity = 0.32 + 0.25 * seat + 0.4 * flashV + (mode === 'breath' ? 0.2 * breath : 0);
-    aura.material.opacity = 0.22 + 0.18 * seat + 0.35 * flashV + (mode === 'breath' ? 0.15 * breath : 0);
-    const as = 5 + (mode === 'breath' ? 0.8 * breath : 0) + 0.6 * flashV;
-    aura.scale.set(as, as, 1);
-    yantra.rotation.z += dt * 0.03;
-    yantra.position.y = -1.45 + 0.6 * seat;
-    yMat.opacity = 0.14 + 0.14 * seat;
-
-    // Rising motes
-    const arr = pGeo.attributes.position.array;
-    for (let i = 0; i < P; i++) {
-      arr[i * 3 + 1] += pSpd[i] * dt;
-      arr[i * 3] += Math.sin(t * 0.5 + i) * 0.0015;
-      if (arr[i * 3 + 1] > 5) arr[i * 3 + 1] = -3;
-    }
-    pGeo.attributes.position.needsUpdate = true;
-
-    // Ease the camera toward the current view's framing
-    const k = 1 - Math.exp(-dt * 2.2);
-    camCur.x += (camTgt.x - camCur.x) * k; camCur.y += (camTgt.y - camCur.y) * k; camCur.z += (camTgt.z - camCur.z) * k;
-    camera.position.set(camCur.x, camCur.y + camCur.z * 0.06, camCur.z);
-    camera.lookAt(camCur.x, camCur.y, 0);
-
-    renderer.render(scene, camera);
-  }
-
-  addEventListener('resize', () => {
-    renderer.setSize(innerWidth, innerHeight);
-    camera.aspect = innerWidth / innerHeight; camera.updateProjectionMatrix();
-    computeTarget();
-  });
-
-  /* ── PUBLIC API ───────────────────────────────────────────────────────── */
-  api.ready = true;
-  api.setMode = m => {          // 'float' | 'sadhna' | 'breath'
-    mode = m;
-    goToPose(m === 'float' ? 'float' : 'padmasana', 1500);     // 1.5 s padmasana transition
-    computeTarget();
-  };
-  api.setView = v => { viewName = v; computeTarget(); };
-  api.setBreath = v => { breath = v; };
-  api.pulsePotli = (s = 1) => { pulse = Math.max(pulse, s); };
-  api.flash = () => { flashV = 1; };
-  api.setExternalPulse = v => { externalPulse = v; };
-  api.setPaused = v => { paused = v; };
-  api._debug = { rig, camera, POSES };
-
-  loop();
-  return api;
-})();
+/* ───────────────────────── 4 · STAGE ─────────────────────────
+ * The 3D placeholder Hanuman was replaced by the colour-keyed video Hanuman
+ * (see VideoHanuman in section 5). This stub keeps the session's Stage.* calls harmless. */
+const Stage = { ready: true, setMode() {}, setView() {}, setBreath() {}, pulsePotli() {}, flash() {}, setExternalPulse() {}, setPaused() {} };
 
 /* ───────────────────────── 5 · APP FLOW & UI ───────────────────────── */
 const views = { setup: $('#view-setup'), active: $('#view-active'), breath: $('#view-breath'), complete: $('#view-complete') };
@@ -1562,61 +1137,63 @@ document.addEventListener('visibilitychange', () => {
 WIDE_MQ.addEventListener && WIDE_MQ.addEventListener('change', () => dispatchEvent(new Event('resize')));
 
 /* ── Video Hanuman ─────────────────────────────────────────────────────
- * Setup shows a ping-pong loop of the clip's first second (frames 1→24→2).
- * Start Sadhna jumps the full clip to the loop's current frame and plays it
- * through once, then the video Hanuman dissolves and the 3D Hanuman appears. */
+ * Idle: ping-pong loop of the clip's first second (frames 1→24→2).
+ * Start Sadhna: the full clip (his turn) plays from the loop's current frame.
+ * Its last 8 frames are pre-blended into loop frame 11, so when it ends the
+ * up-down loop carries on from there without a jump. */
 const VideoHanuman = (() => {
   const wrap = $('#hv'), loop = $('#hv-loop'), full = $('#hv-full');
-  const FPS = 24, FWD = 24, LOOP_FRAMES = 46;
+  const FPS = 24, FWD = 24, LOOP_FRAMES = 46, RESUME = 11;   // full clip ends on loop index 10 → resume on 11
   // Safari and every iOS browser (WebKit) only render transparency from HEVC; the rest use VP9 WebM
   const ua = navigator.userAgent;
   const ext = /AppleWebKit/.test(ua) && !/Chrome|Chromium|Edg|OPR|Android/.test(ua) ? 'mov' : 'webm';
   loop.src = `assets/hanuman-loop.${ext}`;
   full.src = `assets/hanuman-full.${ext}`;
+  loop.muted = full.muted = true;
   let state = 'idle', timer = 0;
 
-  const handOver = () => { document.body.classList.remove('hv-on'); };
-  function vanish() {
-    if (state !== 'full') return;
-    state = 'gone'; clearTimeout(timer);
-    wrap.classList.add('gone'); handOver();
-    timer = setTimeout(() => { if (state === 'gone') { wrap.hidden = true; loop.pause(); full.pause(); } }, 950);
-  }
-  function showIdle() {
+  const showLoop = () => { wrap.classList.remove('playing'); full.pause(); };
+  const nudge = () => { if (state === 'idle' && loop.paused) loop.play().catch(() => {}); };
+
+  function resumeLoop() {
+    if (state !== 'turn') return;
     state = 'idle'; clearTimeout(timer);
-    full.pause();
-    wrap.hidden = false; void wrap.offsetWidth;
-    wrap.classList.remove('playing', 'gone');
-    document.body.classList.add('hv-on');
-    try { full.currentTime = 0; loop.currentTime = 0; } catch (_) {}
-    loop.play().catch(() => {});
+    try { loop.currentTime = (RESUME + 0.5) / FPS; } catch (_) {}
+    loop.play()
+      .then(() => { if (loop.requestVideoFrameCallback) loop.requestVideoFrameCallback(showLoop); else showLoop(); })
+      .catch(showLoop);
   }
   function playFull() {
     if (state !== 'idle') return;
-    state = 'full';
-    // same frame the loop is showing right now → seamless switch
-    const f = Math.round(loop.currentTime * FPS) % LOOP_FRAMES;
+    state = 'turn';
+    // jump the full clip to the frame the loop is showing right now → seamless switch
+    const f = Math.floor(loop.currentTime * FPS) % LOOP_FRAMES;
     const src = f < FWD ? f : LOOP_FRAMES - f;
-    try { full.currentTime = src / FPS; } catch (_) {}
-    const swap = () => { if (state === 'full') { wrap.classList.add('playing'); loop.pause(); } };
-    full.play().then(() => {
-      if (full.requestVideoFrameCallback) full.requestVideoFrameCallback(swap); else swap();
-    }).catch(vanish);
-    timer = setTimeout(vanish, ((full.duration || 6.6) - src / FPS) * 1000 + 1500);   // safety net if 'ended' never fires
+    try { full.currentTime = (src + 0.5) / FPS; } catch (_) {}
+    const swap = () => { if (state === 'turn') { wrap.classList.add('playing'); loop.pause(); } };
+    full.play()
+      .then(() => { if (full.requestVideoFrameCallback) full.requestVideoFrameCallback(swap); else swap(); })
+      .catch(() => { state = 'idle'; nudge(); });
+    timer = setTimeout(resumeLoop, ((full.duration || 6.6) - src / FPS) * 1000 + 1500);   // safety net if 'ended' never fires
   }
-  full.addEventListener('ended', vanish);
-  // keep the idle loop running even if the browser skipped autoplay
-  loop.muted = full.muted = true;
-  const nudge = () => { if (state === 'idle' && loop.paused) loop.play().catch(() => {}); };
+  // Back on setup: keep floating; if the turn was cut short, restart the loop
+  function showIdle() {
+    if (state === 'turn') {
+      state = 'idle'; clearTimeout(timer);
+      try { loop.currentTime = 0; } catch (_) {}
+      loop.play().catch(() => {});
+      showLoop();
+    } else nudge();
+  }
+
+  full.addEventListener('ended', resumeLoop);
   loop.addEventListener('canplay', nudge);
   document.addEventListener('visibilitychange', nudge);
   document.addEventListener('pointerdown', nudge, { capture: true });
-  loop.addEventListener('error', () => { state = 'off'; wrap.hidden = true; handOver(); });
   return { showIdle, playFull };
 })();
 
 /* Boot */
-if (!Stage.ready) $('#stage-fallback').hidden = false;
 refreshSetup();
 showView('setup');
 Stage.setView('setup');
