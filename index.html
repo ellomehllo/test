@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="hi">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
@@ -7,12 +7,12 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<title>Naam Jaap Sadhna</title>
+<title>नाम जप साधना · Naam Jaap</title>
 
-<!-- Fonts: Cormorant (display), Inter (UI), Tiro Devanagari (राम) -->
+<!-- Fonts: Hind (UI — Devanagari + Latin, very legible), Tiro Devanagari (decorative राम) -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600&family=Inter:wght@200;300;400;500;600&family=Tiro+Devanagari+Hindi&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Hind:wght@300;400;500;600;700&family=Tiro+Devanagari+Hindi&display=swap" rel="stylesheet">
 
 <!-- Tailwind (Play CDN) -->
 <script src="https://cdn.tailwindcss.com"></script>
@@ -28,8 +28,8 @@
           sindoor: '#B83A1B'
         },
         fontFamily: {
-          sans: ['Inter', 'system-ui', 'sans-serif'],
-          display: ['"Cormorant Garamond"', 'Georgia', 'serif'],
+          sans: ['Hind', 'system-ui', 'sans-serif'],
+          display: ['Hind', 'system-ui', 'sans-serif'],
           deva: ['"Tiro Devanagari Hindi"', 'serif']
         }
       }
@@ -73,7 +73,7 @@
   body[data-view="breath"] #backdrop { filter: brightness(.82) saturate(1.15); }
   /* ---------- Video Hanuman (idle ping-pong loop → full turn on Start → loop again) ---------- */
   #hv {
-    --size: min(88vw, 36dvh); --cx: 50vw; --top: calc(var(--safe-t) + 56px);
+    --size: min(80vw, 30dvh); --cx: 50vw; --top: calc(var(--safe-t) + 58px);
     position: fixed; z-index: 11; pointer-events: none;
     width: var(--size); height: var(--size); left: calc(var(--cx) - var(--size) / 2); top: var(--top);
     transition: width 1.5s cubic-bezier(.65,0,.35,1), height 1.5s cubic-bezier(.65,0,.35,1), left 1.5s cubic-bezier(.65,0,.35,1), top 1.5s cubic-bezier(.65,0,.35,1), opacity .9s ease, filter .9s ease, transform .9s ease;
@@ -82,9 +82,9 @@
   #hv-full { opacity: 0; }
   #hv.playing #hv-full { opacity: 1; }
   #hv.playing #hv-loop { opacity: 0; }
-  body[data-view="active"] #hv { --size: min(100vw, 60dvh); --top: 14dvh; }
-  body.locked #hv { --size: min(100vw, 50dvh); --top: 27dvh; }
-  body[data-view="breath"] #hv { --size: min(90vw, 40dvh); --top: calc(var(--safe-t) + 104px); }
+  body[data-view="active"] #hv { --size: min(100vw, 50dvh); --top: 16dvh; }
+  body.locked #hv { --size: min(100vw, 46dvh); --top: 26dvh; }
+  body[data-view="breath"] #hv { --size: min(90vw, 36dvh); --top: calc(var(--safe-t) + 100px); }
   @media (min-aspect-ratio: 11/10) and (min-width: 760px) {
     #hv { --size: min(80dvh, 46vw); --cx: 32vw; --top: calc(50dvh - var(--size) / 2); }
     body[data-view="active"] #hv { --size: min(64dvh, 60vw); --cx: 50vw; --top: 14dvh; }
@@ -261,6 +261,71 @@
   /* during a session, toasts sit on the divider between the character and the tally zone */
   body[data-view="active"] #toast, body[data-view="breath"] #toast { top: calc(50dvh - 22px); }
 
+  /* ════════ Simple UI layer: Hindi-first, big targets, high contrast ════════ */
+  body { font-family: 'Hind', system-ui, sans-serif; font-size: 16px; }
+  .scrim-top { position: absolute; top: 0; left: 0; right: 0; height: calc(var(--safe-t) + 150px); pointer-events: none;
+    background: linear-gradient(180deg, rgba(12,8,5,.78), rgba(12,8,5,.35) 60%, rgba(12,8,5,0)); }
+  .glow-text { text-shadow: 0 0 18px rgba(240,138,36,.55); }
+  .panel {
+    background: linear-gradient(180deg, rgba(40,28,19,.92), rgba(22,15,11,.96));
+    backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(240,138,36,.32); box-shadow: 0 -14px 50px rgba(0,0,0,.45);
+  }
+  .sheet { max-height: 66dvh; padding: 12px 16px calc(var(--safe-b) + 12px); }
+  .q { font-size: 17px; font-weight: 600; color: var(--cream); margin-bottom: 10px; line-height: 1.3; }
+  .hint { font-size: 13px; color: rgba(246,235,217,.7); }
+  .opt { position: relative; border: 1.5px solid rgba(246,235,217,.16); background: rgba(246,235,217,.05); }
+  .opt[aria-pressed="true"] { border: 2px solid var(--saffron); }
+  .opt[aria-pressed="true"]::after {
+    content: '✓'; position: absolute; top: 6px; right: 7px; width: 22px; height: 22px; border-radius: 50%;
+    background: var(--saffron); color: #1f140b; font-size: 14px; font-weight: 700; line-height: 22px; text-align: center;
+  }
+  .big-opt { min-height: 80px; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 10px 6px; }
+  .big-opt .num { font-size: 32px; font-weight: 700; line-height: 1; }
+  .big-opt .unit { font-size: 15px; font-weight: 500; margin-top: 2px; }
+  .big-opt .sub { font-size: 13px; color: rgba(246,235,217,.7); margin-top: 1px; }
+  .tile { min-height: 68px; display: flex; align-items: center; gap: 11px; padding: 10px 12px; text-align: left; }
+  .tile-ico { flex: none; width: 46px; height: 46px; border-radius: 50%; display: grid; place-items: center; font-size: 22px;
+    background: rgba(240,138,36,.14); color: var(--saffron); }
+  .tile-t { display: block; font-size: 17px; font-weight: 600; line-height: 1.2; }
+  .tile-s { display: block; font-size: 13px; color: rgba(246,235,217,.7); line-height: 1.25; margin-top: 2px; }
+  .more-btn { width: 100%; min-height: 54px; display: flex; align-items: center; gap: 10px; padding: 0 14px; border-radius: 16px;
+    border: 1.5px solid rgba(246,235,217,.16); background: rgba(246,235,217,.04); font-size: 16px; font-weight: 500; }
+  .more-btn svg.chev { margin-left: auto; transition: transform .25s; }
+  .more-btn[aria-expanded="true"] svg.chev { transform: rotate(180deg); }
+  .seg button { font-size: 15px; padding: 12px 0; color: rgba(246,235,217,.8); }
+  .btn-primary { min-height: 74px; padding: 12px 16px; border-radius: 20px; }
+  .lang-btn { flex: none; display: inline-flex; align-items: center; gap: 6px; min-height: 42px; padding: 0 14px; border-radius: 999px;
+    font-size: 15px; font-weight: 600; color: var(--cream); background: rgba(20,14,10,.65); border: 1.5px solid rgba(240,138,36,.55); }
+  .cap-btn { flex: none; width: 72px; display: flex; flex-direction: column; align-items: center; gap: 5px; color: var(--cream); }
+  .cap-ico { width: 54px; height: 54px; border-radius: 50%; display: grid; place-items: center;
+    background: rgba(20,14,10,.7); border: 1.5px solid rgba(246,235,217,.25); }
+  .cap-txt { font-size: 13.5px; font-weight: 500; line-height: 1.1; text-align: center; text-shadow: 0 1px 6px rgba(0,0,0,.8); }
+  .hold-cap { --p: 0; touch-action: none; -webkit-touch-callout: none; }
+  .hold-cap .cap-ico { border: none; padding: 3px;
+    background: conic-gradient(var(--saffron) calc(var(--p) * 1turn), rgba(246,235,217,.28) 0); }
+  .hold-cap .cap-ico > span { width: 100%; height: 100%; border-radius: 50%; display: grid; place-items: center; background: #1e1611; }
+  .time-bar { margin: 8px auto 0; height: 5px; width: 150px; border-radius: 99px; background: rgba(246,235,217,.18); overflow: hidden; }
+  #tally {
+    background: linear-gradient(0deg, rgba(240,138,36,.18), rgba(240,138,36,.05) 70%, rgba(240,138,36,0));
+    border-top: 2px dashed rgba(240,138,36,.55); border-radius: 30px 30px 0 0;
+  }
+  #tally::before { display: none; }
+  #tally:focus-visible { border-top-style: solid; }
+  .tally-label { position: absolute; top: 12px; left: 50%; transform: translateX(-50%); white-space: nowrap;
+    font-size: 15px; font-weight: 600; color: var(--cream); background: rgba(20,14,10,.6); padding: 5px 14px; border-radius: 999px; }
+  .jaap-wrap { width: 190px; height: 190px; }
+  #jaap-count { font-weight: 300; }
+  .stat { padding: 12px 14px; text-align: left; }
+  .stat .k { font-size: 14px; color: rgba(246,235,217,.75); }
+  .stat .v { font-size: 30px; font-weight: 600; line-height: 1.1; }
+  .side-lbl { font-size: 14px; letter-spacing: 0; text-transform: none; color: var(--cream); font-weight: 600; white-space: nowrap;
+    background: rgba(20,14,10,.7); padding: 2px 10px; border-radius: 999px; }
+  .side-lbl.on { background: var(--saffron); color: #1f140b; }
+  .breath-box::before { content: ''; position: absolute; inset: 9%; border-radius: 16px; background: rgba(20,14,10,.45); }
+  #toast { font-size: 15px; white-space: normal; line-height: 1.35; padding: 10px 18px; border-radius: 20px; max-width: min(92vw, 420px); width: max-content; }
+  @media (min-aspect-ratio: 11/10) and (min-width: 760px) { .sheet { max-height: 90dvh; } }
+
   @media (prefers-reduced-motion: reduce) {
     .view, #lockout { transition-duration: .01ms !important; }
     .ripple, #lockout::after { animation: none; }
@@ -278,219 +343,225 @@
 </div>
 
 <!-- ═════════════════════════ VIEW 1 · SETUP ═════════════════════════ -->
-<section id="view-setup" class="view is-on" aria-label="Sadhna setup">
-  <header class="absolute top-0 inset-x-0 px-5 pt-safe flex items-start justify-between gap-4">
-    <div class="flex items-center gap-3">
-      <span class="font-deva text-[30px] leading-none text-saffron drop-shadow-[0_0_18px_rgba(240,138,36,.45)]">राम</span>
-      <div>
-        <h1 class="font-display text-[22px] leading-none font-semibold tracking-wide">Naam Jaap Sadhna</h1>
-        <p class="text-[10px] uppercase tracking-[0.28em] text-cream/50 mt-1.5">Spiritual Pomodoro</p>
+<section id="view-setup" class="view is-on" aria-labelledby="app-title">
+  <div class="scrim-top" aria-hidden="true"></div>
+  <header class="absolute top-0 inset-x-0 px-4 pt-safe flex items-center justify-between gap-3">
+    <div class="flex items-center gap-2.5 min-w-0">
+      <span class="font-deva text-[36px] leading-none text-saffron glow-text" aria-hidden="true">राम</span>
+      <div class="min-w-0">
+        <h1 id="app-title" class="text-[21px] font-semibold leading-tight" data-t="appName">नाम जप साधना</h1>
+        <p id="lifetime" class="text-[14px] text-cream/85 leading-tight"></p>
       </div>
     </div>
-    <div id="lifetime" class="text-right text-[11px] leading-snug text-cream/55 pt-1"></div>
+    <button id="lang-btn" class="lang-btn" aria-label="भाषा बदलें / Change language">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.7 3.8 5.7 3.8 9s-1.3 6.3-3.8 9c-2.5-2.7-3.8-5.7-3.8-9S9.5 5.7 12 3z"/></svg>
+      <span id="lang-label">English</span>
+    </button>
   </header>
 
-  <div class="sheet glass">
+  <div class="sheet panel">
     <div class="sheet-grip" aria-hidden="true"></div>
-    <div class="sheet-scroll space-y-6">
+    <div class="sheet-scroll space-y-4">
 
       <div>
-        <h2 class="label">Session duration</h2>
+        <h2 class="q" data-t="howLong">कितनी देर जप करेंगे?</h2>
         <div class="grid grid-cols-3 gap-2.5" data-group="minutes">
-          <button class="opt px-3 py-3" data-value="12" aria-pressed="false">
-            <span class="block font-display text-[28px] leading-none font-semibold">12<span class="font-sans text-xs font-normal text-cream/55"> min</span></span>
-            <span class="block text-[11px] text-cream/55 mt-1.5">Laghu · brief</span>
-          </button>
-          <button class="opt px-3 py-3" data-value="24" aria-pressed="false">
-            <span class="block font-display text-[28px] leading-none font-semibold">24<span class="font-sans text-xs font-normal text-cream/55"> min</span></span>
-            <span class="block text-[11px] text-cream/55 mt-1.5">Madhya</span>
-          </button>
-          <button class="opt px-3 py-3" data-value="48" aria-pressed="false">
-            <span class="block font-display text-[28px] leading-none font-semibold">48<span class="font-sans text-xs font-normal text-cream/55"> min</span></span>
-            <span class="block text-[11px] text-cream/55 mt-1.5">Muhurta</span>
-          </button>
+          <button class="opt big-opt" data-value="12" aria-pressed="false"><span class="num">12</span><span class="unit" data-t="min">मिनट</span><span class="sub" data-t="d12">थोड़ा</span></button>
+          <button class="opt big-opt" data-value="24" aria-pressed="false"><span class="num">24</span><span class="unit" data-t="min">मिनट</span><span class="sub" data-t="d24">मध्यम</span></button>
+          <button class="opt big-opt" data-value="48" aria-pressed="false"><span class="num">48</span><span class="unit" data-t="min">मिनट</span><span class="sub" data-t="d48">लंबा</span></button>
         </div>
       </div>
 
       <div>
-        <div class="flex items-baseline justify-between">
-          <h2 class="label">Sound profile</h2>
-          <span class="text-[11px] text-cream/40">Tap to preview</span>
+        <div class="flex items-baseline justify-between gap-2">
+          <h2 class="q" data-t="whichSound">कौन सी ध्वनि चलेगी?</h2>
+          <span class="hint" data-t="tapToHear">छूकर सुनें</span>
         </div>
         <div class="grid grid-cols-2 gap-2.5" data-group="sound">
-          <button class="opt p-3 flex items-center gap-3" data-value="ram" aria-pressed="false">
-            <span class="opt-icon font-deva text-[13px]">राम</span>
-            <span class="min-w-0"><span class="block text-[14px] font-medium">Ram Ram</span><span class="block text-[11px] text-cream/50 leading-snug">Chant on the beat</span></span>
+          <button class="opt tile" data-value="ram" aria-pressed="false">
+            <span class="tile-ico font-deva" style="font-size:16px" aria-hidden="true">राम</span>
+            <span class="min-w-0"><span class="tile-t" data-t="sRam">राम राम</span><span class="tile-s" data-t="sRamSub">राम नाम की धुन</span></span>
           </button>
-          <button class="opt p-3 flex items-center gap-3" data-value="bead" aria-pressed="false">
-            <span class="opt-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="5" cy="15" r="2.6"/><circle cx="11" cy="10.5" r="2.6"/><circle cx="18" cy="9" r="2.6"/><path d="M7.3 13.6 8.8 12M13.5 9.9l2-.4"/></svg></span>
-            <span class="min-w-0"><span class="block text-[14px] font-medium">Bead Turning</span><span class="block text-[11px] text-cream/50 leading-snug">Wooden mala click</span></span>
+          <button class="opt tile" data-value="bead" aria-pressed="false">
+            <span class="tile-ico" aria-hidden="true">📿</span>
+            <span class="min-w-0"><span class="tile-t" data-t="sBead">माला</span><span class="tile-s" data-t="sBeadSub">मनकों की आवाज़</span></span>
           </button>
-          <button class="opt p-3 flex items-center gap-3" data-value="drone" aria-pressed="false">
-            <span class="opt-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="M2 12c2-5 4-5 6 0s4 5 6 0 4-5 6 0"/><path d="M2 17c2-2 4-2 6 0s4 2 6 0 4-2 6 0" opacity=".5"/></svg></span>
-            <span class="min-w-0"><span class="block text-[14px] font-medium leading-tight">Sadhna Vibrations</span><span class="block text-[11px] text-cream/50 leading-snug">Deep resonant drone</span></span>
+          <button class="opt tile" data-value="drone" aria-pressed="false">
+            <span class="tile-ico font-deva" style="font-size:26px" aria-hidden="true">ॐ</span>
+            <span class="min-w-0"><span class="tile-t" data-t="sDrone">ॐ गूँज</span><span class="tile-s" data-t="sDroneSub">गहरी शांत ध्वनि</span></span>
           </button>
-          <button class="opt p-3 flex items-center gap-3" data-value="mute" aria-pressed="false">
-            <span class="opt-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9.5h3.5L12 5.5v13l-4.5-4H4z"/><path d="m16 9.5 5 5m0-5-5 5"/></svg></span>
-            <span class="min-w-0"><span class="block text-[14px] font-medium">Mute</span><span class="block text-[11px] text-cream/50 leading-snug">Complete silence</span></span>
+          <button class="opt tile" data-value="mute" aria-pressed="false">
+            <span class="tile-ico" aria-hidden="true"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9.5h3.5L12 5.5v13l-4.5-4H4z"/><path d="m16 9.5 5 5m0-5-5 5"/></svg></span>
+            <span class="min-w-0"><span class="tile-t" data-t="sMute">शांत</span><span class="tile-s" data-t="sMuteSub">कोई आवाज़ नहीं</span></span>
           </button>
         </div>
       </div>
 
-      <div class="opt flex items-center gap-4 p-4">
-        <div class="flex-1 min-w-0">
-          <h2 class="text-[15px] font-medium flex items-center gap-2">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" class="text-saffron"><rect x="5" y="11" width="14" height="10" rx="2.5"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>
-            Dhyana Lockout
-          </h2>
-          <p class="text-xs text-cream/55 mt-1 leading-relaxed">Glass shield blocks stray touches, keeps the screen awake, and reminds you to switch on Do Not Disturb. Exit only by press-and-hold.</p>
-        </div>
-        <button id="lockout-switch" class="switch" role="switch" aria-checked="true" aria-label="Dhyana Lockout"></button>
-      </div>
+      <button id="more-btn" class="more-btn" aria-expanded="false" aria-controls="more-panel">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="text-saffron"><path d="M4 7h10M18 7h2M4 17h4M12 17h8"/><circle cx="16" cy="7" r="2"/><circle cx="10" cy="17" r="2"/></svg>
+        <span data-t="more">और विकल्प</span>
+        <svg class="chev" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="m6 9 6 6 6-6"/></svg>
+      </button>
 
-      <div>
-        <div class="flex items-baseline justify-between">
-          <h2 class="label">Vibration strength</h2>
-          <button id="vib-test" class="text-[12px] text-saffron/90 font-medium -mt-1 px-1">Test bell pattern</button>
+      <div id="more-panel" class="space-y-5" hidden>
+        <div class="opt flex items-center gap-4 p-4">
+          <div class="flex-1 min-w-0">
+            <h3 class="text-[17px] font-semibold flex items-center gap-2">
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="text-saffron"><rect x="5" y="11" width="14" height="10" rx="2.5"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>
+              <span data-t="lockTitle">स्क्रीन लॉक</span>
+            </h3>
+            <p class="text-[14px] text-cream/75 mt-1 leading-snug" data-t="lockSub">जप के समय गलती से छूने पर कुछ न बदले। बाहर जाने के लिए बटन दबाकर रखें।</p>
+          </div>
+          <button id="lockout-switch" class="switch" role="switch" aria-checked="true" data-t-aria="lockTitle" aria-label="स्क्रीन लॉक"></button>
         </div>
-        <div class="seg grid grid-cols-4" data-group="vib">
-          <button data-value="off" aria-pressed="false">Off</button>
-          <button data-value="gentle" aria-pressed="false">Gentle</button>
-          <button data-value="medium" aria-pressed="false">Medium</button>
-          <button data-value="strong" aria-pressed="false">Strong</button>
+
+        <div>
+          <div class="flex items-baseline justify-between gap-2">
+            <h3 class="q" data-t="vibTitle">कंपन (वाइब्रेशन)</h3>
+            <button id="vib-test" class="text-[15px] text-saffron font-semibold px-2 py-1" data-t="vibTest">जाँचें</button>
+          </div>
+          <div class="seg grid grid-cols-4" data-group="vib">
+            <button data-value="off" aria-pressed="false" data-t="vibOff">बंद</button>
+            <button data-value="gentle" aria-pressed="false" data-t="vibGentle">हल्का</button>
+            <button data-value="medium" aria-pressed="false" data-t="vibMedium">मध्यम</button>
+            <button data-value="strong" aria-pressed="false" data-t="vibStrong">तेज़</button>
+          </div>
+          <p id="vib-note" class="text-[13.5px] text-cream/70 mt-2 leading-snug"></p>
         </div>
-        <p id="vib-note" class="text-[11px] text-cream/45 mt-2 leading-relaxed"></p>
       </div>
     </div>
 
-    <div class="pt-4">
-      <button id="btn-start" class="btn-primary w-full rounded-2xl py-3.5">
-        <span class="block text-[17px] font-semibold tracking-wide">Start Sadhna</span>
-        <span id="start-sub" class="block text-[11.5px] opacity-70 mt-0.5"></span>
+    <div class="pt-3">
+      <button id="btn-start" class="btn-primary w-full">
+        <span class="block text-[23px] font-bold leading-tight">🙏 <span data-t="start">जप शुरू करें</span></span>
+        <span id="start-sub" class="block text-[14px] font-medium opacity-80 mt-0.5"></span>
       </button>
     </div>
   </div>
 </section>
 
-<!-- ═════════════════════════ VIEW 2 · ACTIVE SADHNA ═════════════════════════ -->
-<section id="view-active" class="view" aria-label="Active sadhna">
-  <div class="absolute top-0 inset-x-0 px-4 pt-safe flex items-start justify-between gap-3">
-    <button id="btn-pause" class="icon-btn" aria-label="Pause session">
-      <svg id="ico-pause" width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="5" width="4" height="14" rx="1.2"/><rect x="14" y="5" width="4" height="14" rx="1.2"/></svg>
-      <svg id="ico-play" width="18" height="18" viewBox="0 0 24 24" fill="currentColor" hidden><path d="M8 5.5v13a1 1 0 0 0 1.5.86l10.5-6.5a1 1 0 0 0 0-1.72L9.5 4.64A1 1 0 0 0 8 5.5z"/></svg>
+<!-- ═════════════════════════ VIEW 2 · JAAP IN PROGRESS ═════════════════════════ -->
+<section id="view-active" class="view" aria-label="जप">
+  <div class="scrim-top" aria-hidden="true"></div>
+  <div class="absolute top-0 inset-x-0 px-3 pt-safe flex items-start justify-between gap-2">
+    <button id="btn-pause" class="cap-btn" data-t-aria="pause" aria-label="रोकें">
+      <span class="cap-ico">
+        <svg id="ico-pause" width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="5" width="4" height="14" rx="1.2"/><rect x="14" y="5" width="4" height="14" rx="1.2"/></svg>
+        <svg id="ico-play" width="22" height="22" viewBox="0 0 24 24" fill="currentColor" hidden><path d="M8 5.5v13a1 1 0 0 0 1.5.86l10.5-6.5a1 1 0 0 0 0-1.72L9.5 4.64A1 1 0 0 0 8 5.5z"/></svg>
+      </span>
+      <span id="pause-label" class="cap-txt" data-t="pause">रोकें</span>
     </button>
-    <div class="text-center flex-1 min-w-0">
-      <div id="timer" class="tabular text-[56px] leading-none font-extralight tracking-tight" role="timer">24:00</div>
-      <div class="mx-auto mt-3 h-[3px] w-36 rounded-full bg-cream/10 overflow-hidden">
-        <div id="timer-bar" class="h-full rounded-full bg-gradient-to-r from-saffron to-gold" style="width:0%"></div>
-      </div>
-      <p id="active-status" class="mt-2.5 text-[10.5px] uppercase tracking-[0.26em] text-cream/55">Settling into Padmasana</p>
+    <div class="text-center flex-1 min-w-0 pt-1">
+      <div class="text-[14px] text-cream/85" data-t="remaining">बाकी समय</div>
+      <div id="timer" class="tabular text-[54px] leading-none font-light" role="timer">24:00</div>
+      <div class="time-bar"><div id="timer-bar" class="h-full rounded-full bg-gradient-to-r from-saffron to-gold" style="width:0%"></div></div>
+      <p id="active-status" class="mt-2 text-[15px] text-cream/90 leading-snug"></p>
     </div>
-    <button id="btn-end" class="hold-ring" data-hold="1200" aria-label="Press and hold to end the session">
-      <span class="hold-ring-inner"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg></span>
+    <button id="btn-end" class="cap-btn hold-cap" data-hold="1200" data-t-aria="holdEnd" aria-label="जप बंद करने के लिए दबाकर रखें">
+      <span class="cap-ico"><span><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg></span></span>
+      <span class="cap-txt" data-t="end">बंद करें</span>
     </button>
   </div>
 </section>
 
-<!-- ═════════════════════════ DHYANA LOCKOUT OVERLAY ═════════════════════════ -->
-<div id="lockout" role="region" aria-label="Dhyana Lockout active" aria-hidden="true">
+<!-- ═════════════════════════ SCREEN LOCK OVERLAY ═════════════════════════ -->
+<div id="lockout" role="region" aria-label="स्क्रीन लॉक" aria-hidden="true">
   <div class="frost"></div>
   <div class="relative px-4 pt-safe flex flex-col items-center text-center">
-    <div class="glass rounded-[26px] px-5 pt-4 pb-4 w-full max-w-sm">
-      <p class="text-[10px] uppercase tracking-[0.32em] text-saffron flex items-center justify-center gap-1.5">
-        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="11" width="14" height="10" rx="2.5"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>
-        Dhyana Lockout
+    <div class="panel rounded-[24px] px-5 pt-3.5 pb-4 w-full max-w-sm">
+      <p class="text-[14px] text-saffron font-semibold flex items-center justify-center gap-1.5">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="11" width="14" height="10" rx="2.5"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>
+        <span data-t="lockTag">स्क्रीन लॉक है</span>
       </p>
-      <h2 class="font-display text-[23px] leading-tight mt-1.5 font-semibold">Sadhna Active — Pure Devotional Focus</h2>
-      <div class="flex items-center justify-between gap-3 mt-3.5">
-        <div class="text-left">
-          <div id="lock-timer" class="tabular text-[32px] font-extralight leading-none">24:00</div>
-          <div class="text-[9.5px] uppercase tracking-[0.24em] text-cream/45 mt-1.5">remaining</div>
-        </div>
-        <button id="btn-abandon" class="hold-pill" data-hold="2600" aria-label="Press and hold for about three seconds to abandon sadhna">
-          <span class="hold-fill"></span><span class="relative">Hold to Abandon Sadhna</span>
-        </button>
+      <h2 class="text-[22px] leading-tight mt-1 font-semibold" data-t="lockHead">जप चल रहा है 🙏</h2>
+      <div class="flex items-center justify-center gap-2 mt-2">
+        <span class="text-[14px] text-cream/80" data-t="remaining">बाकी समय</span>
+        <span id="lock-timer" class="tabular text-[30px] font-light leading-none">24:00</span>
       </div>
+      <button id="btn-abandon" class="hold-pill w-full mt-3" data-hold="2600" data-t-aria="lockHold" aria-label="बाहर जाने के लिए दबाकर रखें">
+        <span class="hold-fill"></span><span class="relative text-[15px]" data-t="lockHold">बाहर जाने के लिए दबाकर रखें</span>
+      </button>
     </div>
-    <p class="mt-3 inline-flex items-center gap-2 text-[11.5px] text-cream/70 px-3.5 py-2 rounded-full bg-charcoal/40 border border-cream/10">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"/></svg>
-      Turn on Do Not Disturb to silence calls
+    <p class="mt-2.5 inline-flex items-center gap-2 text-[14px] text-cream/90 px-4 py-2 rounded-full bg-charcoal/70 border border-cream/15">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"/></svg>
+      <span data-t="dnd">फ़ोन को "Do Not Disturb" पर रखें</span>
     </p>
   </div>
 </div>
 
-<!-- ═════════════════════════ NAAM JAAP TALLY (shared by Active + Lockout) ═════════════════════════ -->
-<button id="tally" hidden aria-label="Count one Naam Jaap. Tap the lower half of the screen, or press Space."></button>
+<!-- ═════════════════════════ NAAM JAAP COUNTER (shared by jaap screen + screen lock) ═════════════════════════ -->
+<button id="tally" hidden data-t-aria="tallyAria" aria-label="एक नाम जप गिनें"></button>
 <div id="jaap-hud" hidden>
   <div class="jaap-wrap">
     <svg viewBox="0 0 180 180" aria-hidden="true">
-      <circle cx="90" cy="90" r="82" fill="rgba(23,18,14,.35)" stroke="rgba(246,235,217,.10)" stroke-width="3"/>
-      <circle id="mala-ring" cx="90" cy="90" r="82" fill="none" stroke="url(#ringGrad)" stroke-width="3.5" stroke-linecap="round" stroke-dasharray="515.2" stroke-dashoffset="515.2"/>
+      <circle cx="90" cy="90" r="82" fill="rgba(20,14,10,.55)" stroke="rgba(246,235,217,.16)" stroke-width="4"/>
+      <circle id="mala-ring" cx="90" cy="90" r="82" fill="none" stroke="url(#ringGrad)" stroke-width="5" stroke-linecap="round" stroke-dasharray="515.2" stroke-dashoffset="515.2"/>
       <defs><linearGradient id="ringGrad" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#F7B267"/><stop offset="1" stop-color="#D9651A"/></linearGradient></defs>
     </svg>
     <div class="jaap-center">
-      <div class="text-[9.5px] uppercase tracking-[0.32em] text-cream/55">Naam Jaap</div>
-      <div id="jaap-count" class="tabular text-[58px] leading-none font-extralight mt-1">0</div>
-      <div id="mala-line" class="text-[11px] text-cream/60 mt-1.5 tabular">Mala 0 · 0/108</div>
+      <div class="text-[15px] text-cream/85 font-medium" data-t="jaap">नाम जप</div>
+      <div id="jaap-count" class="tabular text-[62px] leading-none mt-0.5">0</div>
+      <div id="mala-line" class="text-[14px] text-cream/85 mt-1 tabular">माला 0 · 0/108</div>
     </div>
   </div>
-  <p id="tally-hint" class="mt-3 text-[11.5px] tracking-wide text-cream/50">Tap anywhere in the lower half to count each Naam</p>
+  <p id="tally-hint" class="mt-2.5 text-[15px] font-medium text-cream px-4 py-1.5 rounded-full bg-charcoal/60">👆 <span data-t="tapZone">हर नाम पर नीचे कहीं भी छूएँ</span></p>
 </div>
 <div id="sr-live" class="sr-only" aria-live="polite"></div>
 
-<!-- ═════════════════════════ VIEW 3 · PRANAYAMA PAUSE ═════════════════════════ -->
-<section id="view-breath" class="view" aria-label="Pranayama box breathing">
+<!-- ═════════════════════════ VIEW 3 · PRANAYAMA ═════════════════════════ -->
+<section id="view-breath" class="view" aria-label="प्राणायाम">
+  <div class="scrim-top" aria-hidden="true"></div>
   <div class="absolute top-0 inset-x-0 px-5 pt-safe flex items-start justify-between gap-4">
-    <div>
-      <p class="text-[10px] uppercase tracking-[0.3em] text-saffron">Pranayama Pause</p>
-      <h2 class="font-display text-[24px] leading-tight font-semibold mt-1">Sama Vritti · Box Breath</h2>
-      <p class="text-[11.5px] text-cream/55 mt-0.5">4 in · 4 hold · 4 out · 4 hold</p>
+    <div class="min-w-0">
+      <p class="text-[15px] text-saffron font-semibold" data-t="breathTag">प्राणायाम</p>
+      <h2 class="text-[24px] leading-tight font-semibold" data-t="breathHead">साँस पर ध्यान</h2>
+      <p class="text-[14px] text-cream/80 leading-snug" data-t="breathSub">4 गिनती साँस लें · 4 रोकें · 4 छोड़ें · 4 रोकें</p>
     </div>
-    <div class="text-right pt-1">
-      <div id="b-remaining" class="tabular text-[30px] font-extralight leading-none">5:00</div>
-      <div id="b-cycles" class="text-[9.5px] uppercase tracking-[0.24em] text-cream/45 mt-1.5">Cycle 1</div>
+    <div class="text-right pt-1 flex-none">
+      <div id="b-remaining" class="tabular text-[30px] font-light leading-none">5:00</div>
+      <div id="b-cycles" class="text-[13px] text-cream/75 mt-1">चक्र 1</div>
     </div>
   </div>
   <div class="breath-panel">
     <div class="breath-box">
       <div id="b-orb"></div>
       <svg viewBox="0 0 200 200" class="absolute inset-0 w-full h-full overflow-visible" aria-hidden="true">
-        <path d="M20 180 V20 H180 V180 Z" fill="none" stroke="rgba(246,235,217,.14)" stroke-width="2" stroke-linejoin="round"/>
-        <path id="b-trace" d="M20 180 V20 H180 V180 Z" fill="none" stroke="#F08A24" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round" stroke-dasharray="640" stroke-dashoffset="640"/>
-        <circle id="b-dot" cx="20" cy="180" r="6.5" fill="#F7B267" style="filter: drop-shadow(0 0 8px rgba(240,138,36,.9))"/>
+        <path d="M20 180 V20 H180 V180 Z" fill="none" stroke="rgba(246,235,217,.22)" stroke-width="2.5" stroke-linejoin="round"/>
+        <path id="b-trace" d="M20 180 V20 H180 V180 Z" fill="none" stroke="#F08A24" stroke-width="3.5" stroke-linejoin="round" stroke-linecap="round" stroke-dasharray="640" stroke-dashoffset="640"/>
+        <circle id="b-dot" cx="20" cy="180" r="8" fill="#F7B267" style="filter: drop-shadow(0 0 8px rgba(240,138,36,.9))"/>
       </svg>
-      <span class="side-lbl" data-side="0" style="left:-6px; top:50%; transform:translate(-100%,-50%) rotate(-90deg) translateY(-50%); transform-origin:right center;">Inhale</span>
-      <span class="side-lbl" data-side="1" style="top:-4px; left:50%; transform:translate(-50%,-100%);">Hold</span>
-      <span class="side-lbl" data-side="2" style="right:-6px; top:50%; transform:translate(100%,-50%) rotate(90deg) translateY(-50%); transform-origin:left center;">Exhale</span>
-      <span class="side-lbl" data-side="3" style="bottom:-4px; left:50%; transform:translate(-50%,100%);">Hold</span>
+      <span class="side-lbl" data-side="0" data-t="sIn" style="left:-8px; top:50%; transform:translate(-100%,-50%);">लें</span>
+      <span class="side-lbl" data-side="1" data-t="sHold" style="top:-6px; left:50%; transform:translate(-50%,-100%);">रोकें</span>
+      <span class="side-lbl" data-side="2" data-t="sOut" style="right:-8px; top:50%; transform:translate(100%,-50%);">छोड़ें</span>
+      <span class="side-lbl" data-side="3" data-t="sHold" style="bottom:-6px; left:50%; transform:translate(-50%,100%);">रोकें</span>
       <div class="absolute inset-0 flex flex-col items-center justify-center">
-        <div id="b-phase" class="font-display text-[30px] font-semibold leading-none">Inhale</div>
-        <div id="b-count" class="tabular text-[44px] font-extralight leading-none mt-2">4</div>
+        <div id="b-phase" class="text-[28px] font-semibold leading-none">साँस लें</div>
+        <div id="b-count" class="tabular text-[52px] font-light leading-none mt-2">4</div>
       </div>
     </div>
-    <p id="b-hint" class="mt-7 text-[13.5px] text-cream/75 text-center min-h-[20px]" aria-live="polite">Puraka — draw the breath in slowly</p>
-    <button id="b-skip" class="mt-3 text-[11px] uppercase tracking-[0.22em] text-cream/45 px-3 py-2">Complete sadhna now</button>
+    <p id="b-hint" class="mt-10 text-[17px] font-medium text-cream/90 text-center min-h-[24px]" aria-live="polite"></p>
+    <button id="b-skip" class="mt-3 text-[15px] text-cream/85 px-5 py-2.5 rounded-full border border-cream/25 bg-charcoal/50" data-t="skip">प्राणायाम छोड़ें, पूरा करें</button>
   </div>
 </section>
 
 <!-- ═════════════════════════ VIEW 4 · COMPLETE ═════════════════════════ -->
-<section id="view-complete" class="view" aria-label="Sadhna complete">
-  <div class="sheet glass">
+<section id="view-complete" class="view" aria-label="साधना पूर्ण">
+  <div class="sheet panel">
     <div class="sheet-grip" aria-hidden="true"></div>
     <div class="sheet-scroll text-center">
-      <p class="text-[10px] uppercase tracking-[0.32em] text-saffron">Sadhna Sampurna</p>
-      <p class="font-deva text-[34px] leading-tight mt-2 text-cream">जय श्री राम</p>
-      <p class="text-[13px] text-cream/60 mt-1">Sit for a moment before you rise.</p>
-      <div class="grid grid-cols-2 gap-2.5 mt-5 text-left">
-        <div class="opt p-3.5"><div class="label !mb-1">Naam Jaap</div><div id="c-jaap" class="tabular text-[28px] font-extralight leading-none">0</div></div>
-        <div class="opt p-3.5"><div class="label !mb-1">Malas</div><div id="c-mala" class="tabular text-[28px] font-extralight leading-none">0</div></div>
-        <div class="opt p-3.5"><div class="label !mb-1">Japa minutes</div><div id="c-min" class="tabular text-[28px] font-extralight leading-none">0</div></div>
-        <div class="opt p-3.5"><div class="label !mb-1">Breath cycles</div><div id="c-cycles" class="tabular text-[28px] font-extralight leading-none">0</div></div>
+      <p class="text-[15px] text-saffron font-semibold" data-t="doneTag">साधना पूर्ण 🙏</p>
+      <p class="font-deva text-[38px] leading-tight mt-1 text-cream glow-text">जय श्री राम</p>
+      <p class="text-[15px] text-cream/80 mt-1" data-t="doneSub">उठने से पहले एक पल शांत बैठें।</p>
+      <div class="grid grid-cols-2 gap-2.5 mt-4">
+        <div class="opt stat"><div class="k" data-t="cJaap">नाम जप</div><div id="c-jaap" class="v tabular">0</div></div>
+        <div class="opt stat"><div class="k" data-t="cMala">माला</div><div id="c-mala" class="v tabular">0</div></div>
+        <div class="opt stat"><div class="k" data-t="cMin">मिनट जप</div><div id="c-min" class="v tabular">0</div></div>
+        <div class="opt stat"><div class="k" data-t="cCycles">साँस चक्र</div><div id="c-cycles" class="v tabular">0</div></div>
       </div>
-      <p id="c-life" class="text-[11.5px] text-cream/50 mt-4"></p>
+      <p id="c-life" class="text-[14px] text-cream/75 mt-3"></p>
     </div>
-    <div class="pt-4">
-      <button id="btn-again" class="btn-primary w-full rounded-2xl py-3.5 text-[16px] font-semibold tracking-wide">Return to Setup</button>
+    <div class="pt-3">
+      <button id="btn-again" class="btn-primary w-full text-[20px] font-bold" data-t="again">वापस शुरुआत पर</button>
     </div>
   </div>
 </section>
@@ -523,7 +594,68 @@ const Store = {
   write(d) { try { localStorage.setItem(this.KEY, JSON.stringify(d)); } catch (_) { /* private mode — fine */ } }
 };
 const saved = Store.read();
-const settings = Object.assign({ minutes: 24, sound: 'ram', lockout: true, vib: 'medium' }, saved.settings);
+const settings = Object.assign({ minutes: 24, sound: 'ram', lockout: true, vib: 'medium', lang: 'hi' }, saved.settings);
+
+/* ── Words on screen: Hindi first, plain English as the alternative ── */
+const I18N = {
+  hi: {
+    appName: 'नाम जप साधना', lifeLine: 'कुल जप: {j}', switchTo: 'English',
+    howLong: 'कितनी देर जप करेंगे?', min: 'मिनट', d12: 'थोड़ा', d24: 'मध्यम', d48: 'लंबा',
+    whichSound: 'कौन सी ध्वनि चलेगी?', tapToHear: 'छूकर सुनें',
+    sRam: 'राम राम', sRamSub: 'राम नाम की धुन', sBead: 'माला', sBeadSub: 'मनकों की आवाज़',
+    sDrone: 'ॐ गूँज', sDroneSub: 'गहरी शांत ध्वनि', sMute: 'शांत', sMuteSub: 'कोई आवाज़ नहीं',
+    more: 'और विकल्प', lockTitle: 'स्क्रीन लॉक',
+    lockSub: 'जप के समय गलती से छूने पर कुछ न बदले। बाहर जाने के लिए बटन दबाकर रखें।',
+    vibTitle: 'कंपन (वाइब्रेशन)', vibTest: 'जाँचें', vibOff: 'बंद', vibGentle: 'हल्का', vibMedium: 'मध्यम', vibStrong: 'तेज़',
+    vibNote: 'शुरू में एक लंबा कंपन · आधे समय पर दो बार · अंत में घंटी जैसा कंपन',
+    vibNone: 'इस फ़ोन या ब्राउज़र में कंपन नहीं चलता (जैसे iPhone)। घंटी की आवाज़ से पता चलेगा।',
+    start: 'जप शुरू करें', startSub: '{m} मिनट जप, फिर 5 मिनट प्राणायाम',
+    remaining: 'बाकी समय', pause: 'रोकें', resume: 'चालू करें', end: 'बंद करें', holdEnd: 'जप बंद करने के लिए दबाकर रखें',
+    stSettle: 'आसन लगाइए…', stRun: 'जप चल रहा है', stHalf: 'आधा जप पूरा · नाम में मन लगाएँ', stPaused: 'रुका हुआ है', stDone: 'जप पूरा · अब प्राणायाम',
+    jaap: 'नाम जप', malaLine: 'माला {m} · {b}/108', tapZone: 'हर नाम पर नीचे कहीं भी छूएँ', tallyAria: 'एक नाम जप गिनें',
+    lockTag: 'स्क्रीन लॉक है', lockHead: 'जप चल रहा है 🙏', lockHold: 'बाहर जाने के लिए दबाकर रखें', dnd: 'फ़ोन को "Do Not Disturb" पर रखें',
+    breathTag: 'प्राणायाम', breathHead: 'साँस पर ध्यान', breathSub: '4 गिनती साँस लें · 4 रोकें · 4 छोड़ें · 4 रोकें', cycle: 'चक्र {n}',
+    sIn: 'लें', sHold: 'रोकें', sOut: 'छोड़ें',
+    pIn: 'साँस लें', pHold: 'रोकें', pOut: 'साँस छोड़ें',
+    hIn: 'नाक से धीरे-धीरे साँस अंदर लें', hHoldIn: 'साँस अंदर रोककर रखें', hOut: 'धीरे-धीरे साँस बाहर छोड़ें', hHoldOut: 'साँस बाहर ही रोककर रखें',
+    skip: 'प्राणायाम छोड़ें, पूरा करें',
+    doneTag: 'साधना पूर्ण 🙏', doneSub: 'उठने से पहले एक पल शांत बैठें।',
+    cJaap: 'नाम जप', cMala: 'माला', cMin: 'मिनट जप', cCycles: 'साँस चक्र',
+    life: 'अब तक कुल {j} नाम जप · {s} बार साधना', again: 'वापस शुरुआत पर',
+    tHalf: 'आधा समय पूरा 🙏', tMala: 'माला {n} पूरी — 108 नाम 🙏', tHold: 'बंद करने के लिए बटन दबाकर रखें',
+    tBack: 'जप चल रहा है — बाहर जाने के लिए बटन दबाकर रखें', tSaved: 'जप रोका गया · {n} नाम सहेजे गए', tStopped: 'जप रोका गया',
+    tNoVib: 'इस फ़ोन में कंपन नहीं चलता', tVibOff: 'कंपन बंद है', tFast: 'टेस्ट मोड: मिनट की जगह सेकंड'
+  },
+  en: {
+    appName: 'Naam Jaap', lifeLine: 'Total jaap: {j}', switchTo: 'हिंदी',
+    howLong: 'How long will you chant?', min: 'minutes', d12: 'Short', d24: 'Medium', d48: 'Long',
+    whichSound: 'Which sound?', tapToHear: 'Tap to hear',
+    sRam: 'Ram Ram', sRamSub: 'Ram naam chant', sBead: 'Mala', sBeadSub: 'Bead clicks',
+    sDrone: 'Om hum', sDroneSub: 'Deep calm sound', sMute: 'Silent', sMuteSub: 'No sound',
+    more: 'More options', lockTitle: 'Screen lock',
+    lockSub: 'Stray touches won’t change anything while you chant. Press and hold the button to leave.',
+    vibTitle: 'Vibration', vibTest: 'Test', vibOff: 'Off', vibGentle: 'Light', vibMedium: 'Medium', vibStrong: 'Strong',
+    vibNote: 'One long buzz at the start · two at halfway · a bell-like buzz at the end',
+    vibNone: 'This phone or browser can’t vibrate (e.g. iPhone). The bell sound will guide you.',
+    start: 'Start Jaap', startSub: '{m} minutes of jaap, then 5 minutes of breathing',
+    remaining: 'Time left', pause: 'Pause', resume: 'Resume', end: 'Stop', holdEnd: 'Press and hold to stop the jaap',
+    stSettle: 'Sit comfortably…', stRun: 'Jaap in progress', stHalf: 'Halfway done · stay with the Naam', stPaused: 'Paused', stDone: 'Jaap done · breathing next',
+    jaap: 'Naam Jaap', malaLine: 'Mala {m} · {b}/108', tapZone: 'Tap anywhere below for each Naam', tallyAria: 'Count one Naam',
+    lockTag: 'Screen locked', lockHead: 'Jaap in progress 🙏', lockHold: 'Press and hold to leave', dnd: 'Put your phone on “Do Not Disturb”',
+    breathTag: 'Pranayama', breathHead: 'Calm breathing', breathSub: 'Breathe in 4 · hold 4 · out 4 · hold 4', cycle: 'Round {n}',
+    sIn: 'In', sHold: 'Hold', sOut: 'Out',
+    pIn: 'Breathe in', pHold: 'Hold', pOut: 'Breathe out',
+    hIn: 'Breathe in slowly through the nose', hHoldIn: 'Hold the breath in', hOut: 'Breathe out slowly', hHoldOut: 'Stay empty, hold',
+    skip: 'Skip breathing and finish',
+    doneTag: 'Sadhna complete 🙏', doneSub: 'Sit quietly for a moment before you get up.',
+    cJaap: 'Naam Jaap', cMala: 'Malas', cMin: 'Minutes', cCycles: 'Breath rounds',
+    life: 'All time: {j} Naam · {s} sessions', again: 'Back to start',
+    tHalf: 'Halfway done 🙏', tMala: 'Mala {n} complete — 108 Naam 🙏', tHold: 'Press and hold the button to stop',
+    tBack: 'Jaap in progress — press and hold the button to leave', tSaved: 'Jaap stopped · {n} Naam saved', tStopped: 'Jaap stopped',
+    tNoVib: 'This phone can’t vibrate', tVibOff: 'Vibration is off', tFast: 'Test mode: minutes run as seconds'
+  }
+};
+const t = (k, v = {}) => String((I18N[settings.lang] || I18N.hi)[k] ?? I18N.hi[k] ?? k).replace(/\{(\w+)\}/g, (_, n) => v[n]);
 const lifetime = Object.assign({ jaap: 0, sessions: 0, minutes: 0 }, saved.lifetime);
 const persist = () => Store.write({ settings, lifetime });
 
@@ -803,7 +935,7 @@ const Guard = {
   popState() {
     if (!session) return;
     try { history.pushState({ sadhna: 1 }, ''); } catch (_) {}
-    toast(session.lockout ? 'Dhyana Lockout — hold the button to leave' : 'Sadhna in progress — hold ✕ to end');
+    toast(t('tBack'));
     Haptics.tick();
   },
   enable(fullscreen) {
@@ -849,23 +981,28 @@ function holdToConfirm(btn, onDone) {
   btn.addEventListener('click', e => {
     e.preventDefault();
     if (justDone) { justDone = false; return; }
-    if (!raf) toast('Press and hold to confirm');
+    if (!raf) toast(t('tHold'));
   });
 }
 
 /* ── Setup screen ─────────────────────────────────────────────────────── */
 function renderLifetime() {
-  $('#lifetime').innerHTML = lifetime.jaap || lifetime.sessions
-    ? `<span class="tabular text-cream/80">${fmtNum(lifetime.jaap)}</span> jaap<br>${lifetime.sessions} sadhna${lifetime.sessions === 1 ? '' : 's'}`
-    : '';
+  $('#lifetime').textContent = lifetime.jaap ? t('lifeLine', { j: fmtNum(lifetime.jaap) }) : '';
 }
 function refreshSetup() {
-  $('#start-sub').textContent = `${settings.minutes} min Naam Jaap · then 5 min Pranayama`;
+  $('#start-sub').textContent = t('startSub', { m: settings.minutes });
   $('#lockout-switch').setAttribute('aria-checked', String(settings.lockout));
-  $('#vib-note').textContent = Haptics.supported
-    ? 'Start: one long grounding pulse · Halfway: double tap · End: cascading temple-bell wave.'
-    : "This browser can't vibrate (iOS Safari doesn't allow it). Bells and on-screen cues will guide you instead.";
+  $('#vib-note').textContent = Haptics.supported ? t('vibNote') : t('vibNone');
   renderLifetime();
+}
+/* Put every fixed label in the chosen language */
+function applyLang() {
+  document.documentElement.lang = settings.lang;
+  $$('[data-t]').forEach(el => { el.textContent = t(el.dataset.t); });
+  $$('[data-t-aria]').forEach(el => el.setAttribute('aria-label', t(el.dataset.tAria)));
+  $('#lang-label').textContent = t('switchTo');
+  refreshSetup();
+  if (session) { setPauseIcon(session.pausedAt != null); setStatus(liveStatus()); renderCount(); session.lastPhase = -1; }
 }
 function bindGroup(name, onPick) {
   const btns = $$(`[data-group="${name}"] button`);
@@ -881,9 +1018,16 @@ bindGroup('minutes');
 bindGroup('sound', v => AudioEngine.preview(v));
 bindGroup('vib', v => { if (v !== 'off') Haptics.fire([160]); });
 $('#lockout-switch').addEventListener('click', () => { settings.lockout = !settings.lockout; persist(); refreshSetup(); });
+$('#lang-btn').addEventListener('click', () => { settings.lang = settings.lang === 'hi' ? 'en' : 'hi'; persist(); applyLang(); });
+$('#more-btn').addEventListener('click', () => {
+  const open = $('#more-btn').getAttribute('aria-expanded') !== 'true';
+  $('#more-btn').setAttribute('aria-expanded', String(open));
+  $('#more-panel').hidden = !open;
+  if (open) setTimeout(() => $('#more-panel').scrollIntoView({ behavior: 'smooth', block: 'nearest' }), 30);
+});
 $('#vib-test').addEventListener('click', () => {
-  if (!Haptics.supported) toast('Vibration is not available in this browser');
-  else if (settings.vib === 'off') toast('Vibration is off');
+  if (!Haptics.supported) toast(t('tNoVib'));
+  else if (settings.vib === 'off') toast(t('tVibOff'));
   Haptics.templeBell();
 });
 
@@ -894,8 +1038,8 @@ const elapsed = () => !session ? 0 : (session.pausedAt != null ? session.pausedA
 function setStatus(text) { $('#active-status').textContent = text; }
 function liveStatus() {
   if (!session) return '';
-  if (session.pausedAt != null) return 'Paused';
-  return session.halfFired ? 'Past halfway · stay with the Naam' : 'Japa in progress';
+  if (session.pausedAt != null) return t('stPaused');
+  return session.halfFired ? t('stHalf') : t('stRun');
 }
 function renderTimer() {
   if (!session) return;
@@ -909,7 +1053,7 @@ function renderCount(bump) {
   const mala = Math.floor(n / MALA), bead = n % MALA;
   const countEl = $('#jaap-count');
   countEl.textContent = fmtNum(n);
-  $('#mala-line').textContent = `Mala ${mala} · ${bead}/${MALA}`;
+  $('#mala-line').textContent = t('malaLine', { m: mala, b: bead });
   $('#mala-ring').style.strokeDashoffset = String(515.2 * (1 - bead / MALA));
   if (bump) { countEl.classList.remove('bump'); void countEl.offsetWidth; countEl.classList.add('bump'); }
 }
@@ -932,7 +1076,7 @@ function startSadhna() {
   $('#tally-hint').style.opacity = '1';
   $('#btn-pause').hidden = session.lockout;
   setPauseIcon(false);
-  setStatus('Settling into Padmasana');
+  setStatus(t('stSettle'));
 
   showView('active');
   setHud(true);
@@ -962,7 +1106,7 @@ function tick() {
   if (!session.halfFired && el >= session.durationMs / 2) {
     session.halfFired = true;
     Haptics.halfway(); AudioEngine.chime();
-    toast('Halfway — Ardha Sadhna');
+    toast(t('tHalf'));
     setStatus(liveStatus());
   }
   renderTimer();
@@ -971,7 +1115,8 @@ function tick() {
 
 function setPauseIcon(paused) {
   $('#ico-pause').hidden = paused; $('#ico-play').hidden = !paused;
-  $('#btn-pause').setAttribute('aria-label', paused ? 'Resume session' : 'Pause session');
+  $('#btn-pause').setAttribute('aria-label', t(paused ? 'resume' : 'pause'));
+  $('#pause-label').textContent = t(paused ? 'resume' : 'pause');
 }
 function togglePause() {
   if (!session || session.lockout || session.phase !== 'sadhna') return;
@@ -994,14 +1139,13 @@ function addJaap(x, y) {
   Stage.pulsePotli(0.7);
   if (session.count % MALA === 0) {
     Haptics.mala(); Stage.flash(); AudioEngine.chime();
-    toast(`Mala ${session.count / MALA} complete · ${MALA} Naam`);
+    toast(t('tMala', { n: session.count / MALA }));
   } else Haptics.tick();
   if (x != null) {
     const r = document.createElement('span'); r.className = 'ripple';
     r.style.left = `${x}px`; r.style.top = `${y}px`;
     document.body.appendChild(r); r.addEventListener('animationend', () => r.remove());
   }
-  if (session.taps === 3) $('#tally-hint').style.opacity = '0';
   $('#sr-live').textContent = `${session.count}`;
 }
 const tally = $('#tally');
@@ -1024,16 +1168,16 @@ function endSadhnaBlock() {
   Haptics.templeBell();
   Stage.flash();
   showLockout(false);
-  setStatus('Sadhna complete · Pranayama begins');
+  setStatus(t('stDone'));
   setTimeout(() => { if (session && session.phase === 'bell') startPranayama(); }, 2400);
 }
 
 /* ── Pranayama: 4·4·4·4 box breathing ─────────────────────────────────── */
 const PHASES = [
-  { name: 'Inhale', hint: 'Puraka — draw the breath in slowly' },
-  { name: 'Hold',   hint: 'Antar Kumbhaka — rest with the breath full' },
-  { name: 'Exhale', hint: 'Rechaka — release gently through the nose' },
-  { name: 'Hold',   hint: 'Bahya Kumbhaka — rest with the breath empty' }
+  { name: 'pIn',   hint: 'hIn' },
+  { name: 'pHold', hint: 'hHoldIn' },
+  { name: 'pOut',  hint: 'hOut' },
+  { name: 'pHold', hint: 'hHoldOut' }
 ];
 const bPath = $('#b-trace');
 const bLen = bPath.getTotalLength ? bPath.getTotalLength() : 640;
@@ -1059,15 +1203,15 @@ function breathFrame() {
 
   if (idx !== session.lastPhase) {
     session.lastPhase = idx;
-    $('#b-phase').textContent = PHASES[idx].name;
-    $('#b-hint').textContent = PHASES[idx].hint;
+    $('#b-phase').textContent = t(PHASES[idx].name);
+    $('#b-hint').textContent = t(PHASES[idx].hint);
     $$('.side-lbl').forEach(l => l.classList.toggle('on', +l.dataset.side === idx));
     Haptics.phase(); AudioEngine.breathCue(idx);
   }
   session.cycles = Math.floor(el / 16000);
   $('#b-count').textContent = String(4 - Math.floor(k * 4));
   $('#b-remaining').textContent = fmt(PRANAYAMA_MS - el);
-  $('#b-cycles').textContent = `Cycle ${session.cycles + 1}`;
+  $('#b-cycles').textContent = t('cycle', { n: session.cycles + 1 });
   $('#b-orb').style.transform = `scale(${0.42 + 0.58 * b})`;
   const prog = (idx + k) / 4;
   bPath.style.strokeDashoffset = String(bLen * (1 - prog));
@@ -1100,7 +1244,7 @@ function finishSession(breathDone) {
   $('#c-mala').textContent = String(Math.floor(s.count / MALA));
   $('#c-min').textContent = String(Math.round(s.meditatedMs / MINUTE_MS));
   $('#c-cycles').textContent = String(s.cycles);
-  $('#c-life').textContent = `Lifetime · ${fmtNum(lifetime.jaap)} Naam across ${lifetime.sessions} sadhna${lifetime.sessions === 1 ? '' : 's'}`;
+  $('#c-life').textContent = t('life', { j: fmtNum(lifetime.jaap), s: lifetime.sessions });
   session = null;
   showView('complete');
   Stage.setMode('float');
@@ -1119,7 +1263,7 @@ function abandonSadhna() {
   VideoHanuman.showIdle();
   Stage.setMode('float');
   Stage.setView('setup');
-  toast(s.count ? `Sadhna released · ${fmtNum(s.count)} Naam saved` : 'Sadhna released');
+  toast(s.count ? t('tSaved', { n: fmtNum(s.count) }) : t('tStopped'));
 }
 
 /* ── Wiring ───────────────────────────────────────────────────────────── */
@@ -1195,11 +1339,11 @@ const VideoHanuman = (() => {
 })();
 
 /* Boot */
-refreshSetup();
+applyLang();
 showView('setup');
 Stage.setView('setup');
 VideoHanuman.showIdle();
-if (FAST) toast('Fast mode: minutes run as seconds');
+if (FAST) toast(t('tFast'));
 </script>
 </body>
 </html>
