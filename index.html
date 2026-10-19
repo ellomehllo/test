@@ -69,7 +69,7 @@
     background: #17120E url('assets/bg.avif') center / cover no-repeat;
     transition: filter 1.4s ease;
   }
-  body[data-view="active"] #backdrop,
+  body[data-view="active"] #backdrop, body[data-view="chalisa"] #backdrop,
   body[data-view="breath"] #backdrop { filter: brightness(.82) saturate(1.15); }
   /* ---------- Video Hanuman (idle ping-pong loop → full turn on Start → loop again) ---------- */
   #hv {
@@ -90,7 +90,7 @@
     transform: translate(-50%, -50%) scale(calc(1 + var(--breath, 0) * .16));
     opacity: 0; transition: opacity 2.4s ease;
   }
-  body[data-view="active"] #hv-glow, body[data-view="breath"] #hv-glow { opacity: 1; }
+  body[data-view="active"] #hv-glow, body[data-view="breath"] #hv-glow, body[data-view="chalisa"] #hv-glow { opacity: 1; }
   #hv-glow .core, #hv-glow .rays, #hv-glow .ring { position: absolute; inset: 0; border-radius: 50%; }
   #hv-glow .core {
     background: radial-gradient(circle, rgba(255,222,140,.95) 0%, rgba(255,190,80,.70) 12%, rgba(246,150,45,.40) 26%, rgba(226,110,25,.16) 42%, rgba(217,101,26,0) 60%);
@@ -208,16 +208,10 @@
     -webkit-mask-image: radial-gradient(ellipse var(--rx, 50%) var(--ry, 30%) at var(--hx, 50%) var(--hy, 47%), transparent 55%, #000 100%);
             mask-image: radial-gradient(ellipse var(--rx, 50%) var(--ry, 30%) at var(--hx, 50%) var(--hy, 47%), transparent 55%, #000 100%);
   }
-  #lockout::after {
-    content: ''; position: absolute; inset: calc(var(--safe-t) + 6px) 8px calc(var(--safe-b) + 6px); border-radius: 34px;
-    border: 1px solid rgba(240,138,36,.22); box-shadow: inset 0 0 70px rgba(240,138,36,.10);
-    pointer-events: none; animation: lockGlow 7s ease-in-out infinite;
-  }
-  @keyframes lockGlow { 50% { border-color: rgba(240,138,36,.42); box-shadow: inset 0 0 90px rgba(240,138,36,.18); } }
 
   /* ---------- Naam Jaap tally ---------- */
   #tally {
-    position: fixed; left: 0; right: 0; bottom: 0; height: 50dvh; z-index: 35;
+    position: fixed; left: 0; right: 0; bottom: 0; top: 0; height: auto; z-index: 35;
     background: transparent; border: 0; padding: 0; cursor: pointer;
     touch-action: none; -webkit-touch-callout: none; border-radius: 0;
   }
@@ -227,8 +221,6 @@
   }
   #tally:focus-visible { outline: none; }
   #tally:focus-visible::before { height: 2px; background: linear-gradient(90deg, transparent, rgba(240,138,36,.8), transparent); }
-  #jaap-hud:not([hidden]) { animation: hudIn 1s .5s ease both; }
-  @keyframes hudIn { from { opacity: 0; transform: translateY(14px); } }
   #jaap-hud {
     position: fixed; left: 0; right: 0; bottom: calc(var(--safe-b) + 5dvh); z-index: 40;
     pointer-events: none; display: flex; flex-direction: column; align-items: center;
@@ -238,7 +230,6 @@
   #mala-ring { transition: stroke-dashoffset .35s ease; }
   .jaap-center { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; }
   #jaap-count { text-shadow: 0 0 30px rgba(240,138,36,.35); }
-  #tally-hint { transition: opacity 1.2s ease; }
   .bump { animation: bump .3s cubic-bezier(.3,1.6,.5,1); }
   @keyframes bump { 40% { transform: scale(1.12); } }
   .ripple {
@@ -252,7 +243,7 @@
     position: absolute; left: 0; right: 0; bottom: calc(var(--safe-b) + 22px);
     display: flex; flex-direction: column; align-items: center; padding: 0 20px;
   }
-  .breath-box { position: relative; width: min(62vw, 34dvh, 280px); aspect-ratio: 1; }
+  .breath-box { position: relative; width: min(54vw, 27dvh, 250px); aspect-ratio: 1; }
   @media (min-aspect-ratio: 11/10) and (min-width: 760px) {
     .breath-panel { left: auto; right: clamp(24px, 8vw, 140px); top: 50%; bottom: auto; transform: translateY(-50%); }
     .breath-box { width: min(46dvh, 320px); }
@@ -275,10 +266,30 @@
   }
   #toast.is-on { opacity: 1; transform: translate(-50%, 0); }
   /* during a session, messages appear at the bottom so they never cover Hanuman */
-  body[data-view="active"] #toast, body[data-view="breath"] #toast { top: auto; bottom: calc(var(--safe-b) + 10px); transform: translate(-50%, 20px); }
-  body[data-view="active"] #toast.is-on, body[data-view="breath"] #toast.is-on { transform: translate(-50%, 0); }
+  body[data-view="active"] #toast, body[data-view="breath"] #toast, body[data-view="chalisa"] #toast { top: auto; bottom: calc(var(--safe-b) + 116px); transform: translate(-50%, 20px); }
+  body[data-view="active"] #toast.is-on, body[data-view="breath"] #toast.is-on, body[data-view="chalisa"] #toast.is-on { transform: translate(-50%, 0); }
 
   /* ════════ Simple UI layer: Hindi-first, big targets, high contrast ════════ */
+  /* Bottom control bar — hidden while meditating, shown for a few seconds when the screen is touched */
+  .ctl { position: fixed; left: 50%; bottom: calc(var(--safe-b) + 10px); z-index: 45; width: min(94vw, 470px);
+    display: flex; align-items: center; gap: 8px; padding: 10px 10px; border-radius: 26px;
+    opacity: 0; visibility: hidden; pointer-events: none; transform: translate(-50%, 18px);
+    transition: opacity .35s ease, transform .35s ease, visibility 0s linear .35s; }
+  body[data-view="active"].ctl-on #ctl, body[data-view="chalisa"].ctl-on #ctl-ch {
+    opacity: 1; visibility: visible; pointer-events: auto; transform: translate(-50%, 0); transition: opacity .35s ease, transform .35s ease, visibility 0s; }
+  .ctl-mid { flex: 1; min-width: 0; text-align: center; }
+  .ctl .time-bar { width: 100%; margin: 5px 0 6px; }
+  .ctl-k { font-size: 14px; color: rgba(246,235,217,.82); }
+  .ctl-time { font-size: 28px; font-weight: 300; line-height: 1; }
+  .ctl-count { font-size: 22px; font-weight: 600; line-height: 1; }
+  .ctl-title { font-size: 17px; font-weight: 600; line-height: 1.2; }
+  .ctl .cap-btn { width: 66px; }
+  .ctl .cap-ico { width: 50px; height: 50px; }
+  .tap-layer { position: fixed; inset: 0; z-index: 35; background: transparent; border: 0; padding: 0; touch-action: manipulation; }
+  .tap-layer:focus-visible { outline: none; }
+  .btn-secondary { width: 100%; min-height: 56px; display: flex; align-items: center; justify-content: center; gap: 10px; border-radius: 18px;
+    border: 2px solid var(--saffron); background: rgba(240,138,36,.12); color: var(--cream); font-size: 18px; font-weight: 600; }
+  .btn-secondary:active { transform: scale(.98); background: rgba(240,138,36,.24); }
   body { font-family: 'Hind', system-ui, sans-serif; font-size: 16px; }
   .scrim-top { position: absolute; top: 0; left: 0; right: 0; height: calc(var(--safe-t) + 150px); pointer-events: none;
     background: linear-gradient(180deg, rgba(12,8,5,.78), rgba(12,8,5,.35) 60%, rgba(12,8,5,0)); }
@@ -468,7 +479,11 @@
       </div>
     </div>
 
-    <div class="pt-3">
+    <div class="pt-3 space-y-2.5">
+      <button id="btn-chalisa" class="btn-secondary">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor" class="text-saffron" aria-hidden="true"><path d="M8 5.5v13a1 1 0 0 0 1.5.86l10.5-6.5a1 1 0 0 0 0-1.72L9.5 4.64A1 1 0 0 0 8 5.5z"/></svg>
+        <span data-t="chalisaBtn">हनुमान चालीसा सुनें</span>
+      </button>
       <button id="btn-start" class="btn-primary w-full">
         <span class="block text-[23px] font-bold leading-tight">🙏 <span data-t="start">जप शुरू करें</span></span>
         <span id="start-sub" class="block text-[14px] font-medium opacity-80 mt-0.5"></span>
@@ -477,88 +492,47 @@
   </div>
 </section>
 
-<!-- ═════════════════════════ VIEW 2 · JAAP IN PROGRESS ═════════════════════════ -->
-<section id="view-active" class="view" aria-label="जप">
-  <div class="scrim-top" aria-hidden="true"></div>
-  <div id="active-top" class="absolute top-0 inset-x-0 px-3 pt-safe flex items-start justify-between gap-2">
-    <button id="btn-pause" class="cap-btn" data-t-aria="pause" aria-label="रोकें">
-      <span class="cap-ico">
-        <svg id="ico-pause" width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="5" width="4" height="14" rx="1.2"/><rect x="14" y="5" width="4" height="14" rx="1.2"/></svg>
-        <svg id="ico-play" width="22" height="22" viewBox="0 0 24 24" fill="currentColor" hidden><path d="M8 5.5v13a1 1 0 0 0 1.5.86l10.5-6.5a1 1 0 0 0 0-1.72L9.5 4.64A1 1 0 0 0 8 5.5z"/></svg>
-      </span>
-      <span id="pause-label" class="cap-txt" data-t="pause">रोकें</span>
-    </button>
-    <div class="text-center flex-1 min-w-0 pt-1">
-      <div class="text-[14px] text-cream/85" data-t="remaining">बाकी समय</div>
-      <div id="timer" class="tabular text-[54px] leading-none font-light" role="timer">24:00</div>
-      <div class="time-bar"><div id="timer-bar" class="h-full rounded-full bg-gradient-to-r from-saffron to-gold" style="width:0%"></div></div>
-      <p id="active-status" class="mt-2 text-[15px] text-cream/90 leading-snug"></p>
-    </div>
-    <button id="btn-end" class="cap-btn hold-cap" data-hold="1200" data-t-aria="holdEnd" aria-label="जप बंद करने के लिए दबाकर रखें">
-      <span class="cap-ico"><span><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg></span></span>
-      <span class="cap-txt" data-t="end">बंद करें</span>
-    </button>
-  </div>
-</section>
+<!-- ═════════════════════════ VIEW 2 · JAAP (immersive) ═════════════════════════
+     Only Hanuman and his glow. Touching anywhere counts one Naam and briefly shows the bar at the bottom. -->
+<section id="view-active" class="view" aria-label="जप"></section>
 
-<!-- ═════════════════════════ SCREEN LOCK OVERLAY ═════════════════════════ -->
-<div id="lockout" role="region" aria-label="स्क्रीन लॉक" aria-hidden="true">
-  <div class="frost"></div>
-  <div class="relative px-4 pt-safe flex flex-col items-center text-center">
-    <div id="lock-top" class="panel rounded-[24px] px-5 pt-3.5 pb-3.5 w-full max-w-sm">
-      <p class="text-[14px] text-saffron font-semibold flex items-center justify-center gap-1.5">
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="11" width="14" height="10" rx="2.5"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>
-        <span data-t="lockTag">स्क्रीन लॉक है</span>
-      </p>
-      <h2 class="text-[22px] leading-tight mt-1 font-semibold" data-t="lockHead">जप चल रहा है 🙏</h2>
-      <div class="flex items-center justify-center gap-2 mt-2">
-        <span class="text-[14px] text-cream/80" data-t="remaining">बाकी समय</span>
-        <span id="lock-timer" class="tabular text-[30px] font-light leading-none">24:00</span>
-      </div>
-      <button id="btn-abandon" class="hold-pill w-full mt-3" data-hold="2600" data-t-aria="lockHold" aria-label="बाहर जाने के लिए दबाकर रखें">
-        <span class="hold-fill"></span><span class="relative text-[15px]" data-t="lockHold">बाहर जाने के लिए दबाकर रखें</span>
-      </button>
-      <p class="mt-2.5 flex items-center justify-center gap-2 text-[13.5px] text-cream/85">
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"/></svg>
-        <span data-t="dnd">फ़ोन को "Do Not Disturb" पर रखें</span>
-      </p>
-    </div>
-  </div>
-</div>
+<!-- Screen lock: frosted edges only; leaving is the hold button in the bottom bar -->
+<div id="lockout" role="region" aria-label="स्क्रीन लॉक" aria-hidden="true"><div class="frost"></div></div>
 
-<!-- ═════════════════════════ NAAM JAAP COUNTER (shared by jaap screen + screen lock) ═════════════════════════ -->
+<!-- The whole screen is the Naam counter -->
 <button id="tally" hidden data-t-aria="tallyAria" aria-label="एक नाम जप गिनें"></button>
-<div id="jaap-hud" hidden>
-  <div class="jaap-wrap">
-    <svg viewBox="0 0 180 180" aria-hidden="true">
-      <circle cx="90" cy="90" r="82" fill="rgba(20,14,10,.55)" stroke="rgba(246,235,217,.16)" stroke-width="4"/>
-      <circle id="mala-ring" cx="90" cy="90" r="82" fill="none" stroke="url(#ringGrad)" stroke-width="5" stroke-linecap="round" stroke-dasharray="515.2" stroke-dashoffset="515.2"/>
-      <defs><linearGradient id="ringGrad" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#F7B267"/><stop offset="1" stop-color="#D9651A"/></linearGradient></defs>
-    </svg>
-    <div class="jaap-center">
-      <div class="text-[15px] text-cream/85 font-medium" data-t="jaap">नाम जप</div>
-      <div id="jaap-count" class="tabular text-[62px] leading-none mt-0.5">0</div>
-      <div id="mala-line" class="text-[14px] text-cream/85 mt-1 tabular">माला 0 · 0/108</div>
+
+<!-- Jaap control bar (bottom, auto-hides) -->
+<div id="ctl" class="ctl panel" aria-hidden="true">
+  <button id="btn-pause" class="cap-btn" data-t-aria="pause" aria-label="रोकें">
+    <span class="cap-ico">
+      <svg id="ico-pause" width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="5" width="4" height="14" rx="1.2"/><rect x="14" y="5" width="4" height="14" rx="1.2"/></svg>
+      <svg id="ico-play" width="22" height="22" viewBox="0 0 24 24" fill="currentColor" hidden><path d="M8 5.5v13a1 1 0 0 0 1.5.86l10.5-6.5a1 1 0 0 0 0-1.72L9.5 4.64A1 1 0 0 0 8 5.5z"/></svg>
+    </span>
+    <span id="pause-label" class="cap-txt" data-t="pause">रोकें</span>
+  </button>
+  <div class="ctl-mid">
+    <div><span class="ctl-k" data-t="remaining">बाकी समय</span> <span id="timer" class="ctl-time tabular" role="timer">24:00</span></div>
+    <div class="time-bar"><div id="timer-bar" class="h-full rounded-full bg-gradient-to-r from-saffron to-gold" style="width:0%"></div></div>
+    <div class="flex items-center justify-center gap-2">
+      <svg width="26" height="26" viewBox="0 0 180 180" class="-rotate-90 flex-none" aria-hidden="true">
+        <circle cx="90" cy="90" r="74" fill="none" stroke="rgba(246,235,217,.2)" stroke-width="18"/>
+        <circle id="mala-ring" cx="90" cy="90" r="74" fill="none" stroke="#F08A24" stroke-width="18" pathLength="515.2" stroke-dasharray="515.2" stroke-dashoffset="515.2"/>
+      </svg>
+      <span class="ctl-k" data-t="jaap">नाम जप</span> <span id="jaap-count" class="ctl-count tabular">0</span>
+      <span id="mala-line" class="ctl-k tabular">माला 0 · 0/108</span>
     </div>
+    <p id="active-status" class="sr-only"></p>
   </div>
-  <p id="tally-hint" class="mt-2.5 text-[15px] font-medium text-cream px-4 py-1.5 rounded-full bg-charcoal/60">👆 <span data-t="tapZone">हर नाम पर नीचे कहीं भी छूएँ</span></p>
+  <button id="btn-end" class="cap-btn hold-cap" data-hold="1200" data-t-aria="holdEnd" aria-label="जप बंद करने के लिए दबाकर रखें">
+    <span class="cap-ico"><span><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg></span></span>
+    <span id="end-label" class="cap-txt" data-t="end">बंद करें</span>
+  </button>
 </div>
 <div id="sr-live" class="sr-only" aria-live="polite"></div>
 
 <!-- ═════════════════════════ VIEW 3 · PRANAYAMA ═════════════════════════ -->
 <section id="view-breath" class="view" aria-label="प्राणायाम">
-  <div class="scrim-top" aria-hidden="true"></div>
-  <div id="breath-top" class="absolute top-0 inset-x-0 px-5 pt-safe flex items-start justify-between gap-4">
-    <div class="min-w-0">
-      <p class="text-[15px] text-saffron font-semibold" data-t="breathTag">प्राणायाम</p>
-      <h2 class="text-[24px] leading-tight font-semibold" data-t="breathHead">साँस पर ध्यान</h2>
-      <p class="text-[14px] text-cream/80 leading-snug" data-t="breathSub">4 गिनती साँस लें · 4 रोकें · 4 छोड़ें · 4 रोकें</p>
-    </div>
-    <div class="text-right pt-1 flex-none">
-      <div id="b-remaining" class="tabular text-[30px] font-light leading-none">5:00</div>
-      <div id="b-cycles" class="text-[13px] text-cream/75 mt-1">चक्र 1</div>
-    </div>
-  </div>
   <div class="breath-panel">
     <div class="breath-box">
       <div id="b-orb"></div>
@@ -577,7 +551,8 @@
       </div>
     </div>
     <p id="b-hint" class="mt-10 text-[17px] font-medium text-cream/90 text-center min-h-[24px]" aria-live="polite"></p>
-    <button id="b-skip" class="mt-3 text-[15px] text-cream/85 px-5 py-2.5 rounded-full border border-cream/25 bg-charcoal/50" data-t="skip">प्राणायाम छोड़ें, पूरा करें</button>
+    <p class="mt-1.5 text-[14px] text-cream/80 text-center"><span class="text-saffron font-semibold" data-t="breathTag">प्राणायाम</span> · <span id="b-remaining" class="tabular">5:00</span> · <span id="b-cycles">चक्र 1</span></p>
+    <button id="b-skip" class="mt-2.5 text-[15px] text-cream/85 px-5 py-2.5 rounded-full border border-cream/25 bg-charcoal/50" data-t="skip">प्राणायाम छोड़ें, पूरा करें</button>
   </div>
 </section>
 
@@ -602,6 +577,32 @@
     </div>
   </div>
 </section>
+
+<!-- ═════════════════════════ VIEW 5 · HANUMAN CHALISA (immersive, same glow) ═════════════════════════ -->
+<section id="view-chalisa" class="view" aria-label="हनुमान चालीसा">
+  <button id="ch-tap" class="tap-layer" data-t-aria="showCtl" aria-label="बटन दिखाएँ"></button>
+</section>
+<div id="ctl-ch" class="ctl panel" aria-hidden="true">
+  <button id="ch-pause" class="cap-btn" data-t-aria="pause" aria-label="रोकें">
+    <span class="cap-ico">
+      <svg id="ch-ico-pause" width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="5" width="4" height="14" rx="1.2"/><rect x="14" y="5" width="4" height="14" rx="1.2"/></svg>
+      <svg id="ch-ico-play" width="22" height="22" viewBox="0 0 24 24" fill="currentColor" hidden><path d="M8 5.5v13a1 1 0 0 0 1.5.86l10.5-6.5a1 1 0 0 0 0-1.72L9.5 4.64A1 1 0 0 0 8 5.5z"/></svg>
+    </span>
+    <span id="ch-pause-label" class="cap-txt" data-t="pause">रोकें</span>
+  </button>
+  <div class="ctl-mid">
+    <div class="ctl-title" data-t="chTitle">हनुमान चालीसा</div>
+    <div class="time-bar"><div id="ch-bar" class="h-full rounded-full bg-gradient-to-r from-saffron to-gold" style="width:0%"></div></div>
+    <div class="ctl-k tabular"><span id="ch-time">0:00</span> / <span id="ch-dur">13:10</span></div>
+  </div>
+  <button id="ch-stop" class="cap-btn" data-t-aria="end" aria-label="बंद करें">
+    <span class="cap-ico"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg></span>
+    <span class="cap-txt" data-t="end">बंद करें</span>
+  </button>
+</div>
+<audio id="chalisa-audio" preload="none" src="assets/hanuman-chalisa.m4a?v=1"></audio>
+<div id="safe-probe" aria-hidden="true" style="position:fixed;left:0;top:0;width:0;height:env(safe-area-inset-top,0px);visibility:hidden;pointer-events:none"></div>
+<div id="safe-probe-b" aria-hidden="true" style="position:fixed;left:0;bottom:0;width:0;height:env(safe-area-inset-bottom,0px);visibility:hidden;pointer-events:none"></div>
 
 <div id="toast" role="status" aria-live="polite"></div>
 
@@ -651,7 +652,7 @@ const I18N = {
     start: 'जप शुरू करें', startSub: '{m} मिनट जप, फिर 5 मिनट प्राणायाम',
     remaining: 'बाकी समय', pause: 'रोकें', resume: 'चालू करें', end: 'बंद करें', holdEnd: 'जप बंद करने के लिए दबाकर रखें',
     stSettle: 'आसन लगाइए…', stRun: 'जप चल रहा है', stHalf: 'आधा जप पूरा · नाम में मन लगाएँ', stPaused: 'रुका हुआ है', stDone: 'जप पूरा · अब प्राणायाम',
-    jaap: 'नाम जप', malaLine: 'माला {m} · {b}/108', tapZone: 'हर नाम पर नीचे कहीं भी छूएँ', tallyAria: 'एक नाम जप गिनें',
+    jaap: 'नाम जप', malaLine: 'माला {m} · {b}/108', tapZone: '👆 हर नाम पर स्क्रीन कहीं भी छूएँ', chalisaBtn: 'हनुमान चालीसा सुनें', chTitle: 'हनुमान चालीसा', showCtl: 'बटन दिखाएँ', tChDone: 'जय हनुमान 🙏', tChErr: 'चालीसा नहीं चल पाई, फिर से छूएँ', holdLeave: 'जप से बाहर जाने के लिए दबाकर रखें', tallyAria: 'एक नाम जप गिनें',
     lockTag: 'स्क्रीन लॉक है', lockHead: 'जप चल रहा है 🙏', lockHold: 'बाहर जाने के लिए दबाकर रखें', dnd: 'फ़ोन को "Do Not Disturb" पर रखें',
     breathTag: 'प्राणायाम', breathHead: 'साँस पर ध्यान', breathSub: '4 गिनती साँस लें · 4 रोकें · 4 छोड़ें · 4 रोकें', cycle: 'चक्र {n}',
     sIn: 'लें', sHold: 'रोकें', sOut: 'छोड़ें',
@@ -679,7 +680,7 @@ const I18N = {
     start: 'Start Jaap', startSub: '{m} minutes of jaap, then 5 minutes of breathing',
     remaining: 'Time left', pause: 'Pause', resume: 'Resume', end: 'Stop', holdEnd: 'Press and hold to stop the jaap',
     stSettle: 'Sit comfortably…', stRun: 'Jaap in progress', stHalf: 'Halfway done · stay with the Naam', stPaused: 'Paused', stDone: 'Jaap done · breathing next',
-    jaap: 'Naam Jaap', malaLine: 'Mala {m} · {b}/108', tapZone: 'Tap anywhere below for each Naam', tallyAria: 'Count one Naam',
+    jaap: 'Naam Jaap', malaLine: 'Mala {m} · {b}/108', tapZone: '👆 Tap anywhere on the screen for each Naam', chalisaBtn: 'Listen to Hanuman Chalisa', chTitle: 'Hanuman Chalisa', showCtl: 'Show buttons', tChDone: 'Jai Hanuman 🙏', tChErr: 'Couldn’t play the Chalisa — tap to try again', holdLeave: 'Press and hold to leave the jaap', tallyAria: 'Count one Naam',
     lockTag: 'Screen locked', lockHead: 'Jaap in progress 🙏', lockHold: 'Press and hold to leave', dnd: 'Put your phone on “Do Not Disturb”',
     breathTag: 'Pranayama', breathHead: 'Calm breathing', breathSub: 'Breathe in 4 · hold 4 · out 4 · hold 4', cycle: 'Round {n}',
     sIn: 'In', sHold: 'Hold', sOut: 'Out',
@@ -936,7 +937,7 @@ const AudioEngine = (() => {
 const Stage = { ready: true, setMode() {}, setView() {}, setBreath() {}, pulsePotli() {}, flash() {}, setExternalPulse() {}, setPaused() {} };
 
 /* ───────────────────────── 5 · APP FLOW & UI ───────────────────────── */
-const views = { setup: $('#view-setup'), active: $('#view-active'), breath: $('#view-breath'), complete: $('#view-complete') };
+const views = { setup: $('#view-setup'), active: $('#view-active'), breath: $('#view-breath'), complete: $('#view-complete'), chalisa: $('#view-chalisa') };
 function showView(name) {
   for (const [k, el] of Object.entries(views)) {
     const on = k === name;
@@ -950,6 +951,8 @@ function showView(name) {
 
 /* ── Fit Hanuman into the free space between the top UI and the bottom UI ──
  * Measured on every view change, resize and lock change, so no panel ever covers his face. */
+const safeTop = () => { const p = $('#safe-probe'); return p ? p.getBoundingClientRect().height : 0; };
+const safeBottom = () => { const p = $('#safe-probe-b'); return p ? p.getBoundingClientRect().height : 0; };
 function layoutHanuman() {
   const hv = $('#hv'); if (!hv) return;
   const W = innerWidth, H = innerHeight, view = document.body.dataset.view, wide = WIDE_MQ.matches;
@@ -960,19 +963,20 @@ function layoutHanuman() {
     top = view === 'setup' && head ? head.bottom : 16;
     const sheet = box(`#view-${view} .sheet`);
     if (sheet) { if (wide) right = sheet.left; else bottom = sheet.top; }
-  } else if (view === 'active') {
-    const t = box(document.body.classList.contains('locked') ? '#lock-top' : '#active-top');
-    top = t ? t.bottom : 0;
-    const hud = $('#jaap-hud');
-    bottom = hud && !hud.hidden ? hud.getBoundingClientRect().top : H - 290;
+  } else if (view === 'active' || view === 'chalisa') {
+    // immersive: nothing above him; keep the bottom bar's area free so it never covers him
+    top = safeTop() + 12;
+    bottom = H - safeBottom() - 120;
   } else if (view === 'breath') {
-    const t = box('#breath-top'); top = t ? t.bottom : 0;
+    top = safeTop() + 12;
     const panel = box('#view-breath .breath-panel');
     if (panel) { if (wide) right = panel.left; else bottom = panel.top; }
   }
   // the clip's figure fills roughly the middle 80% of its square frame, so the empty margins may tuck under UI
   const bandH = Math.max(120, bottom - top - 8), bandW = right - left;
-  const size = Math.min(bandH / 0.8, bandW * 1.15, W);
+  // the figure spans ~65% of the frame's width, so in the immersive views he can be zoomed past the screen width
+  const immersive = view === 'active' || view === 'chalisa';
+  const size = Math.min(bandH / 0.8, bandW * (immersive ? 1.42 : 1.15), immersive ? W * 1.42 : W);
   const cx = (left + right) / 2;
   const y = top + 4 + (bandH - size * 0.8) / 2 - size * 0.1;
   hv.style.setProperty('--size', `${size}px`);
@@ -1035,12 +1039,11 @@ const Guard = {
 
 /* Press-and-hold control: progress drawn through the --p CSS variable */
 function holdToConfirm(btn, onDone) {
-  const ms = +btn.dataset.hold || 1500;
   let raf = 0, t0 = 0, justDone = false;
   const set = p => btn.style.setProperty('--p', p.toFixed(3));
   const stop = () => { cancelAnimationFrame(raf); raf = 0; set(0); btn.classList.remove('holding'); };
   const step = now => {
-    const p = Math.min(1, (now - t0) / ms); set(p);
+    const p = Math.min(1, (now - t0) / (+btn.dataset.hold || 1500)); set(p);
     if (p >= 1) { stop(); justDone = true; Haptics.fire([60, 40, 60]); onDone(); }
     else raf = requestAnimationFrame(step);
   };
@@ -1080,6 +1083,7 @@ function applyLang() {
   $('#lang-label').textContent = t('switchTo');
   refreshSetup();
   if (session) { setPauseIcon(session.pausedAt != null); setStatus(liveStatus()); renderCount(); session.lastPhase = -1; }
+  try { Chalisa.setIcon(); } catch (_) {}
 }
 function bindGroup(name, onPick) {
   const btns = $$(`[data-group="${name}"] button`);
@@ -1152,7 +1156,6 @@ function renderTimer() {
   if (!session) return;
   const el = elapsed(), rem = session.durationMs - el;
   $('#timer').textContent = fmt(rem);
-  $('#lock-timer').textContent = fmt(rem);
   $('#timer-bar').style.width = `${Math.min(100, (el / session.durationMs) * 100)}%`;
 }
 function renderCount(bump) {
@@ -1164,7 +1167,25 @@ function renderCount(bump) {
   $('#mala-ring').style.strokeDashoffset = String(515.2 * (1 - bead / MALA));
   if (bump) { countEl.classList.remove('bump'); void countEl.offsetWidth; countEl.classList.add('bump'); }
 }
-function setHud(on) { $('#jaap-hud').hidden = !on; $('#tally').hidden = !on; layoutHanuman(); }
+function setHud(on) { $('#tally').hidden = !on; if (!on) Ctl.hide(); layoutHanuman(); }
+
+/* ── Bottom control bar: appears on touch, fades 4 s after the last touch ── */
+const Ctl = (() => {
+  let timer = 0;
+  const bars = () => [$('#ctl'), $('#ctl-ch')];
+  function hide() {
+    if (document.querySelector('.ctl .holding')) { timer = setTimeout(hide, 1200); return; }   // never hide mid-hold
+    document.body.classList.remove('ctl-on');
+    bars().forEach(b => b.setAttribute('aria-hidden', 'true'));
+  }
+  function show(ms = 4000) {
+    document.body.classList.add('ctl-on');
+    bars().forEach(b => b.setAttribute('aria-hidden', 'false'));
+    clearTimeout(timer); timer = setTimeout(hide, ms);
+  }
+  bars().forEach(b => { b.addEventListener('pointerdown', () => show(), true); b.addEventListener('focusin', () => show()); });
+  return { show, hide: () => { clearTimeout(timer); hide(); } };
+})();
 function showLockout(on) {
   const el = $('#lockout');
   el.classList.toggle('is-on', on);
@@ -1182,8 +1203,9 @@ function startSadhna() {
     halfFired: false, count: 0, lockout: settings.lockout, phase: 'sadhna', meditatedMs: 0, cycles: 0, taps: 0
   };
   renderCount(); renderTimer();
-  $('#tally-hint').style.opacity = '1';
   $('#btn-pause').hidden = session.lockout;
+  $('#btn-end').dataset.hold = session.lockout ? '2600' : '1200';
+  $('#btn-end').setAttribute('aria-label', t(session.lockout ? 'holdLeave' : 'holdEnd'));
   setPauseIcon(false);
   setStatus(t('stSettle'));
 
@@ -1207,6 +1229,10 @@ function startSadhna() {
   }, 1600);
   session.interval = setInterval(tick, 250);
   setTimeout(() => $('#tally').focus({ preventScroll: true }), 60);
+  // show the bar once so people know it exists, then only Hanuman remains
+  Ctl.show(5000);
+  toast(t('tapZone'));
+  if (session.lockout) session.dndTimer = setTimeout(() => { if (session && session.phase === 'sadhna') toast(t('dnd')); }, 3400);
 }
 
 function tick() {
@@ -1258,7 +1284,7 @@ function addJaap(x, y) {
   $('#sr-live').textContent = `${session.count}`;
 }
 const tally = $('#tally');
-tally.addEventListener('pointerdown', e => { if (e.button > 0) return; e.preventDefault(); addJaap(e.clientX, e.clientY); });
+tally.addEventListener('pointerdown', e => { if (e.button > 0) return; e.preventDefault(); addJaap(e.clientX, e.clientY); Ctl.show(); });
 tally.addEventListener('keydown', e => { if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); if (!e.repeat) addJaap(); } });
 tally.addEventListener('contextmenu', e => e.preventDefault());
 // Touches on the lockout's upper glass are swallowed on purpose
@@ -1337,6 +1363,7 @@ function cleanupSession() {
   if (!session) return;
   clearInterval(session.interval);
   clearTimeout(session.settleTimer);
+  clearTimeout(session.dndTimer);
   AudioEngine.stopProfile(1);
   showLockout(false);
   setHud(false);
@@ -1380,7 +1407,6 @@ function abandonSadhna() {
 $('#btn-start').addEventListener('click', startSadhna);
 $('#btn-pause').addEventListener('click', togglePause);
 holdToConfirm($('#btn-end'), abandonSadhna);
-holdToConfirm($('#btn-abandon'), abandonSadhna);
 $('#b-skip').addEventListener('click', () => finishSession(false));
 $('#btn-again').addEventListener('click', () => {
   refreshSetup(); showView('setup'); Stage.setView('setup'); VideoHanuman.showIdle();
@@ -1446,6 +1472,56 @@ const VideoHanuman = (() => {
   document.addEventListener('visibilitychange', nudge);
   document.addEventListener('pointerdown', nudge, { capture: true });
   return { showIdle, playFull };
+})();
+
+/* ── Hanuman Chalisa: the same immersive glow screen, with the bhajan playing ── */
+const Chalisa = (() => {
+  const audio = $('#chalisa-audio');
+  const setIcon = () => {
+    const paused = audio.paused;
+    $('#ch-ico-pause').hidden = paused; $('#ch-ico-play').hidden = !paused;
+    $('#ch-pause-label').textContent = t(paused ? 'resume' : 'pause');
+    $('#ch-pause').setAttribute('aria-label', t(paused ? 'resume' : 'pause'));
+  };
+  const render = () => {
+    const d = audio.duration || 790;
+    $('#ch-time').textContent = fmt(Math.floor(audio.currentTime) * 1000);
+    $('#ch-dur').textContent = fmt(d * 1000);
+    $('#ch-bar').style.width = `${Math.min(100, (audio.currentTime / d) * 100)}%`;
+  };
+  function start() {
+    if (session) return;
+    AudioEngine.stopProfile(0.3);                 // stop any sound preview
+    try { audio.currentTime = 0; } catch (_) {}
+    audio.play().catch(() => toast(t('tChErr')));
+    showView('chalisa');
+    VideoHanuman.playFull();
+    Wake.on();
+    Ctl.show(5000);
+    if ('mediaSession' in navigator) {
+      try {
+        navigator.mediaSession.metadata = new MediaMetadata({ title: t('chTitle'), artist: t('appName'), artwork: [{ src: 'assets/hanuman-poster.webp?v=3', sizes: '768x768', type: 'image/webp' }] });
+        navigator.mediaSession.setActionHandler('pause', () => audio.pause());
+        navigator.mediaSession.setActionHandler('play', () => audio.play());
+      } catch (_) {}
+    }
+  }
+  function stop() {
+    audio.pause();
+    Wake.off();
+    Ctl.hide();
+    if (document.body.dataset.view === 'chalisa') { refreshSetup(); showView('setup'); VideoHanuman.showIdle(); }
+  }
+  audio.addEventListener('timeupdate', render);
+  audio.addEventListener('loadedmetadata', render);
+  audio.addEventListener('play', setIcon);
+  audio.addEventListener('pause', setIcon);
+  audio.addEventListener('ended', () => { toast(t('tChDone')); AudioEngine.bell(0.35); setTimeout(stop, 2600); });
+  $('#btn-chalisa').addEventListener('click', start);
+  $('#ch-pause').addEventListener('click', () => { if (audio.paused) audio.play().catch(() => toast(t('tChErr'))); else audio.pause(); Ctl.show(); });
+  $('#ch-stop').addEventListener('click', stop);
+  $('#ch-tap').addEventListener('pointerdown', e => { e.preventDefault(); Ctl.show(); });
+  return { stop, setIcon };
 })();
 
 /* Boot */
