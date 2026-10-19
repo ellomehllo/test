@@ -1,0 +1,1547 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+<meta name="theme-color" content="#17120E">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>Naam Jaap Sadhna</title>
+
+<!-- Fonts: Cormorant (display), Inter (UI), Tiro Devanagari (राम) -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600&family=Inter:wght@200;300;400;500;600&family=Tiro+Devanagari+Hindi&display=swap" rel="stylesheet">
+
+<!-- Tailwind (Play CDN) -->
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        colors: {
+          saffron: { DEFAULT: '#F08A24', deep: '#D9651A', soft: '#F7B267' },
+          cream: '#F6EBD9',
+          charcoal: { DEFAULT: '#17120E', 800: '#211A15', 700: '#2C231C' },
+          gold: '#D9A441',
+          sindoor: '#B83A1B'
+        },
+        fontFamily: {
+          sans: ['Inter', 'system-ui', 'sans-serif'],
+          display: ['"Cormorant Garamond"', 'Georgia', 'serif'],
+          deva: ['"Tiro Devanagari Hindi"', 'serif']
+        }
+      }
+    }
+  };
+</script>
+
+<!-- Three.js r128 (classic global build). For a real rig also add:
+     https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+
+<style>
+  :root {
+    --saffron: #F08A24;
+    --gold: #D9A441;
+    --cream: #F6EBD9;
+    --charcoal: #17120E;
+    --safe-t: env(safe-area-inset-top, 0px);
+    --safe-b: env(safe-area-inset-bottom, 0px);
+  }
+  html, body { height: 100%; margin: 0; overscroll-behavior: none; }
+  body {
+    background: var(--charcoal);
+    color: var(--cream);
+    overflow: hidden;
+    -webkit-tap-highlight-color: transparent;
+    -webkit-user-select: none; user-select: none;
+    -webkit-touch-callout: none;
+    touch-action: manipulation;
+    -webkit-font-smoothing: antialiased;
+  }
+  [hidden] { display: none !important; }
+  :focus { outline: none; }
+  :focus-visible { outline: 2px solid var(--saffron); outline-offset: 3px; border-radius: 12px; }
+  .pt-safe { padding-top: calc(var(--safe-t) + 16px); }
+  .tabular { font-variant-numeric: tabular-nums; }
+
+  /* ---------- Backdrop & 3D stage ---------- */
+  #backdrop {
+    position: fixed; inset: 0; z-index: 0;
+    background:
+      radial-gradient(60% 42% at 50% 30%, rgba(240,138,36,.20), rgba(240,138,36,0) 70%),
+      radial-gradient(120% 80% at 50% 115%, #35251a 0%, #1c1611 55%, #120e0b 100%);
+    transition: filter 1.4s ease;
+  }
+  body[data-view="active"] #backdrop,
+  body[data-view="breath"] #backdrop { filter: brightness(.82) saturate(1.15); }
+  #stage { position: fixed; inset: 0; z-index: 10; }
+  #stage canvas { display: block; width: 100%; height: 100%; }
+  #stage-fallback {
+    position: fixed; inset: 0; z-index: 10; display: flex; align-items: flex-start; justify-content: center;
+    padding-top: 16vh; font-size: 22vmin; color: var(--saffron);
+    text-shadow: 0 0 60px rgba(240,138,36,.6); animation: floaty 5s ease-in-out infinite;
+  }
+  @keyframes floaty { 50% { transform: translateY(-14px); } }
+
+  /* ---------- Views ---------- */
+  .view {
+    position: fixed; inset: 0; z-index: 20; pointer-events: none;
+    opacity: 0; visibility: hidden;
+    transition: opacity .7s ease, visibility 0s linear .7s;
+  }
+  .view.is-on { opacity: 1; visibility: visible; transition: opacity .7s ease, visibility 0s; }
+  .view > * { pointer-events: auto; }
+  body.locked #view-active > * { opacity: 0; pointer-events: none; transition: opacity .6s; }
+
+  /* ---------- Glass & sheets ---------- */
+  .glass {
+    background: linear-gradient(180deg, rgba(246,235,217,.10), rgba(246,235,217,.04));
+    backdrop-filter: blur(22px) saturate(150%);
+    -webkit-backdrop-filter: blur(22px) saturate(150%);
+    border: 1px solid rgba(246,235,217,.13);
+    box-shadow: 0 -12px 48px rgba(0,0,0,.35), inset 0 1px 0 rgba(255,255,255,.07);
+  }
+  .sheet {
+    position: absolute; left: 0; right: 0; bottom: 0;
+    max-height: 60dvh; display: flex; flex-direction: column;
+    border-radius: 28px 28px 0 0; border-bottom: 0;
+    padding: 18px 18px calc(var(--safe-b) + 16px);
+  }
+  .sheet-scroll { overflow-y: auto; min-height: 0; overscroll-behavior: contain; -webkit-overflow-scrolling: touch; margin: 0 -4px; padding: 2px 4px 4px; }
+  .sheet-grip { width: 38px; height: 4px; border-radius: 99px; background: rgba(246,235,217,.22); margin: -6px auto 14px; }
+  @media (min-aspect-ratio: 11/10) and (min-width: 760px) {
+    .sheet {
+      left: auto; right: clamp(24px, 6vw, 96px); top: 50%; bottom: auto; transform: translateY(-50%);
+      width: 430px; max-height: 88dvh; border-radius: 28px; border-bottom: 1px solid rgba(246,235,217,.13);
+      padding: 24px 22px 22px;
+    }
+    .sheet-grip { display: none; }
+  }
+
+  .label { font-size: 11px; letter-spacing: .22em; text-transform: uppercase; color: rgba(246,235,217,.55); margin-bottom: 10px; font-weight: 500; }
+
+  /* Option cards */
+  .opt {
+    border: 1px solid rgba(246,235,217,.12); background: rgba(246,235,217,.04);
+    border-radius: 16px; text-align: left; transition: border-color .25s, background .25s, box-shadow .25s, transform .15s;
+  }
+  .opt:active { transform: scale(.975); }
+  .opt[aria-pressed="true"] {
+    border-color: rgba(240,138,36,.85);
+    background: linear-gradient(180deg, rgba(240,138,36,.24), rgba(240,138,36,.07));
+    box-shadow: 0 0 0 3px rgba(240,138,36,.12), 0 10px 26px rgba(240,138,36,.12);
+  }
+  .opt[aria-pressed="true"] .opt-icon { color: var(--saffron); background: rgba(240,138,36,.16); }
+  .opt-icon { width: 34px; height: 34px; border-radius: 11px; display: grid; place-items: center; background: rgba(246,235,217,.07); color: rgba(246,235,217,.75); transition: all .25s; }
+
+  /* Segmented control */
+  .seg { background: rgba(246,235,217,.06); border: 1px solid rgba(246,235,217,.1); border-radius: 14px; padding: 3px; gap: 3px; }
+  .seg button { border-radius: 11px; padding: 9px 0; font-size: 13px; color: rgba(246,235,217,.65); transition: all .25s; }
+  .seg button[aria-pressed="true"] { background: var(--cream); color: #1d140d; font-weight: 600; box-shadow: 0 2px 10px rgba(0,0,0,.25); }
+
+  /* Switch */
+  .switch { flex: none; width: 52px; height: 30px; border-radius: 999px; background: rgba(246,235,217,.16); position: relative; transition: background .25s; }
+  .switch::after { content: ''; position: absolute; top: 3px; left: 3px; width: 24px; height: 24px; border-radius: 50%; background: var(--cream); box-shadow: 0 2px 6px rgba(0,0,0,.3); transition: transform .3s cubic-bezier(.4,1.5,.6,1); }
+  .switch[aria-checked="true"] { background: var(--saffron); }
+  .switch[aria-checked="true"]::after { transform: translateX(22px); }
+
+  .btn-primary {
+    background: linear-gradient(180deg, #F7A552, #E2711D); color: #1f140b;
+    box-shadow: 0 12px 32px rgba(226,113,29,.35), inset 0 1px 0 rgba(255,255,255,.4);
+    transition: transform .15s, box-shadow .25s;
+  }
+  .btn-primary:active { transform: scale(.98); box-shadow: 0 6px 18px rgba(226,113,29,.35), inset 0 1px 0 rgba(255,255,255,.4); }
+
+  .icon-btn { width: 46px; height: 46px; border-radius: 50%; display: grid; place-items: center; background: rgba(246,235,217,.07); border: 1px solid rgba(246,235,217,.12); color: rgba(246,235,217,.85); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); }
+
+  /* ---------- Hold-to-confirm controls (progress via --p) ---------- */
+  .hold-ring {
+    --p: 0; width: 46px; height: 46px; border-radius: 50%; padding: 2px; flex: none;
+    background: conic-gradient(var(--saffron) calc(var(--p) * 1turn), rgba(246,235,217,.14) 0);
+    touch-action: none; -webkit-touch-callout: none;
+  }
+  .hold-ring-inner { width: 100%; height: 100%; border-radius: 50%; display: grid; place-items: center; background: #1e1712; color: rgba(246,235,217,.85); }
+  .hold-pill {
+    --p: 0; position: relative; overflow: hidden; border-radius: 999px; padding: 11px 16px;
+    font-size: 12.5px; font-weight: 500; letter-spacing: .02em; white-space: nowrap;
+    border: 1px solid rgba(246,235,217,.25); background: rgba(23,18,14,.35); color: var(--cream);
+    touch-action: none; -webkit-touch-callout: none;
+  }
+  .hold-fill { position: absolute; inset: 0; background: linear-gradient(90deg, rgba(240,138,36,.55), rgba(184,58,27,.7)); transform-origin: left center; transform: scaleX(var(--p)); }
+  .holding { box-shadow: 0 0 0 4px rgba(240,138,36,.15); }
+
+  /* ---------- Dhyana Lockout overlay ---------- */
+  #lockout {
+    position: fixed; inset: 0; z-index: 30; touch-action: none;
+    opacity: 0; visibility: hidden; transition: opacity 1s ease, visibility 0s linear 1s;
+  }
+  #lockout.is-on { opacity: 1; visibility: visible; transition: opacity 1s ease, visibility 0s; }
+  #lockout .frost {
+    position: absolute; inset: 0;
+    backdrop-filter: blur(14px) saturate(140%); -webkit-backdrop-filter: blur(14px) saturate(140%);
+    background: radial-gradient(ellipse 60% 40% at 50% 47%, rgba(23,18,14,0), rgba(23,18,14,.5));
+    /* clear window over the character, frosted glass everywhere else */
+    -webkit-mask-image: radial-gradient(ellipse 50% 26% at 50% 47%, transparent 50%, #000 100%);
+            mask-image: radial-gradient(ellipse 50% 26% at 50% 47%, transparent 50%, #000 100%);
+  }
+  #lockout::after {
+    content: ''; position: absolute; inset: calc(var(--safe-t) + 6px) 8px calc(var(--safe-b) + 6px); border-radius: 34px;
+    border: 1px solid rgba(240,138,36,.22); box-shadow: inset 0 0 70px rgba(240,138,36,.10);
+    pointer-events: none; animation: lockGlow 7s ease-in-out infinite;
+  }
+  @keyframes lockGlow { 50% { border-color: rgba(240,138,36,.42); box-shadow: inset 0 0 90px rgba(240,138,36,.18); } }
+
+  /* ---------- Naam Jaap tally ---------- */
+  #tally {
+    position: fixed; left: 0; right: 0; bottom: 0; height: 50dvh; z-index: 35;
+    background: transparent; border: 0; padding: 0; cursor: pointer;
+    touch-action: none; -webkit-touch-callout: none; border-radius: 0;
+  }
+  #tally::before {
+    content: ''; position: absolute; top: 0; left: 12%; right: 12%; height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(240,138,36,.32), transparent);
+  }
+  #tally:focus-visible { outline: none; }
+  #tally:focus-visible::before { height: 2px; background: linear-gradient(90deg, transparent, rgba(240,138,36,.8), transparent); }
+  #jaap-hud:not([hidden]) { animation: hudIn 1s .5s ease both; }
+  @keyframes hudIn { from { opacity: 0; transform: translateY(14px); } }
+  #jaap-hud {
+    position: fixed; left: 0; right: 0; bottom: calc(var(--safe-b) + 5dvh); z-index: 40;
+    pointer-events: none; display: flex; flex-direction: column; align-items: center;
+  }
+  .jaap-wrap { position: relative; width: 176px; height: 176px; }
+  .jaap-wrap svg { position: absolute; inset: 0; transform: rotate(-90deg); }
+  #mala-ring { transition: stroke-dashoffset .35s ease; }
+  .jaap-center { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+  #jaap-count { text-shadow: 0 0 30px rgba(240,138,36,.35); }
+  #tally-hint { transition: opacity 1.2s ease; }
+  .bump { animation: bump .3s cubic-bezier(.3,1.6,.5,1); }
+  @keyframes bump { 40% { transform: scale(1.12); } }
+  .ripple {
+    position: fixed; width: 18px; height: 18px; margin: -9px 0 0 -9px; border-radius: 50%; z-index: 41;
+    border: 1.5px solid rgba(240,138,36,.85); pointer-events: none; animation: ripple .9s ease-out forwards;
+  }
+  @keyframes ripple { to { transform: scale(9); opacity: 0; } }
+
+  /* ---------- Pranayama ---------- */
+  .breath-panel {
+    position: absolute; left: 0; right: 0; bottom: calc(var(--safe-b) + 22px);
+    display: flex; flex-direction: column; align-items: center; padding: 0 20px;
+  }
+  .breath-box { position: relative; width: min(62vw, 34dvh, 280px); aspect-ratio: 1; }
+  @media (min-aspect-ratio: 11/10) and (min-width: 760px) {
+    .breath-panel { left: auto; right: clamp(24px, 8vw, 140px); top: 50%; bottom: auto; transform: translateY(-50%); }
+    .breath-box { width: min(46dvh, 320px); }
+  }
+  #b-orb {
+    position: absolute; inset: 14%; border-radius: 50%;
+    background: radial-gradient(circle at 50% 42%, rgba(247,178,103,.6), rgba(240,138,36,.2) 55%, rgba(240,138,36,0) 72%);
+    box-shadow: 0 0 80px rgba(240,138,36,.25); will-change: transform;
+  }
+  .side-lbl { position: absolute; font-size: 9.5px; letter-spacing: .24em; text-transform: uppercase; color: rgba(246,235,217,.4); transition: color .4s; }
+  .side-lbl.on { color: var(--saffron); }
+
+  /* ---------- Toast ---------- */
+  #toast {
+    position: fixed; left: 50%; top: calc(var(--safe-t) + 12px); z-index: 60; max-width: calc(100vw - 32px);
+    transform: translate(-50%, -20px); opacity: 0; pointer-events: none;
+    padding: 10px 18px; border-radius: 999px; font-size: 13px; text-align: center; white-space: nowrap;
+    background: rgba(30,23,18,.82); border: 1px solid rgba(240,138,36,.3); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
+    transition: opacity .35s, transform .35s;
+  }
+  #toast.is-on { opacity: 1; transform: translate(-50%, 0); }
+  /* during a session, toasts sit on the divider between the character and the tally zone */
+  body[data-view="active"] #toast, body[data-view="breath"] #toast { top: calc(50dvh - 22px); }
+
+  @media (prefers-reduced-motion: reduce) {
+    .view, #lockout { transition-duration: .01ms !important; }
+    .ripple, #lockout::after { animation: none; }
+    #stage-fallback { animation: none; }
+  }
+</style>
+</head>
+
+<body data-view="setup">
+
+<div id="backdrop" aria-hidden="true"></div>
+<div id="stage" aria-hidden="true"></div>
+<div id="stage-fallback" class="font-deva" aria-hidden="true" hidden>राम</div>
+
+<!-- ═════════════════════════ VIEW 1 · SETUP ═════════════════════════ -->
+<section id="view-setup" class="view is-on" aria-label="Sadhna setup">
+  <header class="absolute top-0 inset-x-0 px-5 pt-safe flex items-start justify-between gap-4">
+    <div class="flex items-center gap-3">
+      <span class="font-deva text-[30px] leading-none text-saffron drop-shadow-[0_0_18px_rgba(240,138,36,.45)]">राम</span>
+      <div>
+        <h1 class="font-display text-[22px] leading-none font-semibold tracking-wide">Naam Jaap Sadhna</h1>
+        <p class="text-[10px] uppercase tracking-[0.28em] text-cream/50 mt-1.5">Spiritual Pomodoro</p>
+      </div>
+    </div>
+    <div id="lifetime" class="text-right text-[11px] leading-snug text-cream/55 pt-1"></div>
+  </header>
+
+  <div class="sheet glass">
+    <div class="sheet-grip" aria-hidden="true"></div>
+    <div class="sheet-scroll space-y-6">
+
+      <div>
+        <h2 class="label">Session duration</h2>
+        <div class="grid grid-cols-3 gap-2.5" data-group="minutes">
+          <button class="opt px-3 py-3" data-value="12" aria-pressed="false">
+            <span class="block font-display text-[28px] leading-none font-semibold">12<span class="font-sans text-xs font-normal text-cream/55"> min</span></span>
+            <span class="block text-[11px] text-cream/55 mt-1.5">Laghu · brief</span>
+          </button>
+          <button class="opt px-3 py-3" data-value="24" aria-pressed="false">
+            <span class="block font-display text-[28px] leading-none font-semibold">24<span class="font-sans text-xs font-normal text-cream/55"> min</span></span>
+            <span class="block text-[11px] text-cream/55 mt-1.5">Madhya</span>
+          </button>
+          <button class="opt px-3 py-3" data-value="48" aria-pressed="false">
+            <span class="block font-display text-[28px] leading-none font-semibold">48<span class="font-sans text-xs font-normal text-cream/55"> min</span></span>
+            <span class="block text-[11px] text-cream/55 mt-1.5">Muhurta</span>
+          </button>
+        </div>
+      </div>
+
+      <div>
+        <div class="flex items-baseline justify-between">
+          <h2 class="label">Sound profile</h2>
+          <span class="text-[11px] text-cream/40">Tap to preview</span>
+        </div>
+        <div class="grid grid-cols-2 gap-2.5" data-group="sound">
+          <button class="opt p-3 flex items-center gap-3" data-value="ram" aria-pressed="false">
+            <span class="opt-icon font-deva text-[13px]">राम</span>
+            <span class="min-w-0"><span class="block text-[14px] font-medium">Ram Ram</span><span class="block text-[11px] text-cream/50 leading-snug">Chant on the beat</span></span>
+          </button>
+          <button class="opt p-3 flex items-center gap-3" data-value="bead" aria-pressed="false">
+            <span class="opt-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="5" cy="15" r="2.6"/><circle cx="11" cy="10.5" r="2.6"/><circle cx="18" cy="9" r="2.6"/><path d="M7.3 13.6 8.8 12M13.5 9.9l2-.4"/></svg></span>
+            <span class="min-w-0"><span class="block text-[14px] font-medium">Bead Turning</span><span class="block text-[11px] text-cream/50 leading-snug">Wooden mala click</span></span>
+          </button>
+          <button class="opt p-3 flex items-center gap-3" data-value="drone" aria-pressed="false">
+            <span class="opt-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="M2 12c2-5 4-5 6 0s4 5 6 0 4-5 6 0"/><path d="M2 17c2-2 4-2 6 0s4 2 6 0 4-2 6 0" opacity=".5"/></svg></span>
+            <span class="min-w-0"><span class="block text-[14px] font-medium leading-tight">Sadhna Vibrations</span><span class="block text-[11px] text-cream/50 leading-snug">Deep resonant drone</span></span>
+          </button>
+          <button class="opt p-3 flex items-center gap-3" data-value="mute" aria-pressed="false">
+            <span class="opt-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9.5h3.5L12 5.5v13l-4.5-4H4z"/><path d="m16 9.5 5 5m0-5-5 5"/></svg></span>
+            <span class="min-w-0"><span class="block text-[14px] font-medium">Mute</span><span class="block text-[11px] text-cream/50 leading-snug">Complete silence</span></span>
+          </button>
+        </div>
+      </div>
+
+      <div class="opt flex items-center gap-4 p-4">
+        <div class="flex-1 min-w-0">
+          <h2 class="text-[15px] font-medium flex items-center gap-2">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" class="text-saffron"><rect x="5" y="11" width="14" height="10" rx="2.5"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>
+            Dhyana Lockout
+          </h2>
+          <p class="text-xs text-cream/55 mt-1 leading-relaxed">Glass shield blocks stray touches, keeps the screen awake, and reminds you to switch on Do Not Disturb. Exit only by press-and-hold.</p>
+        </div>
+        <button id="lockout-switch" class="switch" role="switch" aria-checked="true" aria-label="Dhyana Lockout"></button>
+      </div>
+
+      <div>
+        <div class="flex items-baseline justify-between">
+          <h2 class="label">Vibration strength</h2>
+          <button id="vib-test" class="text-[12px] text-saffron/90 font-medium -mt-1 px-1">Test bell pattern</button>
+        </div>
+        <div class="seg grid grid-cols-4" data-group="vib">
+          <button data-value="off" aria-pressed="false">Off</button>
+          <button data-value="gentle" aria-pressed="false">Gentle</button>
+          <button data-value="medium" aria-pressed="false">Medium</button>
+          <button data-value="strong" aria-pressed="false">Strong</button>
+        </div>
+        <p id="vib-note" class="text-[11px] text-cream/45 mt-2 leading-relaxed"></p>
+      </div>
+    </div>
+
+    <div class="pt-4">
+      <button id="btn-start" class="btn-primary w-full rounded-2xl py-3.5">
+        <span class="block text-[17px] font-semibold tracking-wide">Start Sadhna</span>
+        <span id="start-sub" class="block text-[11.5px] opacity-70 mt-0.5"></span>
+      </button>
+    </div>
+  </div>
+</section>
+
+<!-- ═════════════════════════ VIEW 2 · ACTIVE SADHNA ═════════════════════════ -->
+<section id="view-active" class="view" aria-label="Active sadhna">
+  <div class="absolute top-0 inset-x-0 px-4 pt-safe flex items-start justify-between gap-3">
+    <button id="btn-pause" class="icon-btn" aria-label="Pause session">
+      <svg id="ico-pause" width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="5" width="4" height="14" rx="1.2"/><rect x="14" y="5" width="4" height="14" rx="1.2"/></svg>
+      <svg id="ico-play" width="18" height="18" viewBox="0 0 24 24" fill="currentColor" hidden><path d="M8 5.5v13a1 1 0 0 0 1.5.86l10.5-6.5a1 1 0 0 0 0-1.72L9.5 4.64A1 1 0 0 0 8 5.5z"/></svg>
+    </button>
+    <div class="text-center flex-1 min-w-0">
+      <div id="timer" class="tabular text-[56px] leading-none font-extralight tracking-tight" role="timer">24:00</div>
+      <div class="mx-auto mt-3 h-[3px] w-36 rounded-full bg-cream/10 overflow-hidden">
+        <div id="timer-bar" class="h-full rounded-full bg-gradient-to-r from-saffron to-gold" style="width:0%"></div>
+      </div>
+      <p id="active-status" class="mt-2.5 text-[10.5px] uppercase tracking-[0.26em] text-cream/55">Settling into Padmasana</p>
+    </div>
+    <button id="btn-end" class="hold-ring" data-hold="1200" aria-label="Press and hold to end the session">
+      <span class="hold-ring-inner"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg></span>
+    </button>
+  </div>
+</section>
+
+<!-- ═════════════════════════ DHYANA LOCKOUT OVERLAY ═════════════════════════ -->
+<div id="lockout" role="region" aria-label="Dhyana Lockout active" aria-hidden="true">
+  <div class="frost"></div>
+  <div class="relative px-4 pt-safe flex flex-col items-center text-center">
+    <div class="glass rounded-[26px] px-5 pt-4 pb-4 w-full max-w-sm">
+      <p class="text-[10px] uppercase tracking-[0.32em] text-saffron flex items-center justify-center gap-1.5">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="11" width="14" height="10" rx="2.5"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>
+        Dhyana Lockout
+      </p>
+      <h2 class="font-display text-[23px] leading-tight mt-1.5 font-semibold">Sadhna Active — Pure Devotional Focus</h2>
+      <div class="flex items-center justify-between gap-3 mt-3.5">
+        <div class="text-left">
+          <div id="lock-timer" class="tabular text-[32px] font-extralight leading-none">24:00</div>
+          <div class="text-[9.5px] uppercase tracking-[0.24em] text-cream/45 mt-1.5">remaining</div>
+        </div>
+        <button id="btn-abandon" class="hold-pill" data-hold="2600" aria-label="Press and hold for about three seconds to abandon sadhna">
+          <span class="hold-fill"></span><span class="relative">Hold to Abandon Sadhna</span>
+        </button>
+      </div>
+    </div>
+    <p class="mt-3 inline-flex items-center gap-2 text-[11.5px] text-cream/70 px-3.5 py-2 rounded-full bg-charcoal/40 border border-cream/10">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"/></svg>
+      Turn on Do Not Disturb to silence calls
+    </p>
+  </div>
+</div>
+
+<!-- ═════════════════════════ NAAM JAAP TALLY (shared by Active + Lockout) ═════════════════════════ -->
+<button id="tally" hidden aria-label="Count one Naam Jaap. Tap the lower half of the screen, or press Space."></button>
+<div id="jaap-hud" hidden>
+  <div class="jaap-wrap">
+    <svg viewBox="0 0 180 180" aria-hidden="true">
+      <circle cx="90" cy="90" r="82" fill="rgba(23,18,14,.35)" stroke="rgba(246,235,217,.10)" stroke-width="3"/>
+      <circle id="mala-ring" cx="90" cy="90" r="82" fill="none" stroke="url(#ringGrad)" stroke-width="3.5" stroke-linecap="round" stroke-dasharray="515.2" stroke-dashoffset="515.2"/>
+      <defs><linearGradient id="ringGrad" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#F7B267"/><stop offset="1" stop-color="#D9651A"/></linearGradient></defs>
+    </svg>
+    <div class="jaap-center">
+      <div class="text-[9.5px] uppercase tracking-[0.32em] text-cream/55">Naam Jaap</div>
+      <div id="jaap-count" class="tabular text-[58px] leading-none font-extralight mt-1">0</div>
+      <div id="mala-line" class="text-[11px] text-cream/60 mt-1.5 tabular">Mala 0 · 0/108</div>
+    </div>
+  </div>
+  <p id="tally-hint" class="mt-3 text-[11.5px] tracking-wide text-cream/50">Tap anywhere in the lower half to count each Naam</p>
+</div>
+<div id="sr-live" class="sr-only" aria-live="polite"></div>
+
+<!-- ═════════════════════════ VIEW 3 · PRANAYAMA PAUSE ═════════════════════════ -->
+<section id="view-breath" class="view" aria-label="Pranayama box breathing">
+  <div class="absolute top-0 inset-x-0 px-5 pt-safe flex items-start justify-between gap-4">
+    <div>
+      <p class="text-[10px] uppercase tracking-[0.3em] text-saffron">Pranayama Pause</p>
+      <h2 class="font-display text-[24px] leading-tight font-semibold mt-1">Sama Vritti · Box Breath</h2>
+      <p class="text-[11.5px] text-cream/55 mt-0.5">4 in · 4 hold · 4 out · 4 hold</p>
+    </div>
+    <div class="text-right pt-1">
+      <div id="b-remaining" class="tabular text-[30px] font-extralight leading-none">5:00</div>
+      <div id="b-cycles" class="text-[9.5px] uppercase tracking-[0.24em] text-cream/45 mt-1.5">Cycle 1</div>
+    </div>
+  </div>
+  <div class="breath-panel">
+    <div class="breath-box">
+      <div id="b-orb"></div>
+      <svg viewBox="0 0 200 200" class="absolute inset-0 w-full h-full overflow-visible" aria-hidden="true">
+        <path d="M20 180 V20 H180 V180 Z" fill="none" stroke="rgba(246,235,217,.14)" stroke-width="2" stroke-linejoin="round"/>
+        <path id="b-trace" d="M20 180 V20 H180 V180 Z" fill="none" stroke="#F08A24" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round" stroke-dasharray="640" stroke-dashoffset="640"/>
+        <circle id="b-dot" cx="20" cy="180" r="6.5" fill="#F7B267" style="filter: drop-shadow(0 0 8px rgba(240,138,36,.9))"/>
+      </svg>
+      <span class="side-lbl" data-side="0" style="left:-6px; top:50%; transform:translate(-100%,-50%) rotate(-90deg) translateY(-50%); transform-origin:right center;">Inhale</span>
+      <span class="side-lbl" data-side="1" style="top:-4px; left:50%; transform:translate(-50%,-100%);">Hold</span>
+      <span class="side-lbl" data-side="2" style="right:-6px; top:50%; transform:translate(100%,-50%) rotate(90deg) translateY(-50%); transform-origin:left center;">Exhale</span>
+      <span class="side-lbl" data-side="3" style="bottom:-4px; left:50%; transform:translate(-50%,100%);">Hold</span>
+      <div class="absolute inset-0 flex flex-col items-center justify-center">
+        <div id="b-phase" class="font-display text-[30px] font-semibold leading-none">Inhale</div>
+        <div id="b-count" class="tabular text-[44px] font-extralight leading-none mt-2">4</div>
+      </div>
+    </div>
+    <p id="b-hint" class="mt-7 text-[13.5px] text-cream/75 text-center min-h-[20px]" aria-live="polite">Puraka — draw the breath in slowly</p>
+    <button id="b-skip" class="mt-3 text-[11px] uppercase tracking-[0.22em] text-cream/45 px-3 py-2">Complete sadhna now</button>
+  </div>
+</section>
+
+<!-- ═════════════════════════ VIEW 4 · COMPLETE ═════════════════════════ -->
+<section id="view-complete" class="view" aria-label="Sadhna complete">
+  <div class="sheet glass">
+    <div class="sheet-grip" aria-hidden="true"></div>
+    <div class="sheet-scroll text-center">
+      <p class="text-[10px] uppercase tracking-[0.32em] text-saffron">Sadhna Sampurna</p>
+      <p class="font-deva text-[34px] leading-tight mt-2 text-cream">जय श्री राम</p>
+      <p class="text-[13px] text-cream/60 mt-1">Sit for a moment before you rise.</p>
+      <div class="grid grid-cols-2 gap-2.5 mt-5 text-left">
+        <div class="opt p-3.5"><div class="label !mb-1">Naam Jaap</div><div id="c-jaap" class="tabular text-[28px] font-extralight leading-none">0</div></div>
+        <div class="opt p-3.5"><div class="label !mb-1">Malas</div><div id="c-mala" class="tabular text-[28px] font-extralight leading-none">0</div></div>
+        <div class="opt p-3.5"><div class="label !mb-1">Japa minutes</div><div id="c-min" class="tabular text-[28px] font-extralight leading-none">0</div></div>
+        <div class="opt p-3.5"><div class="label !mb-1">Breath cycles</div><div id="c-cycles" class="tabular text-[28px] font-extralight leading-none">0</div></div>
+      </div>
+      <p id="c-life" class="text-[11.5px] text-cream/50 mt-4"></p>
+    </div>
+    <div class="pt-4">
+      <button id="btn-again" class="btn-primary w-full rounded-2xl py-3.5 text-[16px] font-semibold tracking-wide">Return to Setup</button>
+    </div>
+  </div>
+</section>
+
+<div id="toast" role="status" aria-live="polite"></div>
+
+<script>
+'use strict';
+/* ════════════════════════════════════════════════════════════════════════════
+ *  NAAM JAAP SADHNA — Spiritual Pomodoro
+ *  Sections:  1 Config & storage · 2 Haptics · 3 Audio engine (Web Audio)
+ *             4 Stage (Three.js character) · 5 App flow & UI
+ *  Dev tip:   open with ?fast to turn minutes into seconds (12 min → 12 s) for testing.
+ * ════════════════════════════════════════════════════════════════════════════ */
+
+/* ───────────────────────── 1 · CONFIG & STORAGE ───────────────────────── */
+const FAST = new URLSearchParams(location.search).has('fast');
+const MINUTE_MS = FAST ? 1000 : 60000;
+const PRANAYAMA_MS = FAST ? 20000 : 5 * 60000;
+const MALA = 108;
+const REDUCED_MOTION = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const WIDE_MQ = matchMedia('(min-aspect-ratio: 11/10) and (min-width: 760px)');
+
+const $ = (s, r = document) => r.querySelector(s);
+const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+
+const Store = {
+  KEY: 'naam-jaap-sadhna.v1',
+  read() { try { return JSON.parse(localStorage.getItem(this.KEY)) || {}; } catch (_) { return {}; } },
+  write(d) { try { localStorage.setItem(this.KEY, JSON.stringify(d)); } catch (_) { /* private mode — fine */ } }
+};
+const saved = Store.read();
+const settings = Object.assign({ minutes: 24, sound: 'ram', lockout: true, vib: 'medium' }, saved.settings);
+const lifetime = Object.assign({ jaap: 0, sessions: 0, minutes: 0 }, saved.lifetime);
+const persist = () => Store.write({ settings, lifetime });
+
+/* ───────────────────────── 2 · HAPTICS ─────────────────────────
+ * navigator.vibrate can't set amplitude, so "strength" scales each pulse's
+ * ON-duration (gaps stay the same). iOS Safari has no Vibration API at all.        */
+const Haptics = {
+  supported: typeof navigator.vibrate === 'function',
+  SCALE: { off: 0, gentle: 0.55, medium: 1, strong: 1.45 },
+  fire(pattern) {
+    const k = this.SCALE[settings.vib];
+    if (!this.supported || !k) return;
+    const p = pattern.map((v, i) => (i % 2 === 0 ? Math.max(8, Math.round(v * k)) : v));
+    try { navigator.vibrate(p); } catch (_) {}
+  },
+  commence()   { this.fire([1000]); },                       // smooth grounding pulse
+  halfway()    { this.fire([200, 100, 200]); },              // double tap
+  templeBell() { this.fire([650, 160, 480, 150, 340, 140, 230, 130, 150, 120, 90, 110, 50]); }, // decaying bell wave
+  mala()       { this.fire([70, 60, 70, 60, 160]); },
+  tick()       { this.fire([14]); },
+  phase()      { this.fire([40]); }
+};
+
+/* ───────────────────────── 3 · AUDIO ENGINE ─────────────────────────
+ * Everything is synthesised live — no audio files. Signal path:
+ *   voice → profile gain → input → (dry + convolver reverb) → compressor → master → out  */
+const AudioEngine = (() => {
+  const SA = 138.59;                       // tonic (C#3) shared by chant, tanpura and drone
+  let ctx = null, input = null, noiseBuf = null;
+  let out = null, sched = null, nextBeat = 0, beat = 0, current = 'mute', previewTimer = null;
+  const api = { onBead: null };
+
+  api.ensure = () => {
+    if (!ctx) {
+      const AC = window.AudioContext || window.webkitAudioContext;
+      if (!AC) return null;
+      try { if (navigator.audioSession) navigator.audioSession.type = 'playback'; } catch (_) {}
+      ctx = new AC();
+      const comp = ctx.createDynamicsCompressor();
+      comp.threshold.value = -20; comp.knee.value = 18; comp.ratio.value = 3; comp.attack.value = 0.01; comp.release.value = 0.4;
+      const master = gain(0.9);
+      comp.connect(master); master.connect(ctx.destination);
+      input = gain(1); input.connect(comp);
+      const verb = ctx.createConvolver(); verb.buffer = impulse(3.2, 2.6);
+      const wet = gain(0.3); input.connect(verb); verb.connect(wet); wet.connect(comp);
+      noiseBuf = ctx.createBuffer(1, ctx.sampleRate * 2, ctx.sampleRate);
+      const d = noiseBuf.getChannelData(0);
+      for (let i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1;
+    }
+    if (ctx.state === 'suspended') ctx.resume().catch(() => {});
+    return ctx;
+  };
+
+  /* small node helpers */
+  function gain(v = 0) { const g = ctx.createGain(); g.gain.value = v; return g; }
+  function osc(type, f, t) { const o = ctx.createOscillator(); o.type = type; o.frequency.setValueAtTime(f, t); return o; }
+  function filt(type, f, q = 1) { const b = ctx.createBiquadFilter(); b.type = type; b.frequency.value = f; b.Q.value = q; return b; }
+  function noise() { const s = ctx.createBufferSource(); s.buffer = noiseBuf; s.loop = true; return s; }
+  function impulse(sec, decay) {
+    const len = Math.floor(ctx.sampleRate * sec), b = ctx.createBuffer(2, len, ctx.sampleRate);
+    for (let c = 0; c < 2; c++) { const d = b.getChannelData(c); for (let i = 0; i < len; i++) d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / len, decay); }
+    return b;
+  }
+
+  /* "Ram" — formant voice: R glide → open "aa" → closed nasal "m" hum */
+  function chantRam(dest, t, f, dur) {
+    const end = t + dur + 0.5, tm = t + Math.max(0.3, dur * 0.48);
+    const env = gain(0); env.connect(dest);
+    env.gain.setValueAtTime(0.0001, t);
+    env.gain.exponentialRampToValueAtTime(0.9, t + 0.07);
+    env.gain.setValueAtTime(0.9, t + dur * 0.6);
+    env.gain.linearRampToValueAtTime(0.65, t + dur * 0.85);
+    env.gain.exponentialRampToValueAtTime(0.0001, t + dur + 0.45);
+
+    const vib = osc('sine', 5.1, t), vibAmt = gain(0);
+    vibAmt.gain.setValueAtTime(0, t); vibAmt.gain.linearRampToValueAtTime(f * 0.012, t + 0.45);
+    vib.connect(vibAmt);
+
+    const pre = gain(0.6);
+    const voices = [0, -7].map(det => {
+      const o = osc('sawtooth', f * 0.93, t); o.detune.value = det;
+      o.frequency.exponentialRampToValueAtTime(f, t + 0.14);
+      vibAmt.connect(o.frequency); o.connect(pre); return o;
+    });
+
+    const mouth = filt('lowpass', 2400, 0.6);
+    mouth.frequency.setValueAtTime(2400, t); mouth.frequency.linearRampToValueAtTime(3400, t + 0.1);
+    mouth.frequency.setValueAtTime(3400, tm); mouth.frequency.exponentialRampToValueAtTime(380, tm + 0.12);
+    // [r, aa, m] formant centres, gain, Q
+    [[420, 760, 270, 1.0, 5], [1150, 1200, 1250, 0.6, 7], [1550, 2600, 2250, 0.28, 9]].forEach(([fr, fa, fm, g, q], i) => {
+      const bp = filt('bandpass', fr, q);
+      bp.frequency.setValueAtTime(fr, t); bp.frequency.linearRampToValueAtTime(fa, t + 0.09);
+      bp.frequency.setValueAtTime(fa, tm); bp.frequency.linearRampToValueAtTime(fm, tm + 0.1);
+      const fg = gain(g * 2.4);
+      if (i > 0) { fg.gain.setValueAtTime(g * 2.4, tm); fg.gain.linearRampToValueAtTime(g * 0.5, tm + 0.12); }
+      pre.connect(bp); bp.connect(fg); fg.connect(mouth);
+    });
+    mouth.connect(env);
+
+    const hum = osc('sine', f, t), humG = gain(0);
+    humG.gain.setValueAtTime(0.05, t); humG.gain.setValueAtTime(0.05, tm); humG.gain.linearRampToValueAtTime(0.32, tm + 0.12);
+    vibAmt.connect(hum.frequency); hum.connect(humG); humG.connect(env);
+
+    [vib, hum, ...voices].forEach(o => { o.start(t); o.stop(end); });
+  }
+
+  /* Tanpura pluck that sits under the chant */
+  function pluck(dest, t, f, amp = 0.05, dur = 2.8) {
+    const g = gain(0);
+    g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(amp, t + 0.012); g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+    const lp = filt('lowpass', 4200, 2);
+    lp.frequency.setValueAtTime(4200, t); lp.frequency.exponentialRampToValueAtTime(700, t + dur * 0.8);
+    [0, 5].forEach(d => { const o = osc('sawtooth', f, t); o.detune.value = d; o.connect(lp); o.start(t); o.stop(t + dur + 0.05); });
+    lp.connect(g); g.connect(dest);
+  }
+
+  /* Wooden bead: thumb-friction rustle, then two knocks (bead meets bead) */
+  function knock(dest, t, f, amp) {
+    const o = osc('sine', f, t); o.frequency.exponentialRampToValueAtTime(f * 0.55, t + 0.05);
+    const g = gain(0); g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(amp, t + 0.002); g.gain.exponentialRampToValueAtTime(0.0001, t + 0.07);
+    o.connect(g); g.connect(dest); o.start(t); o.stop(t + 0.09);
+    const n = noise(), bp = filt('bandpass', 3200, 3), ng = gain(0);
+    ng.gain.setValueAtTime(0.0001, t); ng.gain.exponentialRampToValueAtTime(amp * 1.4, t + 0.001); ng.gain.exponentialRampToValueAtTime(0.0001, t + 0.03);
+    n.connect(bp); bp.connect(ng); ng.connect(dest); n.start(t, Math.random()); n.stop(t + 0.05);
+  }
+  function beadTurn(dest, t) {
+    const n = noise(), bp = filt('bandpass', 1500, 0.8), g = gain(0);
+    g.gain.setValueAtTime(0.0001, t - 0.13); g.gain.exponentialRampToValueAtTime(0.06, t - 0.05); g.gain.exponentialRampToValueAtTime(0.0001, t + 0.02);
+    n.connect(bp); bp.connect(g); g.connect(dest); n.start(t - 0.13, Math.random()); n.stop(t + 0.05);
+    knock(dest, t, 1700 + Math.random() * 200, 0.38);
+    knock(dest, t + 0.045 + Math.random() * 0.02, 2300, 0.17);
+  }
+
+  /* Deep resonant drone (sub Sa + Sa + Pa, a growling resonant saw, and a breath of air) */
+  function startDrone(dest, nodes) {
+    const t = ctx.currentTime;
+    const body = gain(0.55); body.connect(dest);
+    const ampL = osc('sine', 0.09, t), ampG = gain(0.2); ampL.connect(ampG); ampG.connect(body.gain);
+    [[SA / 2, 'sine', 0.6], [SA, 'sine', 0.22], [SA * 0.75, 'triangle', 0.09], [SA * 1.5, 'sine', 0.05]].forEach(([f, type, a]) => {
+      const o = osc(type, f, t), g = gain(a); o.connect(g); g.connect(body); o.start(t); nodes.push(o);
+    });
+    const saw = osc('sawtooth', SA / 2, t); saw.detune.value = 4;
+    const lp = filt('lowpass', 240, 7), lfo = osc('sine', 0.045, t), lfoG = gain(110);
+    lfo.connect(lfoG); lfoG.connect(lp.frequency);
+    const sg = gain(0.12); saw.connect(lp); lp.connect(sg); sg.connect(body);
+    const n = noise(), nb = filt('bandpass', 320, 0.7), ng = gain(0.05); n.connect(nb); nb.connect(ng); ng.connect(body);
+    [saw, lfo, ampL, n].forEach(x => { x.start(t); nodes.push(x); });
+  }
+
+  /* Look-ahead scheduler: beats sit on whole seconds from session start,
+     so the chant lands with the timer's ticks. */
+  function schedule(dest) {
+    if (!ctx || dest !== out) return;
+    const horizon = ctx.currentTime + 1.6;
+    while (nextBeat < horizon) {
+      if (current === 'ram') {
+        // 8-beat cycle: "Ram · Ram · Ram(Re) · Raaam" then four beats of tanpura only
+        const phrase = { 0: [SA, 0.85], 1: [SA, 0.85], 2: [SA * 9 / 8, 0.85], 3: [SA, 1.7] }[beat % 8];
+        if (phrase) chantRam(dest, nextBeat, phrase[0], phrase[1]);
+        pluck(dest, nextBeat, [SA * 0.75, SA, SA, SA / 2][beat % 4], beat % 4 === 3 ? 0.07 : 0.045);
+        nextBeat += 1;
+      } else if (current === 'bead') {
+        beadTurn(dest, nextBeat);
+        const at = nextBeat;
+        setTimeout(() => { if (dest === out && api.onBead) api.onBead(); }, Math.max(0, (at - ctx.currentTime) * 1000));
+        nextBeat += 1 + Math.random();          // every 1–2 s, like a human hand
+      }
+      beat++;
+    }
+  }
+
+  api.startProfile = name => {
+    clearTimeout(previewTimer);
+    api.stopProfile(0.25);
+    current = name;
+    if (name === 'mute' || !api.ensure()) return;
+    const t = ctx.currentTime;
+    out = gain(0); out._nodes = [];
+    out.gain.setValueAtTime(0, t); out.gain.linearRampToValueAtTime(1, t + (name === 'drone' ? 3 : 0.5));
+    out.connect(input);
+    if (name === 'drone') startDrone(out, out._nodes);
+    else { const dest = out; nextBeat = t + 0.15; beat = 0; schedule(dest); sched = setInterval(() => schedule(dest), 120); }
+  };
+
+  api.stopProfile = (fade = 0.8) => {
+    clearInterval(sched); sched = null;
+    if (!out || !ctx) { out = null; return; }
+    const o = out, t = ctx.currentTime; out = null;
+    o.gain.cancelScheduledValues(t); o.gain.setValueAtTime(o.gain.value, t); o.gain.linearRampToValueAtTime(0, t + fade);
+    setTimeout(() => { o._nodes.forEach(n => { try { n.stop(); } catch (_) {} }); o.disconnect(); }, fade * 1000 + 200);
+  };
+
+  api.preview = name => {
+    api.startProfile(name);
+    if (name !== 'mute') previewTimer = setTimeout(() => api.stopProfile(1.2), 4600);
+  };
+
+  /* Temple bell — inharmonic partials with a slow beat between near-twins */
+  api.bell = (amp = 0.5, base = 293.66, delay = 0.05) => {
+    if (settings.sound === 'mute' || !api.ensure()) return;
+    const t = ctx.currentTime + delay;
+    [[0.5, 0.55, 9], [1, 1, 7], [1.19, 0.42, 5.5], [1.51, 0.32, 4.5], [2.0, 0.3, 3.6], [2.74, 0.2, 2.6], [3.76, 0.12, 1.9], [5.4, 0.07, 1.2]]
+      .forEach(([r, a, d], i) => {
+        (i < 4 ? [0, 1.3] : [0]).forEach((beatHz, j) => {
+          const o = osc('sine', base * r + beatHz, t), g = gain(0);
+          g.gain.setValueAtTime(0.0001, t);
+          g.gain.exponentialRampToValueAtTime(amp * a * (j ? 0.5 : 1) * 0.35, t + 0.004);
+          g.gain.exponentialRampToValueAtTime(0.0001, t + d);
+          o.connect(g); g.connect(input); o.start(t); o.stop(t + d + 0.1);
+        });
+      });
+    const n = noise(), hp = filt('highpass', 2500, 0.7), ng = gain(0);
+    ng.gain.setValueAtTime(0.0001, t); ng.gain.exponentialRampToValueAtTime(amp * 0.25, t + 0.002); ng.gain.exponentialRampToValueAtTime(0.0001, t + 0.06);
+    n.connect(hp); hp.connect(ng); ng.connect(input); n.start(t, Math.random()); n.stop(t + 0.08);
+  };
+  api.templeBell = () => { api.bell(0.6, 293.66, 0.05); api.bell(0.42, 293.66, 2.6); api.bell(0.28, 293.66, 5.0); };
+  api.chime = () => api.bell(0.22, 587.33, 0.03);
+
+  /* Breath guidance: rising tone + airy noise on inhale, falling on exhale, tiny chime on holds */
+  api.breathCue = phase => {
+    if (settings.sound === 'mute' || !api.ensure()) return;
+    if (phase === 1 || phase === 3) { api.bell(0.1, 880, 0.02); return; }
+    const t = ctx.currentTime + 0.02, D = 3.9, up = phase === 0;
+    const o = osc('sine', up ? SA * 2 : SA * 3, t); o.frequency.exponentialRampToValueAtTime(up ? SA * 3 : SA * 2, t + D);
+    const g = gain(0); g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(0.07, t + 1.2); g.gain.setValueAtTime(0.07, t + D - 1); g.gain.exponentialRampToValueAtTime(0.0001, t + D);
+    o.connect(g); g.connect(input); o.start(t); o.stop(t + D + 0.05);
+    const n = noise(), bp = filt('bandpass', 500, 1.2), ng = gain(0);
+    bp.frequency.setValueAtTime(up ? 500 : 1500, t); bp.frequency.exponentialRampToValueAtTime(up ? 1500 : 500, t + D);
+    ng.gain.setValueAtTime(0.0001, t); ng.gain.exponentialRampToValueAtTime(0.05, t + 1.5); ng.gain.exponentialRampToValueAtTime(0.0001, t + D);
+    n.connect(bp); bp.connect(ng); ng.connect(input); n.start(t, Math.random()); n.stop(t + D + 0.05);
+  };
+
+  return api;
+})();
+
+/* ───────────────────────── 4 · STAGE — THREE.JS CHARACTER ─────────────────────────
+ *
+ *  ╔══════════════════════════════════════════════════════════════════════════╗
+ *  ║  MODEL SWAP POINT — replacing the placeholder cubes with a real Hanuman   ║
+ *  ╠══════════════════════════════════════════════════════════════════════════╣
+ *  ║  Everything animates through the `rig` handles (joint Groups) and the    ║
+ *  ║  POSES table. A real model only has to provide the same handles:         ║
+ *  ║                                                                          ║
+ *  ║  1. Load GLTFLoader (see <head>) and, inside buildCharacter():           ║
+ *  ║       new THREE.GLTFLoader().load('hanuman.glb', gltf => {               ║
+ *  ║         const m = gltf.scene; rig.body.add(m);                           ║
+ *  ║         rig.legL.hip  = m.getObjectByName('LeftUpLeg');   // bone names  ║
+ *  ║         rig.legL.knee = m.getObjectByName('LeftLeg');     // depend on   ║
+ *  ║         rig.armR.shoulder = m.getObjectByName('RightArm');// your rig    ║
+ *  ║         rig.potli = m.getObjectByName('Potli'); ...                      ║
+ *  ║       });                                                                ║
+ *  ║     then retune the POSES angles to the bones' local axes.               ║
+ *  ║                                                                          ║
+ *  ║  2. OR skip POSES and play authored clips instead:                       ║
+ *  ║       mixer = new THREE.AnimationMixer(m);                               ║
+ *  ║       idle = mixer.clipAction(clip('Idle_Float'));                       ║
+ *  ║       sit  = mixer.clipAction(clip('Padmasana_Sit'));                    ║
+ *  ║       // in setMode('sadhna'): idle.crossFadeTo(sit, 1.5)                 ║
+ *  ║       // in loop(): mixer.update(dt)                                      ║
+ *  ║                                                                          ║
+ *  ║  Keep root/body/potli as wrappers: the float bob, potli pulse, breathing ║
+ *  ║  and camera framing all work on them unchanged.                          ║
+ *  ╚══════════════════════════════════════════════════════════════════════════╝ */
+const Stage = (() => {
+  const api = { ready: false, setMode() {}, setView() {}, setBreath() {}, pulsePotli() {}, flash() {}, setExternalPulse() {}, setPaused() {} };
+  if (!window.THREE) return api;
+
+  let renderer;
+  try { renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, powerPreference: 'low-power' }); }
+  catch (_) { return api; }
+
+  const container = document.getElementById('stage');
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+  renderer.setSize(innerWidth, innerHeight);
+  renderer.setClearColor(0x000000, 0);          // transparent: the CSS gradient is the ambient background
+  container.appendChild(renderer.domElement);
+
+  const scene = new THREE.Scene();
+  const camera = new THREE.PerspectiveCamera(35, innerWidth / innerHeight, 0.1, 200);
+
+  /* Lighting: warm sky, key light, saffron rim */
+  scene.add(new THREE.HemisphereLight(0xffe6c7, 0x2a1a10, 0.8));
+  const key = new THREE.DirectionalLight(0xffd6a8, 1.05); key.position.set(2.5, 4, 5); scene.add(key);
+  const rim = new THREE.DirectionalLight(0xff8a3d, 0.9); rim.position.set(-3, 2.5, -3.5); scene.add(rim);
+
+  const mat = (color, o = {}) => new THREE.MeshStandardMaterial(Object.assign({ color, flatShading: true, roughness: 0.72, metalness: 0 }, o));
+  const M = {
+    fur:     mat(0xD8642A),
+    furDark: mat(0xA9441A),
+    face:    mat(0xF1C08A),
+    dhoti:   mat(0xE9A93A),
+    sash:    mat(0xB8321B),
+    gold:    mat(0xE7B54C, { metalness: 0.35, roughness: 0.38, emissive: 0x3a2600 }),
+    eye:     mat(0x1a0f0a, { roughness: 0.4 }),
+    potli:   mat(0x9E1F2E, { roughness: 0.85, emissive: 0x1a0306 }),
+    pad:     mat(0x4E6B3A),
+    petal:   mat(0xF2B8A2, { emissive: 0x4a2418, side: THREE.DoubleSide }),
+    petalIn: mat(0xF8DCC8, { emissive: 0x4a3020, side: THREE.DoubleSide })
+  };
+  function box(w, h, d, m, x = 0, y = 0, z = 0) {
+    const mesh = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), m);
+    mesh.position.set(x, y, z); return mesh;
+  }
+  function radialTexture(stops) {
+    const c = document.createElement('canvas'); c.width = c.height = 128;
+    const g = c.getContext('2d'), grd = g.createRadialGradient(64, 64, 0, 64, 64, 64);
+    stops.forEach(([o, col]) => grd.addColorStop(o, col));
+    g.fillStyle = grd; g.fillRect(0, 0, 128, 128);
+    return new THREE.CanvasTexture(c);
+  }
+
+  const rig = {};
+
+  /* ── PLACEHOLDER CHARACTER ─────────────────────────────────────────────
+   * Blocky low-poly stand-in for the floating Hanuman asset.
+   * Hierarchy (each joint is a Group pivot so poses are plain rotations):
+   *   root (float bob) ─┬─ body (pose height) ─┬─ pelvis
+   *                     │                      ├─ spine ─┬─ torso, sash, necklace
+   *                     │                      │         ├─ neck ─ head ─ crown/mukut, halo
+   *                     │                      │         └─ shoulderL/R ─ elbow ─ hand
+   *                     │                      ├─ hipL/R ─ knee ─ ankle ─ foot
+   *                     │                      ├─ tail (9 chained segments)
+   *                     │                      └─ potli (Sadhna bead bag)
+   *                     └─ lotus seat (blooms when seated)                       */
+  function buildPlaceholderCharacter() {
+    const root = new THREE.Group(); scene.add(root);
+    const body = new THREE.Group(); root.add(body);
+
+    body.add(box(0.82, 0.32, 0.52, M.dhoti, 0, 0.02, 0));                   // pelvis / dhoti
+
+    const spine = new THREE.Group(); spine.position.y = 0.12; body.add(spine);
+    const torso = box(0.9, 1.0, 0.55, M.fur, 0, 0.5, 0); spine.add(torso);
+    const sash = box(0.12, 1.12, 0.585, M.sash, 0, 0.5, 0); sash.rotation.z = 0.6; spine.add(sash);  // janeu / sash
+    spine.add(box(0.64, 0.08, 0.6, M.gold, 0, 0.95, 0));                    // necklace
+    spine.add(box(0.94, 0.1, 0.6, M.gold, 0, 0.04, 0));                     // waist belt
+
+    // Head
+    const neck = new THREE.Group(); neck.position.y = 1.05; spine.add(neck);
+    const head = new THREE.Group(); head.position.y = 0.36; neck.add(head);
+    head.add(box(0.62, 0.6, 0.58, M.fur));
+    head.add(box(0.48, 0.26, 0.14, M.face, 0, -0.13, 0.33));                // muzzle
+    head.add(box(0.12, 0.06, 0.03, M.eye, 0, -0.04, 0.41));                 // nose
+    head.add(box(0.2, 0.025, 0.02, M.furDark, 0, -0.19, 0.405));            // mouth line
+    head.add(box(0.56, 0.08, 0.06, M.furDark, 0, 0.15, 0.3));               // brow
+    head.add(box(0.05, 0.1, 0.03, M.sash, 0, 0.245, 0.3));                  // tilak
+    const eyeL = box(0.09, 0.09, 0.04, M.eye, -0.14, 0.07, 0.3);
+    const eyeR = box(0.09, 0.09, 0.04, M.eye, 0.14, 0.07, 0.3);
+    head.add(eyeL, eyeR);
+    head.add(box(0.12, 0.2, 0.12, M.face, -0.36, 0.02, 0), box(0.12, 0.2, 0.12, M.face, 0.36, 0.02, 0));  // ears
+
+    // Mukut (crown): stacked tiers + pyramid spire + jewel
+    const crown = new THREE.Group(); crown.position.y = 0.3; head.add(crown);
+    crown.add(box(0.68, 0.12, 0.64, M.gold, 0, 0.06, 0));
+    crown.add(box(0.5, 0.16, 0.48, M.gold, 0, 0.2, 0));
+    crown.add(box(0.34, 0.16, 0.32, M.gold, 0, 0.36, 0));
+    const spire = new THREE.Mesh(new THREE.ConeGeometry(0.2, 0.42, 4), M.gold);
+    spire.position.y = 0.64; spire.rotation.y = Math.PI / 4; crown.add(spire);
+    crown.add(box(0.1, 0.1, 0.04, M.sash, 0, 0.07, 0.33));
+
+    // Halo behind the head
+    const halo = new THREE.Mesh(new THREE.TorusGeometry(0.62, 0.028, 6, 48),
+      new THREE.MeshBasicMaterial({ color: 0xF5B54A, transparent: true, opacity: 0.5 }));
+    halo.position.set(0, 0.15, -0.42); head.add(halo);
+
+    // Arms
+    function makeArm(side) {
+      const shoulder = new THREE.Group(); shoulder.position.set(0.58 * side, 0.92, 0); spine.add(shoulder);
+      shoulder.add(box(0.3, 0.26, 0.3, M.fur, 0, -0.05, 0));                // deltoid
+      shoulder.add(box(0.24, 0.55, 0.24, M.fur, 0, -0.3, 0));               // upper arm
+      shoulder.add(box(0.27, 0.07, 0.27, M.gold, 0, -0.2, 0));              // bajuband
+      const elbow = new THREE.Group(); elbow.position.y = -0.56; shoulder.add(elbow);
+      elbow.add(box(0.22, 0.48, 0.22, M.fur, 0, -0.24, 0));                 // forearm
+      elbow.add(box(0.25, 0.07, 0.25, M.gold, 0, -0.42, 0));                // kada
+      const hand = box(0.22, 0.2, 0.24, M.face, 0, -0.56, 0); elbow.add(hand);
+      return { shoulder, elbow, hand };
+    }
+    // Legs (hip uses YXZ so x folds the thigh forward, then y swings it outward)
+    function makeLeg(side) {
+      const hip = new THREE.Group(); hip.rotation.order = 'YXZ'; hip.position.set(0.24 * side, 0, 0); body.add(hip);
+      hip.add(box(0.32, 0.62, 0.32, M.dhoti, 0, -0.3, 0));                  // thigh
+      const knee = new THREE.Group(); knee.position.y = -0.6; hip.add(knee);
+      knee.add(box(0.25, 0.56, 0.25, M.fur, 0, -0.28, 0));                  // shin
+      knee.add(box(0.28, 0.06, 0.28, M.gold, 0, -0.5, 0));                  // anklet
+      const ankle = new THREE.Group(); ankle.position.y = -0.58; knee.add(ankle);
+      ankle.add(box(0.24, 0.12, 0.36, M.face, 0, -0.04, 0.08));             // foot
+      return { hip, knee, ankle };
+    }
+
+    // Tail: chained segments that curl up behind
+    const tail = new THREE.Group(); tail.position.set(0, 0.05, -0.3); body.add(tail);
+    const tailSegs = []; let parent = tail;
+    for (let i = 0; i < 9; i++) {
+      const seg = new THREE.Group(); seg.position.y = i === 0 ? 0 : 0.17; parent.add(seg);
+      seg.add(box(0.11 - i * 0.005, 0.18, 0.11 - i * 0.005, i === 8 ? M.furDark : M.fur, 0, 0.085, 0));
+      tailSegs.push(seg); parent = seg;
+    }
+    tailSegs[0].rotation.x = -2.3;
+
+    // Sadhna Potli — prayer-bead bag
+    const potli = new THREE.Group(); body.add(potli);
+    const bag = new THREE.Mesh(new THREE.IcosahedronGeometry(0.26, 1), M.potli); bag.scale.set(1, 0.9, 1); potli.add(bag);
+    const pNeck = new THREE.Mesh(new THREE.CylinderGeometry(0.07, 0.12, 0.14, 6), M.potli); pNeck.position.y = 0.25; potli.add(pNeck);
+    const tie = new THREE.Mesh(new THREE.TorusGeometry(0.09, 0.025, 5, 10), M.gold); tie.rotation.x = Math.PI / 2; tie.position.y = 0.26; potli.add(tie);
+    potli.add(box(0.04, 0.12, 0.04, M.gold, 0.08, 0.2, 0.08));               // tassel
+    [[-0.05, 0.36, 0.02], [0.04, 0.35, -0.03], [0, 0.4, 0.04]].forEach(p => {   // beads peeking out
+      const b = new THREE.Mesh(new THREE.IcosahedronGeometry(0.035, 0), M.gold); b.position.set(...p); potli.add(b);
+    });
+    const potliLight = new THREE.PointLight(0xff9a40, 0.2, 2.4); potliLight.position.y = 0.3; potli.add(potliLight);
+
+    // Lotus seat (scales/blooms in with the seated pose)
+    const lotus = new THREE.Group(); lotus.position.y = -0.46; root.add(lotus);
+    lotus.add(new THREE.Mesh(new THREE.CylinderGeometry(0.95, 0.75, 0.1, 10), M.pad));
+    const petals = [];
+    [[8, 0.52, 0.58, 0.3, M.petal, 0.12, 0.72], [8, 0.32, 0.46, 0.24, M.petalIn, 0.08, 0.36]].forEach(([n, r, len, w, m, closed, open], ring) => {
+      for (let i = 0; i < n; i++) {
+        const pivot = new THREE.Group(); pivot.rotation.y = (i + ring * 0.5) / n * Math.PI * 2; lotus.add(pivot);
+        const tilt = new THREE.Group(); tilt.position.set(0, 0.05, r); pivot.add(tilt);
+        const petal = new THREE.Mesh(new THREE.ConeGeometry(w, len, 4), m); petal.scale.z = 0.35; petal.position.y = len / 2; tilt.add(petal);
+        petals.push({ tilt, closed, open });
+      }
+    });
+    const pod = new THREE.Mesh(new THREE.CylinderGeometry(0.3, 0.25, 0.12, 8), M.gold); pod.position.y = 0.08; lotus.add(pod);
+
+    Object.assign(rig, {
+      root, body, spine, torso, neck, head, halo, eyes: [eyeL, eyeR],
+      armL: makeArm(-1), armR: makeArm(1), legL: makeLeg(-1), legR: makeLeg(1),
+      tailSegs, tailCurl: 0.25, potli, bag, potliLight, lotus, petals
+    });
+  }
+
+  function buildCharacter() {
+    // ↓↓↓ Swap this call for a GLTFLoader load that fills `rig` (see MODEL SWAP POINT above)
+    buildPlaceholderCharacter();
+  }
+  buildCharacter();
+
+  /* Environment: aura glow, floor yantra, rising golden motes */
+  const aura = new THREE.Sprite(new THREE.SpriteMaterial({
+    map: radialTexture([[0, 'rgba(255,255,255,1)'], [0.35, 'rgba(255,255,255,.35)'], [1, 'rgba(255,255,255,0)']]),
+    color: 0xff9a3c, transparent: true, opacity: 0.3, depthWrite: false, blending: THREE.AdditiveBlending
+  }));
+  aura.position.set(0, 1.0, -0.8); aura.scale.set(5, 5, 1); rig.root.add(aura);
+
+  const yantra = new THREE.Group(); yantra.position.y = -1.45; yantra.rotation.x = -Math.PI / 2; scene.add(yantra);
+  const yMat = new THREE.MeshBasicMaterial({ color: 0xE7B54C, transparent: true, opacity: 0.22, side: THREE.DoubleSide, depthWrite: false });
+  yantra.add(new THREE.Mesh(new THREE.RingGeometry(1.55, 1.58, 72), yMat));
+  yantra.add(new THREE.Mesh(new THREE.RingGeometry(1.85, 1.865, 72), yMat));
+  [0, Math.PI / 4].forEach(r => { const sq = new THREE.Mesh(new THREE.RingGeometry(1.3, 1.33, 4, 1), yMat); sq.rotation.z = r; yantra.add(sq); });
+
+  const P = 140, pPos = new Float32Array(P * 3), pSpd = new Float32Array(P);
+  for (let i = 0; i < P; i++) {
+    pPos[i * 3] = (Math.random() - 0.5) * 10; pPos[i * 3 + 1] = Math.random() * 8 - 3; pPos[i * 3 + 2] = (Math.random() - 0.5) * 6 - 1;
+    pSpd[i] = 0.08 + Math.random() * 0.22;
+  }
+  const pGeo = new THREE.BufferGeometry(); pGeo.setAttribute('position', new THREE.BufferAttribute(pPos, 3));
+  const motes = new THREE.Points(pGeo, new THREE.PointsMaterial({
+    size: 0.07, map: radialTexture([[0, 'rgba(255,255,255,1)'], [1, 'rgba(255,255,255,0)']]),
+    color: 0xffc27a, transparent: true, opacity: 0.75, depthWrite: false, blending: THREE.AdditiveBlending
+  }));
+  scene.add(motes);
+
+  /* ── POSES ─────────────────────────────────────────────────────────────
+   * Euler angles (radians) per joint: [x, y, z]. `lotus` doubles as a 0→1 "seatedness" weight. */
+  const POSES = {
+    float: {
+      bodyY: 0.25, lean: 0, headX: -0.04, eyes: 1, lotus: 0, tailCurl: 0.24,
+      hipL: [-0.28, 0, -0.06], hipR: [-0.12, 0, 0.07],
+      kneeL: [0.55, 0, 0], kneeR: [0.38, 0, 0],
+      ankleL: [0.25, 0, 0], ankleR: [0.2, 0, 0],
+      shL: [-0.12, 0, -0.2], shR: [-0.4, 0, 0.14],
+      elL: [-0.35, 0, 0], elR: [-0.5, 0, 0],
+      potli: [0.7, -0.22, 0.6]
+    },
+    padmasana: {
+      bodyY: 0, lean: 0.06, headX: 0.16, eyes: 0.12, lotus: 1, tailCurl: 0.3,
+      hipL: [-1.45, -0.45, 0], hipR: [-1.45, 0.45, 0],
+      kneeL: [-0.18, 0, 2.3], kneeR: [0.06, 0, -2.3],
+      ankleL: [-0.3, 0, 0], ankleR: [-0.3, 0, 0],
+      shL: [-0.15, 0.7, -0.1], shR: [-0.15, -0.7, 0.1],
+      elL: [-1.3, 0, 0], elR: [-1.3, 0, 0],
+      potli: [0, 0.32, 0.56]
+    }
+  };
+  const clonePose = p => JSON.parse(JSON.stringify(p));
+  const lerpPose = (a, b, k) => {
+    const o = {};
+    for (const key in a) o[key] = Array.isArray(a[key]) ? a[key].map((v, i) => v + (b[key][i] - v) * k) : a[key] + (b[key] - a[key]) * k;
+    return o;
+  };
+  const easeInOut = k => (k < 0.5 ? 4 * k * k * k : 1 - Math.pow(-2 * k + 2, 3) / 2);
+  const setRot = (o, r) => o.rotation.set(r[0], r[1], r[2], o.rotation.order);
+
+  let pose = clonePose(POSES.float), poseName = 'float', trans = null;
+  function goToPose(name, ms) {
+    if (poseName === name && !trans) return;
+    poseName = name;
+    trans = { from: clonePose(pose), to: POSES[name], start: performance.now(), dur: ms };
+  }
+  function applyPose(p) {
+    rig.body.position.y = p.bodyY;
+    rig.spine.rotation.x = p.lean;
+    rig.neck.rotation.x = p.headX;
+    setRot(rig.legL.hip, p.hipL);     setRot(rig.legR.hip, p.hipR);
+    setRot(rig.legL.knee, p.kneeL);   setRot(rig.legR.knee, p.kneeR);
+    setRot(rig.legL.ankle, p.ankleL); setRot(rig.legR.ankle, p.ankleR);
+    setRot(rig.armL.shoulder, p.shL); setRot(rig.armR.shoulder, p.shR);
+    setRot(rig.armL.elbow, p.elL);    setRot(rig.armR.elbow, p.elR);
+    rig.potli.position.set(p.potli[0], p.potli[1], p.potli[2]);
+    rig.eyes.forEach(e => { e.scale.y = p.eyes; });
+    rig.lotus.scale.setScalar(Math.max(0.001, p.lotus));
+    rig.petals.forEach(pt => { pt.tilt.rotation.x = pt.closed + (pt.open - pt.closed) * p.lotus; });
+    rig.tailCurl = p.tailCurl;
+  }
+
+  /* ── CAMERA FRAMING ────────────────────────────────────────────────────
+   * Each view places the character inside a vertical band of the screen
+   * [top, bottom] at horizontal position x (fractions of the viewport).   */
+  const FRAMES = {
+    setup:         { tall: [0.11, 0.40, 0.5], wide: [0.14, 0.86, 0.32] },
+    active:        { tall: [0.19, 0.60, 0.5], wide: [0.19, 0.62, 0.5] },
+    'active-lock': { tall: [0.32, 0.63, 0.5], wide: [0.3, 0.63, 0.5] },
+    breath:        { tall: [0.17, 0.44, 0.5], wide: [0.14, 0.86, 0.3] },
+    complete:      { tall: [0.10, 0.38, 0.5], wide: [0.14, 0.86, 0.32] }
+  };
+  const EXTENT = { float: [-1.1, 3.0], padmasana: [-0.62, 2.75] };   // character's world-space height span
+  let viewName = 'setup';
+  const camTgt = { x: 0, y: 0.8, z: 14 }, camCur = { x: 0, y: 0.8, z: 22 };
+  function computeTarget() {
+    const a = innerWidth / innerHeight;
+    const f = FRAMES[viewName][WIDE_MQ.matches ? 'wide' : 'tall'];
+    const [yb, yt] = EXTENT[poseName];
+    const tanH = Math.tan(THREE.MathUtils.degToRad(camera.fov / 2));
+    let H = (yt - yb) / (f[1] - f[0]);
+    H = Math.max(H, 3.0 / (0.9 * a));                       // keep it inside narrow screens too
+    camTgt.z = H / (2 * tanH);
+    camTgt.y = yt + f[0] * H - H / 2;
+    camTgt.x = (0.5 - f[2]) * H * a;
+  }
+  computeTarget();
+  camCur.x = camTgt.x; camCur.y = camTgt.y;
+
+  /* ── STATE & LOOP ─────────────────────────────────────────────────────── */
+  let mode = 'float', externalPulse = false, paused = false;
+  let pulse = 0, pulseClock = 0, breath = 0, flashV = 0, t = 0;
+  const clock = new THREE.Clock();
+
+  function loop() {
+    requestAnimationFrame(loop);
+    const dt = Math.min(clock.getDelta(), 0.05); t += dt;
+
+    if (trans) {
+      const k = Math.min(1, (performance.now() - trans.start) / trans.dur);
+      pose = lerpPose(trans.from, trans.to, easeInOut(k));
+      if (k >= 1) trans = null;
+    }
+    applyPose(pose);
+    const seat = pose.lotus, idle = 1 - seat;
+
+    // Floating: gentle sine bob on Y, slow sway (smaller once seated)
+    const bob = REDUCED_MOTION ? 0.03 : 0.06 + 0.08 * idle;
+    rig.root.position.y = Math.sin(t * 0.85) * bob;
+    rig.root.rotation.y = Math.sin(t * 0.21) * (0.06 + 0.16 * idle);
+    rig.root.rotation.z = Math.sin(t * 0.63) * 0.025 * (0.3 + idle);
+
+    // Idle limb drift (fades out as he sits)
+    rig.armL.shoulder.rotation.x += Math.sin(t * 0.9) * 0.05 * idle;
+    rig.armR.shoulder.rotation.x += Math.sin(t * 0.9 + 1.2) * 0.04 * idle;
+    rig.legL.knee.rotation.x += Math.sin(t * 0.8) * 0.07 * idle;
+    rig.legR.knee.rotation.x += Math.sin(t * 0.8 + 0.7) * 0.07 * idle;
+
+    // Tail sway
+    for (let i = 1; i < rig.tailSegs.length; i++) {
+      rig.tailSegs[i].rotation.x = rig.tailCurl + Math.sin(t * 1.3 - i * 0.5) * 0.05;
+      rig.tailSegs[i].rotation.z = Math.sin(t * 0.9 - i * 0.45) * 0.12;
+    }
+
+    // Potli: pulses as if beads are being turned; right hand twitches with each bead
+    if (mode === 'sadhna' && !externalPulse && !paused) {
+      pulseClock += dt;
+      if (pulseClock > 1.6) { pulseClock = 0; pulse = 1; }
+    }
+    pulse *= Math.exp(-dt * 5.5);
+    const ps = 1 + 0.1 * pulse;
+    rig.bag.scale.set(ps, 0.9 * (1 + 0.05 * pulse), ps);
+    rig.potli.rotation.y = Math.sin(t * 0.5) * 0.15 + pulse * 0.14;
+    rig.armR.elbow.rotation.x -= 0.14 * pulse * seat;
+    rig.armR.shoulder.rotation.y -= 0.08 * pulse * seat;
+    rig.armL.elbow.rotation.x += 0.05 * pulse * seat;
+    rig.potliLight.intensity = 0.2 + 0.9 * pulse * seat + 0.4 * flashV;
+
+    // Breathing: subtle always, full amplitude in Pranayama
+    const b = mode === 'breath' ? breath : 0.5 + 0.5 * Math.sin(t * 1.1);
+    const bAmp = mode === 'breath' ? 1 : 0.3;
+    rig.torso.scale.set(1 + 0.035 * b * bAmp, 1 + 0.02 * b * bAmp, 1 + 0.07 * b * bAmp);
+
+    // Halo, aura, yantra
+    flashV *= Math.exp(-dt * 1.4);
+    rig.halo.rotation.z += dt * 0.15;
+    rig.halo.material.opacity = 0.32 + 0.25 * seat + 0.4 * flashV + (mode === 'breath' ? 0.2 * breath : 0);
+    aura.material.opacity = 0.22 + 0.18 * seat + 0.35 * flashV + (mode === 'breath' ? 0.15 * breath : 0);
+    const as = 5 + (mode === 'breath' ? 0.8 * breath : 0) + 0.6 * flashV;
+    aura.scale.set(as, as, 1);
+    yantra.rotation.z += dt * 0.03;
+    yantra.position.y = -1.45 + 0.6 * seat;
+    yMat.opacity = 0.14 + 0.14 * seat;
+
+    // Rising motes
+    const arr = pGeo.attributes.position.array;
+    for (let i = 0; i < P; i++) {
+      arr[i * 3 + 1] += pSpd[i] * dt;
+      arr[i * 3] += Math.sin(t * 0.5 + i) * 0.0015;
+      if (arr[i * 3 + 1] > 5) arr[i * 3 + 1] = -3;
+    }
+    pGeo.attributes.position.needsUpdate = true;
+
+    // Ease the camera toward the current view's framing
+    const k = 1 - Math.exp(-dt * 2.2);
+    camCur.x += (camTgt.x - camCur.x) * k; camCur.y += (camTgt.y - camCur.y) * k; camCur.z += (camTgt.z - camCur.z) * k;
+    camera.position.set(camCur.x, camCur.y + camCur.z * 0.06, camCur.z);
+    camera.lookAt(camCur.x, camCur.y, 0);
+
+    renderer.render(scene, camera);
+  }
+
+  addEventListener('resize', () => {
+    renderer.setSize(innerWidth, innerHeight);
+    camera.aspect = innerWidth / innerHeight; camera.updateProjectionMatrix();
+    computeTarget();
+  });
+
+  /* ── PUBLIC API ───────────────────────────────────────────────────────── */
+  api.ready = true;
+  api.setMode = m => {          // 'float' | 'sadhna' | 'breath'
+    mode = m;
+    goToPose(m === 'float' ? 'float' : 'padmasana', 1500);     // 1.5 s padmasana transition
+    computeTarget();
+  };
+  api.setView = v => { viewName = v; computeTarget(); };
+  api.setBreath = v => { breath = v; };
+  api.pulsePotli = (s = 1) => { pulse = Math.max(pulse, s); };
+  api.flash = () => { flashV = 1; };
+  api.setExternalPulse = v => { externalPulse = v; };
+  api.setPaused = v => { paused = v; };
+  api._debug = { rig, camera, POSES };
+
+  loop();
+  return api;
+})();
+
+/* ───────────────────────── 5 · APP FLOW & UI ───────────────────────── */
+const views = { setup: $('#view-setup'), active: $('#view-active'), breath: $('#view-breath'), complete: $('#view-complete') };
+function showView(name) {
+  for (const [k, el] of Object.entries(views)) {
+    const on = k === name;
+    el.classList.toggle('is-on', on);
+    el.inert = !on;
+    el.setAttribute('aria-hidden', String(!on));
+  }
+  document.body.dataset.view = name;
+}
+
+const fmt = ms => {
+  const s = Math.max(0, Math.ceil(ms / 1000));
+  return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`;
+};
+const fmtNum = n => n.toLocaleString('en-IN');
+
+let toastTimer;
+function toast(msg) {
+  const el = $('#toast');
+  el.textContent = msg; el.classList.add('is-on');
+  clearTimeout(toastTimer); toastTimer = setTimeout(() => el.classList.remove('is-on'), 2800);
+}
+
+/* Screen Wake Lock — keeps the screen on so timers and haptics keep firing */
+const Wake = {
+  lock: null,
+  async on() { try { if ('wakeLock' in navigator && !this.lock) { this.lock = await navigator.wakeLock.request('screen'); this.lock.addEventListener('release', () => { this.lock = null; }); } } catch (_) {} },
+  async off() { try { if (this.lock) await this.lock.release(); } catch (_) {} this.lock = null; }
+};
+
+/* Navigation guard: back button, reload/close prompt, fullscreen in lockout */
+const Guard = {
+  on: false,
+  beforeUnload(e) { e.preventDefault(); e.returnValue = ''; },
+  popState() {
+    if (!session) return;
+    try { history.pushState({ sadhna: 1 }, ''); } catch (_) {}
+    toast(session.lockout ? 'Dhyana Lockout — hold the button to leave' : 'Sadhna in progress — hold ✕ to end');
+    Haptics.tick();
+  },
+  enable(fullscreen) {
+    if (this.on) return; this.on = true;
+    addEventListener('beforeunload', this.beforeUnload);
+    try { history.pushState({ sadhna: 1 }, ''); } catch (_) {}
+    addEventListener('popstate', this.popState);
+    if (fullscreen && document.documentElement.requestFullscreen) {
+      document.documentElement.requestFullscreen({ navigationUI: 'hide' }).catch(() => {});
+    }
+  },
+  disable() {
+    if (!this.on) return; this.on = false;
+    removeEventListener('beforeunload', this.beforeUnload);
+    removeEventListener('popstate', this.popState);
+    try { if (history.state && history.state.sadhna) history.back(); } catch (_) {}
+    if (document.fullscreenElement) document.exitFullscreen().catch(() => {});
+  }
+};
+
+/* Press-and-hold control: progress drawn through the --p CSS variable */
+function holdToConfirm(btn, onDone) {
+  const ms = +btn.dataset.hold || 1500;
+  let raf = 0, t0 = 0, justDone = false;
+  const set = p => btn.style.setProperty('--p', p.toFixed(3));
+  const stop = () => { cancelAnimationFrame(raf); raf = 0; set(0); btn.classList.remove('holding'); };
+  const step = now => {
+    const p = Math.min(1, (now - t0) / ms); set(p);
+    if (p >= 1) { stop(); justDone = true; Haptics.fire([60, 40, 60]); onDone(); }
+    else raf = requestAnimationFrame(step);
+  };
+  const start = e => {
+    if (raf) return;
+    if (e.cancelable) e.preventDefault();
+    t0 = performance.now(); btn.classList.add('holding'); Haptics.tick();
+    raf = requestAnimationFrame(step);
+  };
+  btn.addEventListener('pointerdown', e => { if (e.button > 0) return; start(e); try { btn.setPointerCapture(e.pointerId); } catch (_) {} });
+  ['pointerup', 'pointercancel', 'lostpointercapture', 'blur'].forEach(ev => btn.addEventListener(ev, stop));
+  btn.addEventListener('keydown', e => { if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); if (!e.repeat) start(e); } });
+  btn.addEventListener('keyup', e => { if (e.key === ' ' || e.key === 'Enter') stop(); });
+  btn.addEventListener('contextmenu', e => e.preventDefault());
+  btn.addEventListener('click', e => {
+    e.preventDefault();
+    if (justDone) { justDone = false; return; }
+    if (!raf) toast('Press and hold to confirm');
+  });
+}
+
+/* ── Setup screen ─────────────────────────────────────────────────────── */
+function renderLifetime() {
+  $('#lifetime').innerHTML = lifetime.jaap || lifetime.sessions
+    ? `<span class="tabular text-cream/80">${fmtNum(lifetime.jaap)}</span> jaap<br>${lifetime.sessions} sadhna${lifetime.sessions === 1 ? '' : 's'}`
+    : '';
+}
+function refreshSetup() {
+  $('#start-sub').textContent = `${settings.minutes} min Naam Jaap · then 5 min Pranayama`;
+  $('#lockout-switch').setAttribute('aria-checked', String(settings.lockout));
+  $('#vib-note').textContent = Haptics.supported
+    ? 'Start: one long grounding pulse · Halfway: double tap · End: cascading temple-bell wave.'
+    : "This browser can't vibrate (iOS Safari doesn't allow it). Bells and on-screen cues will guide you instead.";
+  renderLifetime();
+}
+function bindGroup(name, onPick) {
+  const btns = $$(`[data-group="${name}"] button`);
+  const sync = () => btns.forEach(b => b.setAttribute('aria-pressed', String(b.dataset.value === String(settings[name]))));
+  btns.forEach(b => b.addEventListener('click', () => {
+    settings[name] = name === 'minutes' ? +b.dataset.value : b.dataset.value;
+    sync(); persist(); refreshSetup();
+    if (onPick) onPick(b.dataset.value);
+  }));
+  sync();
+}
+bindGroup('minutes');
+bindGroup('sound', v => AudioEngine.preview(v));
+bindGroup('vib', v => { if (v !== 'off') Haptics.fire([160]); });
+$('#lockout-switch').addEventListener('click', () => { settings.lockout = !settings.lockout; persist(); refreshSetup(); });
+$('#vib-test').addEventListener('click', () => {
+  if (!Haptics.supported) toast('Vibration is not available in this browser');
+  else if (settings.vib === 'off') toast('Vibration is off');
+  Haptics.templeBell();
+});
+
+/* ── Session state ────────────────────────────────────────────────────── */
+let session = null;
+const elapsed = () => !session ? 0 : (session.pausedAt != null ? session.pausedAt : performance.now()) - session.startedAt - session.pausedTotal;
+
+function setStatus(text) { $('#active-status').textContent = text; }
+function liveStatus() {
+  if (!session) return '';
+  if (session.pausedAt != null) return 'Paused';
+  return session.halfFired ? 'Past halfway · stay with the Naam' : 'Japa in progress';
+}
+function renderTimer() {
+  if (!session) return;
+  const el = elapsed(), rem = session.durationMs - el;
+  $('#timer').textContent = fmt(rem);
+  $('#lock-timer').textContent = fmt(rem);
+  $('#timer-bar').style.width = `${Math.min(100, (el / session.durationMs) * 100)}%`;
+}
+function renderCount(bump) {
+  const n = session ? session.count : 0;
+  const mala = Math.floor(n / MALA), bead = n % MALA;
+  const countEl = $('#jaap-count');
+  countEl.textContent = fmtNum(n);
+  $('#mala-line').textContent = `Mala ${mala} · ${bead}/${MALA}`;
+  $('#mala-ring').style.strokeDashoffset = String(515.2 * (1 - bead / MALA));
+  if (bump) { countEl.classList.remove('bump'); void countEl.offsetWidth; countEl.classList.add('bump'); }
+}
+function setHud(on) { $('#jaap-hud').hidden = !on; $('#tally').hidden = !on; }
+function showLockout(on) {
+  const el = $('#lockout');
+  el.classList.toggle('is-on', on);
+  el.setAttribute('aria-hidden', String(!on));
+  el.inert = !on;
+  document.body.classList.toggle('locked', on);
+}
+
+function startSadhna() {
+  AudioEngine.ensure();                         // unlock audio inside the user gesture
+  session = {
+    durationMs: settings.minutes * MINUTE_MS, startedAt: performance.now(), pausedAt: null, pausedTotal: 0,
+    halfFired: false, count: 0, lockout: settings.lockout, phase: 'sadhna', meditatedMs: 0, cycles: 0, taps: 0
+  };
+  renderCount(); renderTimer();
+  $('#tally-hint').style.opacity = '1';
+  $('#btn-pause').hidden = session.lockout;
+  setPauseIcon(false);
+  setStatus('Settling into Padmasana');
+
+  showView('active');
+  setHud(true);
+  Stage.setExternalPulse(settings.sound === 'bead');
+  Stage.setPaused(false);
+  Stage.setMode('sadhna');                      // legs fold into padmasana, hands settle on the potli
+  Stage.setView(session.lockout ? 'active-lock' : 'active');
+
+  Haptics.commence();
+  AudioEngine.startProfile(settings.sound);
+  Guard.enable(session.lockout);
+  Wake.on();
+
+  session.settleTimer = setTimeout(() => {
+    if (!session || session.phase !== 'sadhna') return;
+    setStatus(liveStatus());
+    if (session.lockout) showLockout(true);
+  }, 1600);
+  session.interval = setInterval(tick, 250);
+  setTimeout(() => $('#tally').focus({ preventScroll: true }), 60);
+}
+
+function tick() {
+  if (!session || session.phase !== 'sadhna') return;
+  const el = elapsed();
+  if (!session.halfFired && el >= session.durationMs / 2) {
+    session.halfFired = true;
+    Haptics.halfway(); AudioEngine.chime();
+    toast('Halfway — Ardha Sadhna');
+    setStatus(liveStatus());
+  }
+  renderTimer();
+  if (el >= session.durationMs) endSadhnaBlock();
+}
+
+function setPauseIcon(paused) {
+  $('#ico-pause').hidden = paused; $('#ico-play').hidden = !paused;
+  $('#btn-pause').setAttribute('aria-label', paused ? 'Resume session' : 'Pause session');
+}
+function togglePause() {
+  if (!session || session.lockout || session.phase !== 'sadhna') return;
+  if (session.pausedAt == null) {
+    session.pausedAt = performance.now();
+    AudioEngine.stopProfile(0.6); Stage.setPaused(true);
+  } else {
+    session.pausedTotal += performance.now() - session.pausedAt; session.pausedAt = null;
+    AudioEngine.startProfile(settings.sound); Stage.setPaused(false);
+  }
+  setPauseIcon(session.pausedAt != null);
+  setStatus(liveStatus());
+}
+
+/* Naam Jaap tally */
+function addJaap(x, y) {
+  if (!session) return;
+  session.count++; session.taps++;
+  renderCount(true);
+  Stage.pulsePotli(0.7);
+  if (session.count % MALA === 0) {
+    Haptics.mala(); Stage.flash(); AudioEngine.chime();
+    toast(`Mala ${session.count / MALA} complete · ${MALA} Naam`);
+  } else Haptics.tick();
+  if (x != null) {
+    const r = document.createElement('span'); r.className = 'ripple';
+    r.style.left = `${x}px`; r.style.top = `${y}px`;
+    document.body.appendChild(r); r.addEventListener('animationend', () => r.remove());
+  }
+  if (session.taps === 3) $('#tally-hint').style.opacity = '0';
+  $('#sr-live').textContent = `${session.count}`;
+}
+const tally = $('#tally');
+tally.addEventListener('pointerdown', e => { if (e.button > 0) return; e.preventDefault(); addJaap(e.clientX, e.clientY); });
+tally.addEventListener('keydown', e => { if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); if (!e.repeat) addJaap(); } });
+tally.addEventListener('contextmenu', e => e.preventDefault());
+// Touches on the lockout's upper glass are swallowed on purpose
+$('#lockout').addEventListener('pointerdown', e => { if (e.target === e.currentTarget || e.target.classList.contains('frost')) e.preventDefault(); });
+
+AudioEngine.onBead = () => { if (session && session.phase === 'sadhna' && session.pausedAt == null) Stage.pulsePotli(1); };
+
+/* Block complete → temple bell → Pranayama */
+function endSadhnaBlock() {
+  session.phase = 'bell';
+  session.meditatedMs = session.durationMs;
+  clearInterval(session.interval);
+  renderTimer();
+  AudioEngine.stopProfile(1.5);
+  AudioEngine.templeBell();
+  Haptics.templeBell();
+  Stage.flash();
+  showLockout(false);
+  setStatus('Sadhna complete · Pranayama begins');
+  setTimeout(() => { if (session && session.phase === 'bell') startPranayama(); }, 2400);
+}
+
+/* ── Pranayama: 4·4·4·4 box breathing ─────────────────────────────────── */
+const PHASES = [
+  { name: 'Inhale', hint: 'Puraka — draw the breath in slowly' },
+  { name: 'Hold',   hint: 'Antar Kumbhaka — rest with the breath full' },
+  { name: 'Exhale', hint: 'Rechaka — release gently through the nose' },
+  { name: 'Hold',   hint: 'Bahya Kumbhaka — rest with the breath empty' }
+];
+const bPath = $('#b-trace');
+const bLen = bPath.getTotalLength ? bPath.getTotalLength() : 640;
+const easeSine = k => 0.5 - 0.5 * Math.cos(Math.PI * k);
+
+function startPranayama() {
+  session.phase = 'breath';
+  session.breathStart = performance.now();
+  session.lastPhase = -1;
+  setHud(false);
+  showView('breath');
+  Stage.setMode('breath');
+  Stage.setView('breath');
+  requestAnimationFrame(breathFrame);
+}
+function breathFrame() {
+  if (!session || session.phase !== 'breath') return;
+  const el = performance.now() - session.breathStart;
+  if (el >= PRANAYAMA_MS) { finishSession(true); return; }
+  const cyc = el % 16000, idx = Math.floor(cyc / 4000), k = (cyc % 4000) / 4000;
+  const b = idx === 0 ? easeSine(k) : idx === 1 ? 1 : idx === 2 ? 1 - easeSine(k) : 0;
+  Stage.setBreath(b);
+
+  if (idx !== session.lastPhase) {
+    session.lastPhase = idx;
+    $('#b-phase').textContent = PHASES[idx].name;
+    $('#b-hint').textContent = PHASES[idx].hint;
+    $$('.side-lbl').forEach(l => l.classList.toggle('on', +l.dataset.side === idx));
+    Haptics.phase(); AudioEngine.breathCue(idx);
+  }
+  session.cycles = Math.floor(el / 16000);
+  $('#b-count').textContent = String(4 - Math.floor(k * 4));
+  $('#b-remaining').textContent = fmt(PRANAYAMA_MS - el);
+  $('#b-cycles').textContent = `Cycle ${session.cycles + 1}`;
+  $('#b-orb').style.transform = `scale(${0.42 + 0.58 * b})`;
+  const prog = (idx + k) / 4;
+  bPath.style.strokeDashoffset = String(bLen * (1 - prog));
+  if (bPath.getPointAtLength) {
+    const pt = bPath.getPointAtLength(prog * bLen);
+    $('#b-dot').setAttribute('cx', pt.x); $('#b-dot').setAttribute('cy', pt.y);
+  }
+  requestAnimationFrame(breathFrame);
+}
+
+/* ── Wrap-up ──────────────────────────────────────────────────────────── */
+function cleanupSession() {
+  if (!session) return;
+  clearInterval(session.interval);
+  clearTimeout(session.settleTimer);
+  AudioEngine.stopProfile(1);
+  showLockout(false);
+  setHud(false);
+  Guard.disable();
+  Wake.off();
+}
+function finishSession(breathDone) {
+  const s = session; if (!s) return;
+  s.phase = 'done';
+  cleanupSession();
+  if (breathDone) { AudioEngine.bell(0.45); Haptics.fire([300, 120, 180]); }
+  lifetime.jaap += s.count; lifetime.sessions += 1; lifetime.minutes += Math.round(s.meditatedMs / 60000);
+  persist();
+  $('#c-jaap').textContent = fmtNum(s.count);
+  $('#c-mala').textContent = String(Math.floor(s.count / MALA));
+  $('#c-min').textContent = String(Math.round(s.meditatedMs / MINUTE_MS));
+  $('#c-cycles').textContent = String(s.cycles);
+  $('#c-life').textContent = `Lifetime · ${fmtNum(lifetime.jaap)} Naam across ${lifetime.sessions} sadhna${lifetime.sessions === 1 ? '' : 's'}`;
+  session = null;
+  showView('complete');
+  Stage.setMode('float');
+  Stage.setView('complete');
+}
+function abandonSadhna() {
+  const s = session; if (!s) return;
+  const med = s.phase === 'sadhna' ? elapsed() : s.meditatedMs;
+  s.phase = 'done';
+  cleanupSession();
+  lifetime.jaap += s.count; lifetime.minutes += Math.round(med / 60000);
+  persist();
+  session = null;
+  refreshSetup();
+  showView('setup');
+  Stage.setMode('float');
+  Stage.setView('setup');
+  toast(s.count ? `Sadhna released · ${fmtNum(s.count)} Naam saved` : 'Sadhna released');
+}
+
+/* ── Wiring ───────────────────────────────────────────────────────────── */
+$('#btn-start').addEventListener('click', startSadhna);
+$('#btn-pause').addEventListener('click', togglePause);
+holdToConfirm($('#btn-end'), abandonSadhna);
+holdToConfirm($('#btn-abandon'), abandonSadhna);
+$('#b-skip').addEventListener('click', () => finishSession(false));
+$('#btn-again').addEventListener('click', () => {
+  refreshSetup(); showView('setup'); Stage.setView('setup');
+});
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'visible' && session) { Wake.on(); renderTimer(); }
+});
+WIDE_MQ.addEventListener && WIDE_MQ.addEventListener('change', () => dispatchEvent(new Event('resize')));
+
+/* Boot */
+if (!Stage.ready) $('#stage-fallback').hidden = false;
+refreshSetup();
+showView('setup');
+Stage.setView('setup');
+if (FAST) toast('Fast mode: minutes run as seconds');
+</script>
+</body>
+</html>
