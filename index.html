@@ -273,7 +273,7 @@
 <div id="backdrop" aria-hidden="true"></div>
 <!-- Video Hanuman: colour-keyed clip; floats on setup, turns once on Start, then keeps floating through the session -->
 <div id="hv" aria-hidden="true">
-  <video id="hv-loop" muted playsinline autoplay loop preload="auto" poster="assets/hanuman-poster.webp"></video>
+  <video id="hv-loop" muted playsinline autoplay loop preload="auto" poster="assets/hanuman-poster.webp?v=3"></video>
   <video id="hv-full" muted playsinline preload="auto"></video>
 </div>
 
@@ -1147,8 +1147,9 @@ const VideoHanuman = (() => {
   // Safari and every iOS browser (WebKit) only render transparency from HEVC; the rest use VP9 WebM
   const ua = navigator.userAgent;
   const ext = /AppleWebKit/.test(ua) && !/Chrome|Chromium|Edg|OPR|Android/.test(ua) ? 'mov' : 'webm';
-  loop.src = `assets/hanuman-loop.${ext}`;
-  full.src = `assets/hanuman-full.${ext}`;
+  const V = 3;                                    // bump when the clips are re-rendered (busts phone caches)
+  loop.src = `assets/hanuman-loop.${ext}?v=${V}`;
+  full.src = `assets/hanuman-full.${ext}?v=${V}`;
   loop.muted = full.muted = true;
   let state = 'idle', timer = 0;
 
