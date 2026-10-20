@@ -46,9 +46,10 @@
   .tabular { font-variant-numeric: tabular-nums; }
 
   /* ---------- Backdrop & 3D stage ---------- */
+  #bg-video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center; }
   #backdrop {
     position: fixed; inset: 0; z-index: 0;
-    background: #17120E url('assets/bg.avif') center / cover no-repeat;
+    background: #17120E url('assets/bg-forest-poster.webp?v=1') center / cover no-repeat;
     transition: filter 1.4s ease;
   }
   body[data-view="active"] #backdrop, body[data-view="chalisa"] #backdrop,
@@ -470,7 +471,10 @@
 
 <body data-view="setup">
 
-<div id="backdrop" aria-hidden="true"></div>
+<div id="backdrop" aria-hidden="true">
+  <!-- forest background: slow camera drift (ping-pong loop); the still image shows until it plays -->
+  <video id="bg-video" muted playsinline loop preload="none" poster="assets/bg-forest-poster.webp?v=1"></video>
+</div>
 <!-- Video Hanuman: home clip floats on setup and turns on Start; the seated meditation clip
      dissolves in (with a golden flash) for jaap, pranayama and Chalisa, and back out afterwards -->
 <div id="hv" aria-hidden="true">
@@ -1879,6 +1883,21 @@ const VideoHanuman = (() => {
     loop.addEventListener('canplaythrough', () => setTimeout(loadMed, 1500), { once: true });
   }
   return { showIdle, playFull };
+})();
+
+/* Background video */
+(() => {
+  const v = $('#bg-video');
+  const conn = navigator.connection || {};
+  const slow = !!conn.saveData || /(^|-)(2g|3g)$/.test(conn.effectiveType || '');
+  if (REDUCED_MOTION || (!IS_APP && slow)) return;            // keep the still poster
+  v.muted = true;
+  v.src = 'assets/bg-forest.mp4?v=1';
+  v.preload = 'auto';
+  const go = () => v.play().catch(() => {});
+  v.addEventListener('canplay', go, { once: true });
+  document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible' && v.paused) go(); });
+  document.addEventListener('pointerdown', () => { if (v.paused) go(); }, { capture: true, once: true });
 })();
 
 /* Boot */
