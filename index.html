@@ -396,7 +396,7 @@
   body { font-family: 'Mukta', 'Hind', system-ui, sans-serif; letter-spacing: .003em; }
   .panel { background: var(--glass); backdrop-filter: blur(26px) saturate(140%); -webkit-backdrop-filter: blur(26px) saturate(140%);
     border: 1px solid var(--line); box-shadow: 0 -24px 70px rgba(0,0,0,.5), inset 0 1px 0 rgba(255,240,215,.07); }
-  .home-top { position: absolute; top: 0; left: 0; right: 0; padding: calc(var(--safe-t) + 14px) 16px 0; display: flex; justify-content: flex-end; gap: 10px; }
+  .home-top { position: absolute; top: 0; left: 0; right: 0; padding: calc(var(--safe-t) + 14px) 16px 0; display: flex; justify-content: flex-end; align-items: center; gap: 10px; }
   .icon-chip { width: 44px; height: 44px; background: rgba(14,10,7,.42); border: 1px solid var(--line-2); color: var(--cream);
     backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); box-shadow: 0 8px 22px rgba(0,0,0,.25); transition: transform .15s, background .2s; }
   .icon-chip:active { transform: scale(.94); background: rgba(240,138,36,.2); }
@@ -412,6 +412,17 @@
     box-shadow: 0 16px 36px rgba(226,113,29,.36), inset 0 1.5px 0 rgba(255,255,255,.45), inset 0 -2px 0 rgba(120,50,10,.22); }
   .btn-start { width: min(100%, 400px); min-height: 64px; display: flex; align-items: center; justify-content: center; gap: 10px; font-size: 22px; }
   .sheet-done { font-size: 19px; }
+  .app-pill { display: inline-flex; align-items: center; gap: 8px; height: 44px; padding: 0 16px; border-radius: 999px; margin-right: auto;
+    background: rgba(14,10,7,.45); border: 1px solid rgba(240,138,36,.55); color: var(--cream); font-size: 15px; font-weight: 600;
+    backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); box-shadow: 0 8px 22px rgba(0,0,0,.25); }
+  .app-pill svg { color: var(--saffron); }
+  .app-why { font-size: 15.5px; line-height: 1.5; color: rgba(246,235,217,.85); margin-bottom: 14px; }
+  .app-steps { list-style: none; counter-reset: s; display: grid; gap: 10px; margin: 0 0 18px; padding: 0; }
+  .app-steps li { counter-increment: s; display: flex; align-items: center; gap: 12px; font-size: 15.5px; padding: 10px 12px;
+    border-radius: 16px; border: 1px solid var(--line); background: rgba(255,240,215,.035); }
+  .app-steps li::before { content: counter(s); flex: none; width: 28px; height: 28px; border-radius: 50%; display: grid; place-items: center;
+    font-family: 'Cormorant Garamond', serif; font-weight: 600; font-size: 18px; background: rgba(240,138,36,.2); color: #F7B267; }
+  .app-dl { display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; text-decoration: none; }
   .btn-secondary { border-radius: 999px; border: 1px solid rgba(240,138,36,.6); background: rgba(240,138,36,.1); min-height: 54px; font-size: 17px; }
   .modal-card { border-radius: 30px 30px 0 0; padding: 10px 18px calc(var(--safe-b) + 20px); }
   .modal-card .sheet-grip { display: block; margin: 0 auto 6px; }
@@ -478,6 +489,10 @@
   <h1 id="app-title" class="sr-only" data-t="appName">नाम जप साधना</h1>
   <div class="scrim-top" aria-hidden="true"></div>
   <header id="setup-head" class="home-top">
+    <button id="get-app" class="app-pill" hidden aria-haspopup="dialog">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12M7 10l5 5 5-5M5 21h14"/></svg>
+      <span data-t="getApp">ऐप डाउनलोड करें</span>
+    </button>
     <button id="board-btn" class="icon-chip" data-t-aria="board" aria-label="भक्त सूची" aria-haspopup="dialog">
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0z"/><path d="M17 5h3v2a3 3 0 0 1-3 3M7 5H4v2a3 3 0 0 0 3 3"/></svg>
     </button>
@@ -495,6 +510,27 @@
     <button id="btn-start" class="btn-primary btn-start"><span aria-hidden="true">🙏</span><span data-t="start">जप शुरू करें</span></button>
   </div>
 </section>
+
+<!-- Android app download + install steps (website on Android only) -->
+<div id="app-sheet" class="modal" role="dialog" aria-modal="true" aria-labelledby="app-title-h" hidden>
+  <div class="modal-backdrop" data-close></div>
+  <div class="modal-card panel">
+    <div class="sheet-grip" aria-hidden="true"></div>
+    <div class="sheet-head">
+      <h2 id="app-title-h" class="sheet-title" data-t="appTitle">वानर साथी ऐप</h2>
+      <button class="icon-chip" data-close data-t-aria="close" aria-label="बंद करें"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
+    </div>
+    <p class="app-why" data-t="appWhy">बिना इंटरनेट के भी जप करें — सारे वीडियो और चालीसा फ़ोन में रहेंगे। इंटरनेट आते ही आपकी गिनती अपने-आप जुड़ जाएगी।</p>
+    <ol class="app-steps">
+      <li data-t="appStep1">नीचे दिए बटन से ऐप डाउनलोड करें</li>
+      <li data-t="appStep2">डाउनलोड हुई फ़ाइल खोलें</li>
+      <li data-t="appStep3">फ़ोन पूछे तो “इस स्रोत से ऐप की अनुमति दें” चालू करें</li>
+      <li data-t="appStep4">“इंस्टॉल” दबाएँ — हो गया 🙏</li>
+    </ol>
+    <a id="apk-link" class="btn-primary sheet-done app-dl" href="#" download><span aria-hidden="true">📲</span> <span data-t="appDownload">ऐप डाउनलोड करें</span></a>
+    <p class="opts-note mt-3" data-t="appSize">लगभग 25 MB · केवल Android</p>
+  </div>
+</div>
 
 <!-- Jaap options (opened from the chip above Start): duration + sound -->
 <div id="opts" class="modal" role="dialog" aria-modal="true" aria-labelledby="opts-title" hidden>
@@ -565,7 +601,7 @@
         </div>
         <button id="save-me" class="btn-secondary mt-3" data-t="save">सहेजें</button>
       </div>
-      <div class="opt p-4">
+      <div class="opt p-4" id="acct-box">
         <h3 class="q !mb-1" data-t="saveTitle">अपना जप सुरक्षित रखें</h3>
         <p id="acct-sub" class="text-[14px] text-cream/75 leading-snug mb-3" data-t="saveSub">ईमेल जोड़ें — फ़ोन बदलने पर भी आपकी गिनती मिलेगी।</p>
         <div id="acct-anon">
@@ -739,6 +775,10 @@ const CLOUD = { url: 'https://brtlirkvtkocdxginvlj.supabase.co', key: 'sb_publis
 const REDUCED_MOTION = matchMedia('(prefers-reduced-motion: reduce)').matches;
 const WIDE_MQ = matchMedia('(min-aspect-ratio: 11/10) and (min-width: 760px)');
 
+// Inside the Android app (Capacitor) everything is bundled; the native bridge handles vibration and keep-awake
+const IS_APP = !!(window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform());
+const NATIVE = (IS_APP && window.Capacitor.Plugins && window.Capacitor.Plugins.VanarNative) || null;   // native plugin in the app
+const APK_URL = 'https://github.com/ellomehllo/test/releases/latest/download/vanarsathi.apk';
 const $ = (s, r = document) => r.querySelector(s);
 const $$ = (s, r = document) => [...r.querySelectorAll(s)];
 
@@ -755,7 +795,7 @@ settings.minutes = Math.min(MAX_MINUTES, Math.max(MIN_MINUTES, Math.round(+setti
 /* ── Words on screen: Hindi first, plain English as the alternative ── */
 const I18N = {
   hi: {
-    appName: 'नाम जप साधना', lifeLine: 'कुल जप: {j}', settings: 'सेटिंग्स', close: 'बंद करें', done: 'ठीक है', statToday: 'आज', statTotal: 'कुल जप', statMala: 'माला', change: 'बदलें', optsTitle: 'जप की तैयारी', language: 'भाषा · Language', board: 'भक्त सूची', boardAll: 'सभी भक्तों ने मिलकर {n} नाम जप किए 🙏', pWeek: 'इस हफ़्ते', pMonth: 'इस महीने', pAll: 'अब तक', myName: 'आपका नाम', namePh: 'जैसे: राम भक्त सुनील', showMe: 'सूची में मेरा नाम दिखाएँ', save: 'सहेजें', savedOk: 'सहेज लिया 🙏', saveTitle: 'अपना जप सुरक्षित रखें', saveSub: 'ईमेल जोड़ें — फ़ोन बदलने पर भी आपकी गिनती मिलेगी।', emailPh: 'आपका ईमेल', sendLink: 'ईमेल पर लिंक भेजें', linkSent: 'ईमेल में लिंक भेजा है — उसे खोलें 🙏', linked: 'जुड़ा हुआ ईमेल: {e}', logout: 'लॉग आउट', cloudOff: 'ऑनलाइन सूची अभी उपलब्ध नहीं है', boardEmpty: 'अभी सूची खाली है — अपना नाम जोड़कर पहले बनें!', boardLoading: 'लोड हो रहा है…', cloudErr: 'कुछ गड़बड़ हुई, फिर कोशिश करें', needName: 'पहले अपना नाम लिखें', badEmail: 'सही ईमेल लिखें', switchTo: 'English',
+    appName: 'नाम जप साधना', lifeLine: 'कुल जप: {j}', settings: 'सेटिंग्स', close: 'बंद करें', done: 'ठीक है', statToday: 'आज', statTotal: 'कुल जप', statMala: 'माला', change: 'बदलें', optsTitle: 'जप की तैयारी', getApp: 'ऐप डाउनलोड करें', appTitle: 'वानर साथी ऐप', appWhy: 'बिना इंटरनेट के भी जप करें — सारे वीडियो और चालीसा फ़ोन में रहेंगे। इंटरनेट आते ही आपकी गिनती अपने-आप जुड़ जाएगी।', appStep1: 'नीचे दिए बटन से ऐप डाउनलोड करें', appStep2: 'डाउनलोड हुई फ़ाइल खोलें', appStep3: 'फ़ोन पूछे तो “इस स्रोत से ऐप की अनुमति दें” चालू करें', appStep4: '“इंस्टॉल” दबाएँ — हो गया 🙏', appDownload: 'ऐप डाउनलोड करें', appSize: 'लगभग 25 MB · केवल Android', language: 'भाषा · Language', board: 'भक्त सूची', boardAll: 'सभी भक्तों ने मिलकर {n} नाम जप किए 🙏', pWeek: 'इस हफ़्ते', pMonth: 'इस महीने', pAll: 'अब तक', myName: 'आपका नाम', namePh: 'जैसे: राम भक्त सुनील', showMe: 'सूची में मेरा नाम दिखाएँ', save: 'सहेजें', savedOk: 'सहेज लिया 🙏', saveTitle: 'अपना जप सुरक्षित रखें', saveSub: 'ईमेल जोड़ें — फ़ोन बदलने पर भी आपकी गिनती मिलेगी।', emailPh: 'आपका ईमेल', sendLink: 'ईमेल पर लिंक भेजें', linkSent: 'ईमेल में लिंक भेजा है — उसे खोलें 🙏', linked: 'जुड़ा हुआ ईमेल: {e}', logout: 'लॉग आउट', cloudOff: 'ऑनलाइन सूची अभी उपलब्ध नहीं है', boardEmpty: 'अभी सूची खाली है — अपना नाम जोड़कर पहले बनें!', boardLoading: 'लोड हो रहा है…', cloudErr: 'कुछ गड़बड़ हुई, फिर कोशिश करें', needName: 'पहले अपना नाम लिखें', badEmail: 'सही ईमेल लिखें', switchTo: 'English',
     howLong: 'कितनी देर जप करेंगे?', wheelHint: 'ऊपर-नीचे घुमाकर मिनट चुनें', minLess: 'एक मिनट कम', minMore: 'एक मिनट ज़्यादा', min: 'मिनट', d12: 'थोड़ा', d24: 'मध्यम', d48: 'लंबा',
     whichSound: 'कौन सी ध्वनि चलेगी?', tapToHear: 'छूकर सुनें',
     sRam: 'राम राम', sRamSub: 'राम नाम की धुन', sBead: 'माला', sBeadSub: 'मनकों की आवाज़',
@@ -783,7 +823,7 @@ const I18N = {
     tNoVib: 'इस फ़ोन में कंपन नहीं चलता', tVibOff: 'कंपन बंद है', tFast: 'टेस्ट मोड: मिनट की जगह सेकंड'
   },
   en: {
-    appName: 'Naam Jaap', lifeLine: 'Total jaap: {j}', settings: 'Settings', close: 'Close', done: 'Done', statToday: 'Today', statTotal: 'Total', statMala: 'Malas', change: 'Change', optsTitle: 'Before you begin', language: 'Language · भाषा', board: 'Devotees', boardAll: 'All devotees together: {n} Naam 🙏', pWeek: 'This week', pMonth: 'This month', pAll: 'All time', myName: 'Your name', namePh: 'e.g. Ram bhakt Sunil', showMe: 'Show my name on the list', save: 'Save', savedOk: 'Saved 🙏', saveTitle: 'Keep your jaap safe', saveSub: 'Add an email — your count stays with you even on a new phone.', emailPh: 'Your email', sendLink: 'Send link to email', linkSent: 'We emailed you a link — open it 🙏', linked: 'Linked email: {e}', logout: 'Log out', cloudOff: 'The online list isn’t available right now', boardEmpty: 'The list is empty — add your name and be the first!', boardLoading: 'Loading…', cloudErr: 'Something went wrong, please try again', needName: 'Please write your name first', badEmail: 'Please enter a valid email', switchTo: 'हिंदी',
+    appName: 'Naam Jaap', lifeLine: 'Total jaap: {j}', settings: 'Settings', close: 'Close', done: 'Done', statToday: 'Today', statTotal: 'Total', statMala: 'Malas', change: 'Change', optsTitle: 'Before you begin', getApp: 'Get the app', appTitle: 'Vanar Sathi app', appWhy: 'Chant even without internet — all videos and the Chalisa stay on your phone. Your count syncs automatically when you are back online.', appStep1: 'Download the app with the button below', appStep2: 'Open the downloaded file', appStep3: 'If asked, allow installing apps from this source', appStep4: 'Tap “Install” — done 🙏', appDownload: 'Download the app', appSize: 'About 25 MB · Android only', language: 'Language · भाषा', board: 'Devotees', boardAll: 'All devotees together: {n} Naam 🙏', pWeek: 'This week', pMonth: 'This month', pAll: 'All time', myName: 'Your name', namePh: 'e.g. Ram bhakt Sunil', showMe: 'Show my name on the list', save: 'Save', savedOk: 'Saved 🙏', saveTitle: 'Keep your jaap safe', saveSub: 'Add an email — your count stays with you even on a new phone.', emailPh: 'Your email', sendLink: 'Send link to email', linkSent: 'We emailed you a link — open it 🙏', linked: 'Linked email: {e}', logout: 'Log out', cloudOff: 'The online list isn’t available right now', boardEmpty: 'The list is empty — add your name and be the first!', boardLoading: 'Loading…', cloudErr: 'Something went wrong, please try again', needName: 'Please write your name first', badEmail: 'Please enter a valid email', switchTo: 'हिंदी',
     howLong: 'How long will you chant?', wheelHint: 'Scroll up or down to pick minutes', minLess: 'One minute less', minMore: 'One minute more', min: 'minutes', d12: 'Short', d24: 'Medium', d48: 'Long',
     whichSound: 'Which sound?', tapToHear: 'Tap to hear',
     sRam: 'Ram Ram', sRamSub: 'Ram naam chant', sBead: 'Mala', sBeadSub: 'Bead clicks',
@@ -824,13 +864,13 @@ const persist = () => Store.write({ settings, lifetime });
  * navigator.vibrate can't set amplitude, so "strength" scales each pulse's
  * ON-duration (gaps stay the same). iOS Safari has no Vibration API at all.        */
 const Haptics = {
-  supported: typeof navigator.vibrate === 'function',
+  supported: !!NATIVE || typeof navigator.vibrate === 'function',
   SCALE: { off: 0, gentle: 0.55, medium: 1, strong: 1.45 },
   fire(pattern) {
     const k = this.SCALE[settings.vib];
     if (!this.supported || !k) return;
     const p = pattern.map((v, i) => (i % 2 === 0 ? Math.max(8, Math.round(v * k)) : v));
-    try { navigator.vibrate(p); } catch (_) {}
+    try { if (NATIVE) NATIVE.vibrate({ pattern: p }).catch(() => {}); else navigator.vibrate(p); } catch (_) {}
   },
   commence()   { this.fire([1000]); },                       // smooth grounding pulse
   halfway()    { this.fire([200, 100, 200]); },              // double tap
@@ -1138,8 +1178,8 @@ function toast(msg) {
 /* Screen Wake Lock — keeps the screen on so timers and haptics keep firing */
 const Wake = {
   lock: null,
-  async on() { try { if ('wakeLock' in navigator && !this.lock) { this.lock = await navigator.wakeLock.request('screen'); this.lock.addEventListener('release', () => { this.lock = null; }); } } catch (_) {} },
-  async off() { try { if (this.lock) await this.lock.release(); } catch (_) {} this.lock = null; }
+  async on() { try { if (NATIVE) NATIVE.keepAwake({ on: true }).catch(() => {}); } catch (_) {} try { if ('wakeLock' in navigator && !this.lock) { this.lock = await navigator.wakeLock.request('screen'); this.lock.addEventListener('release', () => { this.lock = null; }); } } catch (_) {} },
+  async off() { try { if (NATIVE) NATIVE.keepAwake({ on: false }).catch(() => {}); } catch (_) {} try { if (this.lock) await this.lock.release(); } catch (_) {} this.lock = null; }
 };
 
 /* Navigation guard: back button, reload/close prompt, fullscreen in lockout */
@@ -1250,15 +1290,27 @@ const Cloud = (() => {
   const writeQ = q => { try { localStorage.setItem(QKEY, JSON.stringify(q.slice(-300))); } catch (_) {} };
   const redirect = () => location.origin + location.pathname;
 
-  async function init() {
+  let starting = null;
+  // Works offline: the saved login is kept; counts wait in the queue until the connection returns
+  function init() {
+    if (api.ready) return Promise.resolve();
+    if (!starting) starting = start().finally(() => { starting = null; });
+    return starting;
+  }
+  async function start() {
     if (!CLOUD.url || !CLOUD.key || !window.supabase) return;
+    if (navigator.onLine === false) return;
     try {
-      sb = window.supabase.createClient(CLOUD.url, CLOUD.key, { auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true } });
+      if (!sb) sb = window.supabase.createClient(CLOUD.url, CLOUD.key, { auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: !IS_APP } });
       let { data: { session } } = await sb.auth.getSession();
       if (session) {
-        // a saved login whose account no longer exists → start fresh
+        // a saved login whose account no longer exists → start fresh (but never because of a network error)
         const chk = await sb.auth.getUser();
-        if (chk.error || !chk.data.user) { await sb.auth.signOut({ scope: 'local' }); session = null; }
+        if (chk.error) {
+          const st = chk.error.status;
+          if (st === 401 || st === 403 || st === 404) { await sb.auth.signOut({ scope: 'local' }); session = null; }
+          else throw chk.error;                    // offline / server busy — try again later
+        }
       }
       if (!session) {
         const r = await sb.auth.signInAnonymously();
@@ -1266,7 +1318,7 @@ const Cloud = (() => {
         session = r.data.session;
       }
       api.user = session.user; api.ready = true;
-      sb.auth.onAuthStateChange((_e, sess) => { api.user = sess ? sess.user : null; Board.renderAccount(); });
+      if (!api._listening) { api._listening = true; sb.auth.onAuthStateChange((_e, sess) => { api.user = sess ? sess.user : null; Board.renderAccount(); }); }
       await loadProfile(); await flush(); await refreshStats();
     } catch (e) { console.warn('[cloud] offline', e); api.ready = false; }
   }
@@ -1313,7 +1365,9 @@ const Cloud = (() => {
     const r = await sb.auth.signInAnonymously(); if (!r.error) api.user = r.data.user;
     renderLifetime();
   }
-  addEventListener('online', () => { flush().then(refreshStats); });
+  const resume = () => { if (!api.ready) init().then(() => { renderLifetime(); Board.renderAccount(); }); else flush().then(refreshStats); };
+  addEventListener('online', resume);
+  document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') resume(); });
   Object.assign(api, { init, record, refreshStats, saveProfile, leaderboard, totals, linkEmail, signOut, loadProfile });
   return api;
 })();
@@ -1374,6 +1428,16 @@ const Board = (() => {
   $('#sign-out').addEventListener('click', async () => { try { await Cloud.signOut(); renderAccount(); } catch (_) { toast(t('cloudErr')); } });
   $('#board-btn').addEventListener('click', sheet.open);
   return { open: sheet.open, renderAccount };
+})();
+
+/* 📲 Android app download (website only) */
+const AppSheet = (() => {
+  const isAndroidWeb = !IS_APP && /Android/i.test(navigator.userAgent);
+  const sheet = makeSheet($('#app-sheet'));
+  $('#apk-link').href = APK_URL;
+  if (isAndroidWeb) { $('#get-app').hidden = false; $('#get-app').addEventListener('click', sheet.open); }
+  if (IS_APP) $('#acct-box').hidden = true;
+  return sheet;
 })();
 
 /* Settings sheet (⚙) */
