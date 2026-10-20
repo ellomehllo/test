@@ -14,30 +14,10 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Hind:wght@300;400;500;600;700&family=Tiro+Devanagari+Hindi&display=swap" rel="stylesheet">
 
-<!-- Tailwind (Play CDN) -->
-<script src="https://cdn.tailwindcss.com"></script>
+<!-- Tailwind utilities, pre-generated (static, ~7 KB) — no in-browser compiler -->
+<link rel="stylesheet" href="assets/tw.css?v=1">
 <!-- Supabase client (online counts, leaderboard). The app runs fully offline if it can't load. -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js" defer></script>
-<script>
-  tailwind.config = {
-    theme: {
-      extend: {
-        colors: {
-          saffron: { DEFAULT: '#F08A24', deep: '#D9651A', soft: '#F7B267' },
-          cream: '#F6EBD9',
-          charcoal: { DEFAULT: '#17120E', 800: '#211A15', 700: '#2C231C' },
-          gold: '#D9A441',
-          sindoor: '#B83A1B'
-        },
-        fontFamily: {
-          sans: ['Hind', 'system-ui', 'sans-serif'],
-          display: ['Hind', 'system-ui', 'sans-serif'],
-          deva: ['"Tiro Devanagari Hindi"', 'serif']
-        }
-      }
-    }
-  };
-</script>
 
 <style>
   :root {
@@ -425,7 +405,7 @@
   <div id="hv-glow"><div class="core"></div><div class="rays"></div><div class="ring"></div></div>
   <div id="hv-home" class="hv-layer">
     <video id="hv-loop" muted playsinline autoplay loop preload="auto" poster="assets/hanuman-poster.webp?v=4"></video>
-    <video id="hv-full" muted playsinline preload="auto"></video>
+    <video id="hv-full" muted playsinline preload="none"></video>
   </div>
   <div id="hv-medwrap" class="hv-layer">
     <video id="hv-med" muted playsinline loop preload="none"></video>
@@ -1675,11 +1655,18 @@ const VideoHanuman = (() => {
   const V = 4;                                    // bump when the clips are re-rendered (busts phone caches)
   loop.src = `assets/hanuman-loop.${ext}?v=${V}`;
   full.src = `assets/hanuman-full.${ext}?v=${V}`;
-  med.poster = `assets/hanuman-meditate-poster.webp?v=${V}`;
   loop.muted = full.muted = med.muted = true;
-  let state = 'idle', timer = 0, wantMed = false, medRequested = false;
+  let state = 'idle', timer = 0, wantMed = false, medRequested = false, fullRequested = false;
+  // On 2G/3G or Data Saver, nothing extra is fetched ahead of time
+  const conn = navigator.connection || {};
+  const slowNet = !!conn.saveData || /(^|-)(2g|3g)$/.test(conn.effectiveType || '');
 
-  const loadMed = () => { if (medRequested) return; medRequested = true; med.preload = 'auto'; med.src = `assets/hanuman-meditate.${ext}?v=${V}`; med.load(); };
+  const loadFull = () => { if (fullRequested) return; fullRequested = true; full.preload = 'auto'; full.load(); };
+  const loadMed = () => {
+    if (medRequested) return; medRequested = true;
+    med.poster = `assets/hanuman-meditate-poster.webp?v=${V}`;
+    med.preload = 'auto'; med.src = `assets/hanuman-meditate.${ext}?v=${V}`; med.load();
+  };
   const medReady = () => med.readyState >= 3;
   const flash = () => { glow.classList.remove('flash'); void glow.offsetWidth; glow.classList.add('flash'); setTimeout(() => glow.classList.remove('flash'), 1800); };
   const showLoop = () => { wrap.classList.remove('playing'); full.pause(); };
@@ -1709,6 +1696,12 @@ const VideoHanuman = (() => {
   function playFull() {
     wantMed = true; loadMed();
     if (state !== 'idle') return;
+    // turn clip not ready yet (slow network): skip the turn and dissolve straight into meditation when it arrives
+    if (full.readyState < 3) {
+      loadFull();
+      if (medReady()) startMed(); else med.addEventListener('canplay', () => { if (wantMed && state === 'idle') startMed(); }, { once: true });
+      return;
+    }
     state = 'turn';
     // jump the full clip to the frame the loop is showing right now → seamless switch
     const f = Math.floor(loop.currentTime * FPS) % LOOP_FRAMES;
@@ -1744,8 +1737,14 @@ const VideoHanuman = (() => {
   loop.addEventListener('canplay', nudge);
   document.addEventListener('visibilitychange', () => { nudge(); if (state === 'med' && med.paused && document.visibilityState === 'visible') med.play().catch(() => {}); });
   document.addEventListener('pointerdown', nudge, { capture: true });
-  // fetch the meditation clip quietly once the home screen has settled
-  setTimeout(loadMed, 4000);
+  // background loading in priority order: float clip → turn clip → meditation clip.
+  // On slow connections the optional turn clip is skipped and only the meditation clip is fetched.
+  if (!slowNet) {
+    loop.addEventListener('canplaythrough', () => setTimeout(loadFull, 600), { once: true });
+    full.addEventListener('canplaythrough', () => setTimeout(loadMed, 1500), { once: true });
+  } else if (!conn.saveData) {
+    loop.addEventListener('canplaythrough', () => setTimeout(loadMed, 1500), { once: true });
+  }
   return { showIdle, playFull };
 })();
 
