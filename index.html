@@ -12,7 +12,7 @@
 <!-- Fonts: Hind (UI — Devanagari + Latin, very legible), Tiro Devanagari (decorative राम) -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Hind:wght@300;400;500;600;700&family=Tiro+Devanagari+Hindi&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Mukta:wght@300;400;500;600;700&family=Cormorant+Garamond:wght@500;600&family=Tiro+Devanagari+Hindi&display=swap" rel="stylesheet">
 
 <!-- Tailwind utilities, pre-generated (static, ~7 KB) — no in-browser compiler -->
 <link rel="stylesheet" href="assets/tw.css?v=1">
@@ -62,7 +62,7 @@
   }
   #hv video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; }
   .hv-layer { position: absolute; inset: 0; transition: opacity 1.5s ease; }
-  #hv-medwrap { opacity: 0; transform: translate(-3.4%, 3%); }     /* lines the seated figure up with the floating one */
+  #hv-medwrap { opacity: 0; transform: translate(2.7%, 0.5%); }     /* centres the seated figure in the halo ring */
   #hv.med #hv-medwrap { opacity: 1; }
   #hv.med #hv-home { opacity: 0; }
   #hv-glow.flash .core { animation: glowFlash 1.7s ease-out; }
@@ -389,6 +389,67 @@
   #toast { font-size: 15px; white-space: normal; line-height: 1.35; padding: 10px 18px; border-radius: 20px; max-width: min(92vw, 420px); width: max-content; }
   @media (min-aspect-ratio: 11/10) and (min-width: 760px) { .sheet { max-height: 90dvh; } }
 
+  /* ════════ Premium layer: typography, glass, pills ════════ */
+  .wheel-item, .ctl-time, .ctl-count, #b-count, #b-remaining, .stat .v, .my-stat .v, .board-list .tt { font-variant-numeric: lining-nums tabular-nums; font-feature-settings: 'lnum' 1, 'tnum' 1; }
+  :root { --line: rgba(255,232,196,.12); --line-2: rgba(255,232,196,.22); --cream-2: #FBE3C2;
+    --glass: linear-gradient(180deg, rgba(40,29,21,.80), rgba(16,12,9,.90)); }
+  body { font-family: 'Mukta', 'Hind', system-ui, sans-serif; letter-spacing: .003em; }
+  .panel { background: var(--glass); backdrop-filter: blur(26px) saturate(140%); -webkit-backdrop-filter: blur(26px) saturate(140%);
+    border: 1px solid var(--line); box-shadow: 0 -24px 70px rgba(0,0,0,.5), inset 0 1px 0 rgba(255,240,215,.07); }
+  .home-top { position: absolute; top: 0; left: 0; right: 0; padding: calc(var(--safe-t) + 14px) 16px 0; display: flex; justify-content: flex-end; gap: 10px; }
+  .icon-chip { width: 44px; height: 44px; background: rgba(14,10,7,.42); border: 1px solid var(--line-2); color: var(--cream);
+    backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); box-shadow: 0 8px 22px rgba(0,0,0,.25); transition: transform .15s, background .2s; }
+  .icon-chip:active { transform: scale(.94); background: rgba(240,138,36,.2); }
+  .home-cta { position: absolute; left: 0; right: 0; bottom: calc(var(--safe-b) + 24px); display: flex; flex-direction: column; align-items: center; gap: 14px; padding: 0 20px; }
+  .opts-chip { display: inline-flex; align-items: center; gap: 10px; height: 46px; padding: 0 6px 0 16px; border-radius: 999px; max-width: 100%;
+    background: rgba(14,10,7,.5); border: 1px solid var(--line-2); color: var(--cream); font-size: 16px; font-weight: 500;
+    backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); box-shadow: 0 10px 26px rgba(0,0,0,.3); }
+  .opts-ico { color: var(--saffron); flex: none; }
+  .opts-sum { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .opts-edit { flex: none; padding: 6px 13px; border-radius: 999px; background: rgba(240,138,36,.16); color: #F7B267; font-size: 14px; font-weight: 600; }
+  .btn-primary { min-height: 62px; border-radius: 999px; color: #22140A; font-weight: 700; letter-spacing: .01em;
+    background: linear-gradient(180deg, #FAC27A 0%, #F0902F 55%, #DB671B 100%);
+    box-shadow: 0 16px 36px rgba(226,113,29,.36), inset 0 1.5px 0 rgba(255,255,255,.45), inset 0 -2px 0 rgba(120,50,10,.22); }
+  .btn-start { width: min(100%, 400px); min-height: 64px; display: flex; align-items: center; justify-content: center; gap: 10px; font-size: 22px; }
+  .sheet-done { font-size: 19px; }
+  .btn-secondary { border-radius: 999px; border: 1px solid rgba(240,138,36,.6); background: rgba(240,138,36,.1); min-height: 54px; font-size: 17px; }
+  .modal-card { border-radius: 30px 30px 0 0; padding: 10px 18px calc(var(--safe-b) + 20px); }
+  .modal-card .sheet-grip { display: block; margin: 0 auto 6px; }
+  .sheet-head { display: flex; align-items: center; justify-content: space-between; margin: 4px 0 18px; }
+  .sheet-title { font-size: 22px; font-weight: 600; letter-spacing: .005em; }
+  .q { font-size: 16.5px; font-weight: 600; color: rgba(246,235,217,.94); }
+  .hint { font-size: 13px; color: rgba(246,235,217,.55); }
+  .opts-note { font-size: 14px; color: rgba(246,235,217,.62); text-align: center; }
+  .seg { background: rgba(255,240,215,.05); border: 1px solid var(--line); border-radius: 999px; padding: 4px; }
+  .seg button { border-radius: 999px; font-weight: 500; }
+  .seg button[aria-pressed="true"] { background: linear-gradient(180deg, #FDEBD2, #F2CFA0); color: #24160B; font-weight: 600; }
+  .opt { border: 1px solid var(--line); background: rgba(255,240,215,.035); border-radius: 20px; }
+  .opt[aria-pressed="true"] { border-color: rgba(240,138,36,.85); }
+  .switch { background: rgba(255,240,215,.14); }
+  .wheel-box { background: rgba(255,240,215,.035); box-shadow: inset 0 0 0 1px var(--line); border-radius: 22px; }
+  .wheel-box::before { border: 1.5px solid rgba(240,138,36,.85); background: rgba(240,138,36,.1); border-radius: 14px; }
+  .wheel-item { font-family: 'Cormorant Garamond', 'Mukta', serif; font-size: 26px; font-weight: 500; }
+  .wheel-item.on { font-size: 34px; font-weight: 600; color: var(--cream-2); }
+  .wheel-item .u { font-family: 'Mukta', sans-serif; font-size: 14px; }
+  .step-btn { width: 50px; height: 50px; font-size: 26px; font-weight: 400; background: rgba(255,240,215,.05); border: 1px solid var(--line-2); }
+  .chip-ico { background: rgba(255,240,215,.05); box-shadow: inset 0 0 0 1px var(--line-2); }
+  .chip-t { font-weight: 500; }
+  .text-in { border-radius: 16px; border: 1px solid var(--line-2); background: rgba(14,10,7,.5); }
+  .my-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 14px; }
+  .my-stat { text-align: center; padding: 12px 6px 10px; border-radius: 18px; border: 1px solid var(--line); background: rgba(255,240,215,.04); }
+  .my-stat .v { font-family: 'Cormorant Garamond', serif; font-size: 32px; font-weight: 600; line-height: 1; color: var(--cream-2); font-variant-numeric: lining-nums; }
+  .my-stat .k { font-size: 13.5px; color: rgba(246,235,217,.62); margin-top: 4px; }
+  .board-global { font-size: 15px; color: rgba(246,235,217,.85); text-align: center; margin-bottom: 12px; }
+  .board-list li { border-radius: 16px; background: rgba(255,240,215,.04); border: 1px solid var(--line); }
+  .board-list .tt { font-family: 'Cormorant Garamond', serif; font-size: 20px; }
+  .ctl { border-radius: 30px; }
+  .ctl-time { font-family: 'Cormorant Garamond', serif; font-size: 34px; font-weight: 500; }
+  .ctl-count { font-family: 'Cormorant Garamond', serif; font-size: 26px; font-weight: 600; }
+  #b-count, #b-remaining, .stat .v { font-family: 'Cormorant Garamond', serif; font-weight: 500; font-variant-numeric: lining-nums; }
+  #b-phase { font-weight: 600; letter-spacing: .01em; }
+  .cap-ico { background: rgba(14,10,7,.55); border: 1px solid var(--line-2); }
+  #toast { background: rgba(14,10,7,.75); border: 1px solid var(--line-2); border-radius: 999px; }
+
   @media (prefers-reduced-motion: reduce) {
     .view, #lockout { transition-duration: .01ms !important; }
     .ripple, #lockout::after { animation: none; }
@@ -412,29 +473,42 @@
   </div>
 </div>
 
-<!-- ═════════════════════════ VIEW 1 · SETUP ═════════════════════════ -->
+<!-- ═════════════════════════ VIEW 1 · HOME — only Hanuman and the start button ═════════════════════════ -->
 <section id="view-setup" class="view is-on" aria-labelledby="app-title">
+  <h1 id="app-title" class="sr-only" data-t="appName">नाम जप साधना</h1>
   <div class="scrim-top" aria-hidden="true"></div>
-  <header id="setup-head" class="absolute top-0 inset-x-0 px-4 pt-safe">
-    <div class="flex items-center gap-2">
-      <button id="settings-btn" class="icon-chip" data-t-aria="settings" aria-label="सेटिंग्स" aria-haspopup="dialog">
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>
-      </button>
-      <h1 id="app-title" class="flex-1 min-w-0 text-center font-deva text-[27px] leading-tight text-saffron glow-text truncate" data-t="appName">नाम जप साधना</h1>
-      <button id="lang-btn" class="lang-btn" aria-label="भाषा बदलें / Change language">
-        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.7 3.8 5.7 3.8 9s-1.3 6.3-3.8 9c-2.5-2.7-3.8-5.7-3.8-9S9.5 5.7 12 3z"/></svg>
-        <span id="lang-label">English</span>
-      </button>
-    </div>
-    <div id="lifetime" class="stats-row" aria-live="polite"></div>
+  <header id="setup-head" class="home-top">
+    <button id="board-btn" class="icon-chip" data-t-aria="board" aria-label="भक्त सूची" aria-haspopup="dialog">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0z"/><path d="M17 5h3v2a3 3 0 0 1-3 3M7 5H4v2a3 3 0 0 0 3 3"/></svg>
+    </button>
+    <button id="settings-btn" class="icon-chip" data-t-aria="settings" aria-label="सेटिंग्स" aria-haspopup="dialog">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h10M18 7h2M4 17h4M12 17h8"/><circle cx="16" cy="7" r="2"/><circle cx="10" cy="17" r="2"/></svg>
+    </button>
   </header>
 
-  <div class="sheet panel">
+  <div id="home-cta" class="home-cta">
+    <button id="opts-btn" class="opts-chip" aria-haspopup="dialog">
+      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" class="opts-ico"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2.5 2M9 2h6"/></svg>
+      <span id="opts-sum" class="opts-sum">24 मिनट · राम राम</span>
+      <span class="opts-edit" data-t="change">बदलें</span>
+    </button>
+    <button id="btn-start" class="btn-primary btn-start"><span aria-hidden="true">🙏</span><span data-t="start">जप शुरू करें</span></button>
+  </div>
+</section>
+
+<!-- Jaap options (opened from the chip above Start): duration + sound -->
+<div id="opts" class="modal" role="dialog" aria-modal="true" aria-labelledby="opts-title" hidden>
+  <div class="modal-backdrop" data-close></div>
+  <div class="modal-card panel">
     <div class="sheet-grip" aria-hidden="true"></div>
-    <div class="sheet-scroll space-y-4">
+    <div class="sheet-head">
+      <h2 id="opts-title" class="sheet-title" data-t="optsTitle">जप की तैयारी</h2>
+      <button class="icon-chip" data-close data-t-aria="close" aria-label="बंद करें"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
+    </div>
+    <div class="space-y-5">
       <div class="wheel-row">
         <div class="flex-1 min-w-0">
-          <h2 class="q" data-t="howLong">कितनी देर जप करेंगे?</h2>
+          <h3 class="q" data-t="howLong">कितनी देर जप करेंगे?</h3>
           <div class="flex gap-3">
             <button class="step-btn" data-step="-1" data-t-aria="minLess" aria-label="एक मिनट कम">−</button>
             <button class="step-btn" data-step="1" data-t-aria="minMore" aria-label="एक मिनट ज़्यादा">+</button>
@@ -444,10 +518,9 @@
           <div id="min-wheel" class="wheel" role="spinbutton" tabindex="0" aria-valuemin="20" aria-valuemax="60" aria-valuenow="24" data-t-aria="howLong" aria-label="कितनी देर जप करेंगे?"></div>
         </div>
       </div>
-
       <div>
         <div class="flex items-baseline justify-between gap-2">
-          <h2 class="q" data-t="whichSound">कौन सी ध्वनि चलेगी?</h2>
+          <h3 class="q" data-t="whichSound">कौन सी ध्वनि चलेगी?</h3>
           <span class="hint" data-t="tapToHear">छूकर सुनें</span>
         </div>
         <div class="grid grid-cols-5 gap-1" data-group="sound">
@@ -458,30 +531,23 @@
           <button class="chip" data-value="chalisa" aria-pressed="false"><span class="chip-ico" aria-hidden="true">🚩</span><span class="chip-t" data-t="sChalisa">चालीसा</span></button>
         </div>
       </div>
-    </div>
-
-    <div class="pt-3 space-y-2.5">
-      <button id="btn-chalisa" class="btn-secondary">
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor" class="text-saffron" aria-hidden="true"><path d="M8 5.5v13a1 1 0 0 0 1.5.86l10.5-6.5a1 1 0 0 0 0-1.72L9.5 4.64A1 1 0 0 0 8 5.5z"/></svg>
-        <span data-t="chalisaBtn">हनुमान चालीसा सुनें</span>
-      </button>
-      <button id="btn-start" class="btn-primary w-full">
-        <span class="block text-[23px] font-bold leading-tight">🙏 <span data-t="start">जप शुरू करें</span></span>
-        <span id="start-sub" class="block text-[14px] font-medium opacity-80 mt-0.5"></span>
-      </button>
+      <p id="start-sub" class="opts-note"></p>
+      <button class="btn-primary w-full sheet-done" data-close data-t="done">ठीक है</button>
     </div>
   </div>
-</section>
+</div>
 
 <!-- Leaderboard + online save (opened from the 🏆 pill) -->
 <div id="board" class="modal" role="dialog" aria-modal="true" aria-labelledby="board-title" hidden>
   <div class="modal-backdrop" data-close></div>
   <div class="modal-card panel">
-    <div class="flex items-center justify-between mb-3">
-      <h2 id="board-title" class="text-[21px] font-semibold">🏆 <span data-t="board">भक्त सूची</span></h2>
+    <div class="sheet-grip" aria-hidden="true"></div>
+    <div class="sheet-head">
+      <h2 id="board-title" class="sheet-title" data-t="board">भक्त सूची</h2>
       <button class="icon-chip" data-close data-t-aria="close" aria-label="बंद करें"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
     </div>
-    <p id="board-global" class="text-[15px] text-cream/90 text-center mb-3"></p>
+    <div id="lifetime" class="my-stats" aria-live="polite"></div>
+    <p id="board-global" class="board-global"></p>
     <div class="seg grid grid-cols-3 mb-3" id="board-period">
       <button data-p="week" aria-pressed="true" data-t="pWeek">इस हफ़्ते</button>
       <button data-p="month" aria-pressed="false" data-t="pMonth">इस महीने</button>
@@ -519,11 +585,19 @@
 <div id="settings" class="modal" role="dialog" aria-modal="true" aria-labelledby="settings-title" hidden>
   <div class="modal-backdrop" data-close></div>
   <div class="modal-card panel">
-    <div class="flex items-center justify-between mb-4">
-      <h2 id="settings-title" class="text-[21px] font-semibold" data-t="settings">सेटिंग्स</h2>
+    <div class="sheet-grip" aria-hidden="true"></div>
+    <div class="sheet-head">
+      <h2 id="settings-title" class="sheet-title" data-t="settings">सेटिंग्स</h2>
       <button class="icon-chip" data-close data-t-aria="close" aria-label="बंद करें"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
     </div>
     <div class="space-y-5">
+      <div>
+        <h3 class="q" data-t="language">भाषा · Language</h3>
+        <div class="seg grid grid-cols-2" id="lang-seg">
+          <button data-lang="hi" aria-pressed="true">हिंदी</button>
+          <button data-lang="en" aria-pressed="false">English</button>
+        </div>
+      </div>
       <div class="opt flex items-center gap-4 p-4">
         <div class="flex-1 min-w-0">
           <h3 class="text-[17px] font-semibold flex items-center gap-2">
@@ -547,7 +621,7 @@
         </div>
         <p id="vib-note" class="text-[13.5px] text-cream/70 mt-2 leading-snug"></p>
       </div>
-      <button class="btn-primary w-full text-[19px] font-bold" data-close data-t="done">ठीक है</button>
+      <button class="btn-primary w-full sheet-done" data-close data-t="done">ठीक है</button>
     </div>
   </div>
 </div>
@@ -638,28 +712,7 @@
   </div>
 </section>
 
-<!-- ═════════════════════════ VIEW 5 · HANUMAN CHALISA (immersive, same glow) ═════════════════════════ -->
-<section id="view-chalisa" class="view" aria-label="हनुमान चालीसा">
-  <button id="ch-tap" class="tap-layer" data-t-aria="showCtl" aria-label="बटन दिखाएँ"></button>
-</section>
-<div id="ctl-ch" class="ctl panel" aria-hidden="true">
-  <button id="ch-pause" class="cap-btn" data-t-aria="pause" aria-label="रोकें">
-    <span class="cap-ico">
-      <svg id="ch-ico-pause" width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="5" width="4" height="14" rx="1.2"/><rect x="14" y="5" width="4" height="14" rx="1.2"/></svg>
-      <svg id="ch-ico-play" width="22" height="22" viewBox="0 0 24 24" fill="currentColor" hidden><path d="M8 5.5v13a1 1 0 0 0 1.5.86l10.5-6.5a1 1 0 0 0 0-1.72L9.5 4.64A1 1 0 0 0 8 5.5z"/></svg>
-    </span>
-    <span id="ch-pause-label" class="cap-txt" data-t="pause">रोकें</span>
-  </button>
-  <div class="ctl-mid">
-    <div class="ctl-title" data-t="chTitle">हनुमान चालीसा</div>
-    <div class="time-bar"><div id="ch-bar" class="h-full rounded-full bg-gradient-to-r from-saffron to-gold" style="width:0%"></div></div>
-    <div class="ctl-k tabular"><span id="ch-time">0:00</span> / <span id="ch-dur">13:10</span></div>
-  </div>
-  <button id="ch-stop" class="cap-btn" data-t-aria="end" aria-label="बंद करें">
-    <span class="cap-ico"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg></span>
-    <span class="cap-txt" data-t="end">बंद करें</span>
-  </button>
-</div>
+<!-- Hanuman Chalisa recording: played as the 🚩 sound option during jaap -->
 <audio id="chalisa-audio" preload="none" src="assets/hanuman-chalisa.m4a?v=1"></audio>
 <div id="safe-probe" aria-hidden="true" style="position:fixed;left:0;top:0;width:0;height:env(safe-area-inset-top,0px);visibility:hidden;pointer-events:none"></div>
 <div id="safe-probe-b" aria-hidden="true" style="position:fixed;left:0;bottom:0;width:0;height:env(safe-area-inset-bottom,0px);visibility:hidden;pointer-events:none"></div>
@@ -702,7 +755,7 @@ settings.minutes = Math.min(MAX_MINUTES, Math.max(MIN_MINUTES, Math.round(+setti
 /* ── Words on screen: Hindi first, plain English as the alternative ── */
 const I18N = {
   hi: {
-    appName: 'नाम जप साधना', lifeLine: 'कुल जप: {j}', settings: 'सेटिंग्स', close: 'बंद करें', done: 'ठीक है', statToday: 'आज', statTotal: 'कुल', statMala: 'माला', board: 'भक्त सूची', boardAll: 'सभी भक्तों ने मिलकर {n} नाम जप किए 🙏', pWeek: 'इस हफ़्ते', pMonth: 'इस महीने', pAll: 'अब तक', myName: 'आपका नाम', namePh: 'जैसे: राम भक्त सुनील', showMe: 'सूची में मेरा नाम दिखाएँ', save: 'सहेजें', savedOk: 'सहेज लिया 🙏', saveTitle: 'अपना जप सुरक्षित रखें', saveSub: 'ईमेल जोड़ें — फ़ोन बदलने पर भी आपकी गिनती मिलेगी।', emailPh: 'आपका ईमेल', sendLink: 'ईमेल पर लिंक भेजें', linkSent: 'ईमेल में लिंक भेजा है — उसे खोलें 🙏', linked: 'जुड़ा हुआ ईमेल: {e}', logout: 'लॉग आउट', cloudOff: 'ऑनलाइन सूची अभी उपलब्ध नहीं है', boardEmpty: 'अभी सूची खाली है — अपना नाम जोड़कर पहले बनें!', boardLoading: 'लोड हो रहा है…', cloudErr: 'कुछ गड़बड़ हुई, फिर कोशिश करें', needName: 'पहले अपना नाम लिखें', badEmail: 'सही ईमेल लिखें', switchTo: 'English',
+    appName: 'नाम जप साधना', lifeLine: 'कुल जप: {j}', settings: 'सेटिंग्स', close: 'बंद करें', done: 'ठीक है', statToday: 'आज', statTotal: 'कुल जप', statMala: 'माला', change: 'बदलें', optsTitle: 'जप की तैयारी', language: 'भाषा · Language', board: 'भक्त सूची', boardAll: 'सभी भक्तों ने मिलकर {n} नाम जप किए 🙏', pWeek: 'इस हफ़्ते', pMonth: 'इस महीने', pAll: 'अब तक', myName: 'आपका नाम', namePh: 'जैसे: राम भक्त सुनील', showMe: 'सूची में मेरा नाम दिखाएँ', save: 'सहेजें', savedOk: 'सहेज लिया 🙏', saveTitle: 'अपना जप सुरक्षित रखें', saveSub: 'ईमेल जोड़ें — फ़ोन बदलने पर भी आपकी गिनती मिलेगी।', emailPh: 'आपका ईमेल', sendLink: 'ईमेल पर लिंक भेजें', linkSent: 'ईमेल में लिंक भेजा है — उसे खोलें 🙏', linked: 'जुड़ा हुआ ईमेल: {e}', logout: 'लॉग आउट', cloudOff: 'ऑनलाइन सूची अभी उपलब्ध नहीं है', boardEmpty: 'अभी सूची खाली है — अपना नाम जोड़कर पहले बनें!', boardLoading: 'लोड हो रहा है…', cloudErr: 'कुछ गड़बड़ हुई, फिर कोशिश करें', needName: 'पहले अपना नाम लिखें', badEmail: 'सही ईमेल लिखें', switchTo: 'English',
     howLong: 'कितनी देर जप करेंगे?', wheelHint: 'ऊपर-नीचे घुमाकर मिनट चुनें', minLess: 'एक मिनट कम', minMore: 'एक मिनट ज़्यादा', min: 'मिनट', d12: 'थोड़ा', d24: 'मध्यम', d48: 'लंबा',
     whichSound: 'कौन सी ध्वनि चलेगी?', tapToHear: 'छूकर सुनें',
     sRam: 'राम राम', sRamSub: 'राम नाम की धुन', sBead: 'माला', sBeadSub: 'मनकों की आवाज़',
@@ -712,7 +765,7 @@ const I18N = {
     vibTitle: 'कंपन (वाइब्रेशन)', vibTest: 'जाँचें', vibOff: 'बंद', vibGentle: 'हल्का', vibMedium: 'मध्यम', vibStrong: 'तेज़',
     vibNote: 'शुरू में एक लंबा कंपन · आधे समय पर दो बार · अंत में घंटी जैसा कंपन',
     vibNone: 'इस फ़ोन या ब्राउज़र में कंपन नहीं चलता (जैसे iPhone)। घंटी की आवाज़ से पता चलेगा।',
-    start: 'जप शुरू करें', startSub: '{m} मिनट जप, फिर 5 मिनट प्राणायाम',
+    start: 'जप शुरू करें', startSub: '{m} मिनट जप, फिर 5 मिनट प्राणायाम होगा',
     remaining: 'बाकी समय', pause: 'रोकें', resume: 'चालू करें', end: 'बंद करें', holdEnd: 'जप बंद करने के लिए दबाकर रखें',
     stSettle: 'आसन लगाइए…', stRun: 'जप चल रहा है', stHalf: 'आधा जप पूरा · नाम में मन लगाएँ', stPaused: 'रुका हुआ है', stDone: 'जप पूरा · अब प्राणायाम',
     jaap: 'नाम जप', malaLine: 'माला {m} · {b}/108', tapZone: '👆 हर नाम पर स्क्रीन कहीं भी छूएँ', chalisaBtn: 'हनुमान चालीसा सुनें', chTitle: 'हनुमान चालीसा', showCtl: 'बटन दिखाएँ', tChDone: 'जय हनुमान 🙏', tChErr: 'चालीसा नहीं चल पाई, फिर से छूएँ', holdLeave: 'जप से बाहर जाने के लिए दबाकर रखें', tallyAria: 'एक नाम जप गिनें',
@@ -730,7 +783,7 @@ const I18N = {
     tNoVib: 'इस फ़ोन में कंपन नहीं चलता', tVibOff: 'कंपन बंद है', tFast: 'टेस्ट मोड: मिनट की जगह सेकंड'
   },
   en: {
-    appName: 'Naam Jaap', lifeLine: 'Total jaap: {j}', settings: 'Settings', close: 'Close', done: 'Done', statToday: 'Today', statTotal: 'Total', statMala: 'Malas', board: 'Devotees', boardAll: 'All devotees together: {n} Naam 🙏', pWeek: 'This week', pMonth: 'This month', pAll: 'All time', myName: 'Your name', namePh: 'e.g. Ram bhakt Sunil', showMe: 'Show my name on the list', save: 'Save', savedOk: 'Saved 🙏', saveTitle: 'Keep your jaap safe', saveSub: 'Add an email — your count stays with you even on a new phone.', emailPh: 'Your email', sendLink: 'Send link to email', linkSent: 'We emailed you a link — open it 🙏', linked: 'Linked email: {e}', logout: 'Log out', cloudOff: 'The online list isn’t available right now', boardEmpty: 'The list is empty — add your name and be the first!', boardLoading: 'Loading…', cloudErr: 'Something went wrong, please try again', needName: 'Please write your name first', badEmail: 'Please enter a valid email', switchTo: 'हिंदी',
+    appName: 'Naam Jaap', lifeLine: 'Total jaap: {j}', settings: 'Settings', close: 'Close', done: 'Done', statToday: 'Today', statTotal: 'Total', statMala: 'Malas', change: 'Change', optsTitle: 'Before you begin', language: 'Language · भाषा', board: 'Devotees', boardAll: 'All devotees together: {n} Naam 🙏', pWeek: 'This week', pMonth: 'This month', pAll: 'All time', myName: 'Your name', namePh: 'e.g. Ram bhakt Sunil', showMe: 'Show my name on the list', save: 'Save', savedOk: 'Saved 🙏', saveTitle: 'Keep your jaap safe', saveSub: 'Add an email — your count stays with you even on a new phone.', emailPh: 'Your email', sendLink: 'Send link to email', linkSent: 'We emailed you a link — open it 🙏', linked: 'Linked email: {e}', logout: 'Log out', cloudOff: 'The online list isn’t available right now', boardEmpty: 'The list is empty — add your name and be the first!', boardLoading: 'Loading…', cloudErr: 'Something went wrong, please try again', needName: 'Please write your name first', badEmail: 'Please enter a valid email', switchTo: 'हिंदी',
     howLong: 'How long will you chant?', wheelHint: 'Scroll up or down to pick minutes', minLess: 'One minute less', minMore: 'One minute more', min: 'minutes', d12: 'Short', d24: 'Medium', d48: 'Long',
     whichSound: 'Which sound?', tapToHear: 'Tap to hear',
     sRam: 'Ram Ram', sRamSub: 'Ram naam chant', sBead: 'Mala', sBeadSub: 'Bead clicks',
@@ -1014,7 +1067,7 @@ const AudioEngine = (() => {
 const Stage = { ready: true, setMode() {}, setView() {}, setBreath() {}, pulsePotli() {}, flash() {}, setExternalPulse() {}, setPaused() {} };
 
 /* ───────────────────────── 5 · APP FLOW & UI ───────────────────────── */
-const views = { setup: $('#view-setup'), active: $('#view-active'), breath: $('#view-breath'), complete: $('#view-complete'), chalisa: $('#view-chalisa') };
+const views = { setup: $('#view-setup'), active: $('#view-active'), breath: $('#view-breath'), complete: $('#view-complete') };
 function showView(name) {
   for (const [k, el] of Object.entries(views)) {
     const on = k === name;
@@ -1035,10 +1088,13 @@ function layoutHanuman() {
   const W = innerWidth, H = innerHeight, view = document.body.dataset.view, wide = WIDE_MQ.matches;
   const box = sel => { const el = $(sel); return el ? el.getBoundingClientRect() : null; };
   let top = 0, bottom = H, left = 0, right = W;
-  if (view === 'setup' || view === 'complete') {
-    const head = box('#setup-head');
-    top = view === 'setup' && head ? head.bottom : 16;
-    const sheet = box(`#view-${view} .sheet`);
+  if (view === 'setup') {
+    const head = box('#setup-head'), cta = box('#home-cta');
+    top = head ? head.bottom : 16;
+    bottom = cta ? cta.top - 6 : H - 160;
+  } else if (view === 'complete') {
+    top = safeTop() + 16;
+    const sheet = box('#view-complete .sheet');
     if (sheet) { if (wide) right = sheet.left; else bottom = sheet.top; }
   } else if (view === 'active' || view === 'chalisa') {
     // immersive: nothing above him; keep the bottom bar's area free so it never covers him
@@ -1147,14 +1203,16 @@ function renderLifetime() {
   let online = null; try { online = Cloud.stats; } catch (_) { /* cloud module not ready yet */ }
   const today = Math.max(lifetime.day === todayKey() ? lifetime.dayJaap : 0, online ? +online.today : 0);
   const total = Math.max(lifetime.jaap, online ? +online.total : 0);
-  $('#lifetime').innerHTML =
-    `<span class="stat-pill">📅 ${t('statToday')} <b class="tabular">${fmtNum(today)}</b></span>` +
-    `<span class="stat-pill">🙏 ${t('statTotal')} <b class="tabular">${fmtNum(total)}</b></span>` +
-    `<span class="stat-pill">📿 <b class="tabular">${fmtNum(Math.floor(total / MALA))}</b> ${t('statMala')}</span>` +
-    `<button class="stat-pill board-pill" id="board-btn" aria-haspopup="dialog" aria-label="${t('board')}">🏆</button>`;
+  $('#lifetime').innerHTML = [[today, 'statToday'], [total, 'statTotal'], [Math.floor(total / MALA), 'statMala']]
+    .map(([v, k]) => `<div class="my-stat"><div class="v">${fmtNum(v)}</div><div class="k">${t(k)}</div></div>`).join('');
+}
+const SOUND_KEY = { ram: 'sRam', bead: 'sBead', drone: 'sDrone', mute: 'sMute', chalisa: 'sChalisa' };
+function renderOptsSummary() {
+  $('#opts-sum').textContent = `${settings.minutes} ${t('min')} · ${t(SOUND_KEY[settings.sound] || 'sRam')}`;
+  $('#start-sub').textContent = t('startSub', { m: settings.minutes });
 }
 function refreshSetup() {
-  $('#start-sub').textContent = t('startSub', { m: settings.minutes });
+  renderOptsSummary();
   $('#lockout-switch').setAttribute('aria-checked', String(settings.lockout));
   $('#vib-note').textContent = Haptics.supported ? t('vibNote') : t('vibNone');
   renderLifetime();
@@ -1165,10 +1223,9 @@ function applyLang() {
   $$('[data-t]').forEach(el => { el.textContent = t(el.dataset.t); });
   $$('[data-t-aria]').forEach(el => el.setAttribute('aria-label', t(el.dataset.tAria)));
   $$('[data-t-ph]').forEach(el => el.setAttribute('placeholder', t(el.dataset.tPh)));
-  $('#lang-label').textContent = t('switchTo');
+  $$('#lang-seg button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.lang === settings.lang)));
   refreshSetup();
   if (session) { setPauseIcon(session.pausedAt != null); setStatus(liveStatus()); renderCount(); session.lastPhase = -1; }
-  try { Chalisa.setIcon(); } catch (_) {}
 }
 function bindGroup(name, onPick) {
   const btns = $$(`[data-group="${name}"] button`);
@@ -1183,7 +1240,7 @@ function bindGroup(name, onPick) {
 bindGroup('sound', v => AudioEngine.preview(v));
 bindGroup('vib', v => { if (v !== 'off') Haptics.fire([160]); });
 $('#lockout-switch').addEventListener('click', () => { settings.lockout = !settings.lockout; persist(); refreshSetup(); });
-$('#lang-btn').addEventListener('click', () => { settings.lang = settings.lang === 'hi' ? 'en' : 'hi'; persist(); applyLang(); });
+$$('#lang-seg button').forEach(b => b.addEventListener('click', () => { settings.lang = b.dataset.lang; persist(); applyLang(); }));
 /* ── Online: Supabase (anonymous sign-in first; email can be linked later) ── */
 const Cloud = (() => {
   const api = { ready: false, user: null, profile: null, stats: null };
@@ -1315,8 +1372,7 @@ const Board = (() => {
     try { await Cloud.linkEmail(email); toast(t('linkSent')); } catch (_) { toast(t('cloudErr')); }
   });
   $('#sign-out').addEventListener('click', async () => { try { await Cloud.signOut(); renderAccount(); } catch (_) { toast(t('cloudErr')); } });
-  // the 🏆 pill is re-rendered with the stats, so listen on its parent
-  $('#lifetime').addEventListener('click', e => { if (e.target.closest('#board-btn')) sheet.open(); });
+  $('#board-btn').addEventListener('click', sheet.open);
   return { open: sheet.open, renderAccount };
 })();
 
@@ -1324,6 +1380,12 @@ const Board = (() => {
 const Settings = (() => {
   const sheet = makeSheet($('#settings'));
   $('#settings-btn').addEventListener('click', sheet.open);
+  return sheet;
+})();
+/* Jaap options sheet (duration + sound) — the wheel can only scroll into place once visible */
+const Opts = (() => {
+  const sheet = makeSheet($('#opts'), () => requestAnimationFrame(() => Wheel.sync()));
+  $('#opts-btn').addEventListener('click', sheet.open);
   return sheet;
 })();
 
@@ -1343,7 +1405,7 @@ const Wheel = (() => {
     settings.minutes = MIN_MINUTES + i;
     el.setAttribute('aria-valuenow', String(settings.minutes));
     el.setAttribute('aria-valuetext', `${settings.minutes} ${t('min')}`);
-    $('#start-sub').textContent = t('startSub', { m: settings.minutes });
+    renderOptsSummary();
     clearTimeout(saveTimer); saveTimer = setTimeout(persist, 250);
   }
   el.addEventListener('scroll', () => mark(indexNow()), { passive: true });
@@ -1392,7 +1454,7 @@ function setHud(on) { $('#tally').hidden = !on; if (!on) Ctl.hide(); layoutHanum
 /* ── Bottom control bar: appears on touch, fades 4 s after the last touch ── */
 const Ctl = (() => {
   let timer = 0;
-  const bars = () => [$('#ctl'), $('#ctl-ch')];
+  const bars = () => [$('#ctl')];
   function hide() {
     if (document.querySelector('.ctl .holding')) { timer = setTimeout(hide, 1200); return; }   // never hide mid-hold
     document.body.classList.remove('ctl-on');
@@ -1652,7 +1714,7 @@ const VideoHanuman = (() => {
   // Safari and every iOS browser (WebKit) only render transparency from HEVC; the rest use VP9 WebM
   const ua = navigator.userAgent;
   const ext = /AppleWebKit/.test(ua) && !/Chrome|Chromium|Edg|OPR|Android/.test(ua) ? 'mov' : 'webm';
-  const V = 4;                                    // bump when the clips are re-rendered (busts phone caches)
+  const V = 5;                                    // bump when the clips are re-rendered (busts phone caches)
   loop.src = `assets/hanuman-loop.${ext}?v=${V}`;
   full.src = `assets/hanuman-full.${ext}?v=${V}`;
   loop.muted = full.muted = med.muted = true;
@@ -1746,58 +1808,6 @@ const VideoHanuman = (() => {
     loop.addEventListener('canplaythrough', () => setTimeout(loadMed, 1500), { once: true });
   }
   return { showIdle, playFull };
-})();
-
-/* ── Hanuman Chalisa: the same immersive glow screen, with the bhajan playing ── */
-const Chalisa = (() => {
-  const audio = $('#chalisa-audio');
-  const setIcon = () => {
-    const paused = audio.paused;
-    $('#ch-ico-pause').hidden = paused; $('#ch-ico-play').hidden = !paused;
-    $('#ch-pause-label').textContent = t(paused ? 'resume' : 'pause');
-    $('#ch-pause').setAttribute('aria-label', t(paused ? 'resume' : 'pause'));
-  };
-  const render = () => {
-    const d = audio.duration || 790;
-    $('#ch-time').textContent = fmt(Math.floor(audio.currentTime) * 1000);
-    $('#ch-dur').textContent = fmt(d * 1000);
-    $('#ch-bar').style.width = `${Math.min(100, (audio.currentTime / d) * 100)}%`;
-  };
-  function start() {
-    if (session) return;
-    AudioEngine.stopProfile(0.3);                 // stop any sound preview
-    audio.loop = false;
-    try { audio.currentTime = 0; } catch (_) {}
-    audio.play().catch(() => toast(t('tChErr')));
-    showView('chalisa');
-    VideoHanuman.playFull();
-    Wake.on();
-    Ctl.show(5000);
-    if ('mediaSession' in navigator) {
-      try {
-        navigator.mediaSession.metadata = new MediaMetadata({ title: t('chTitle'), artist: t('appName'), artwork: [{ src: 'assets/hanuman-poster.webp?v=3', sizes: '768x768', type: 'image/webp' }] });
-        navigator.mediaSession.setActionHandler('pause', () => audio.pause());
-        navigator.mediaSession.setActionHandler('play', () => audio.play());
-      } catch (_) {}
-    }
-  }
-  function stop() {
-    if (!audio.paused || audio.currentTime > 60) Cloud.record({ kind: 'chalisa', jaap_count: 0, minutes: Math.round(audio.currentTime / 60), completed: audio.ended || audio.currentTime >= (audio.duration || 790) - 2 });
-    audio.pause();
-    Wake.off();
-    Ctl.hide();
-    if (document.body.dataset.view === 'chalisa') { refreshSetup(); showView('setup'); VideoHanuman.showIdle(); }
-  }
-  audio.addEventListener('timeupdate', render);
-  audio.addEventListener('loadedmetadata', render);
-  audio.addEventListener('play', setIcon);
-  audio.addEventListener('pause', setIcon);
-  audio.addEventListener('ended', () => { toast(t('tChDone')); AudioEngine.bell(0.35); setTimeout(stop, 2600); });
-  $('#btn-chalisa').addEventListener('click', start);
-  $('#ch-pause').addEventListener('click', () => { if (audio.paused) audio.play().catch(() => toast(t('tChErr'))); else audio.pause(); Ctl.show(); });
-  $('#ch-stop').addEventListener('click', stop);
-  $('#ch-tap').addEventListener('pointerdown', e => { e.preventDefault(); Ctl.show(); });
-  return { stop, setIcon };
 })();
 
 /* Boot */
