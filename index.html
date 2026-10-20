@@ -1803,7 +1803,9 @@ const Chalisa = (() => {
 
 /* Boot */
 applyLang();
-addEventListener('load', () => { Cloud.init().then(() => { renderLifetime(); Board.renderAccount(); }); });
+// connect as soon as the (deferred) Supabase library has run — don't wait for the videos to finish loading
+const startCloud = () => Cloud.init().then(() => { renderLifetime(); Board.renderAccount(); });
+if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', startCloud); else startCloud();
 Wheel.sync();
 showView('setup');
 Stage.setView('setup');
