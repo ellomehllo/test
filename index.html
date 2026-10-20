@@ -16,6 +16,8 @@
 
 <!-- Tailwind (Play CDN) -->
 <script src="https://cdn.tailwindcss.com"></script>
+<!-- Supabase client (online counts, leaderboard). The app runs fully offline if it can't load. -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js" defer></script>
 <script>
   tailwind.config = {
     theme: {
@@ -79,6 +81,14 @@
     transition: width 1.5s cubic-bezier(.65,0,.35,1), height 1.5s cubic-bezier(.65,0,.35,1), left 1.5s cubic-bezier(.65,0,.35,1), top 1.5s cubic-bezier(.65,0,.35,1), opacity .9s ease, filter .9s ease, transform .9s ease;
   }
   #hv video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; }
+  .hv-layer { position: absolute; inset: 0; transition: opacity 1.5s ease; }
+  #hv-medwrap { opacity: 0; transform: translate(-3.4%, 3%); }     /* lines the seated figure up with the floating one */
+  #hv.med #hv-medwrap { opacity: 1; }
+  #hv.med #hv-home { opacity: 0; }
+  #hv-glow.flash .core { animation: glowFlash 1.7s ease-out; }
+  #hv-glow.flash .ring { animation: glowFlash 1.7s ease-out; }
+  @keyframes glowFlash { 0% { transform: scale(.95); opacity: .85; filter: brightness(1); }
+    35% { transform: scale(1.3); opacity: 1; filter: brightness(1.9); } 100% { transform: scale(1); opacity: .9; filter: brightness(1); } }
   #hv-full { opacity: 0; }
   #hv.playing #hv-full { opacity: 1; }
   #hv.playing #hv-loop { opacity: 0; }
@@ -287,6 +297,37 @@
   .ctl .cap-ico { width: 50px; height: 50px; }
   .tap-layer { position: fixed; inset: 0; z-index: 35; background: transparent; border: 0; padding: 0; touch-action: manipulation; }
   .tap-layer:focus-visible { outline: none; }
+  .icon-chip { flex: none; width: 44px; height: 44px; border-radius: 50%; display: grid; place-items: center; color: var(--cream);
+    background: rgba(20,14,10,.6); border: 1.5px solid rgba(246,235,217,.22); }
+  .stats-row { display: flex; justify-content: center; gap: 8px; margin-top: 8px; }
+  .stat-pill { display: inline-flex; align-items: center; gap: 6px; padding: 5px 12px; border-radius: 999px; font-size: 14px; white-space: nowrap;
+    background: rgba(20,14,10,.62); border: 1px solid rgba(240,138,36,.35); color: rgba(246,235,217,.88); }
+  .stat-pill b { color: var(--cream); font-weight: 700; font-size: 15px; }
+  .chip { display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 8px 2px 6px; border-radius: 16px; position: relative; }
+  .chip-ico { width: 50px; height: 50px; border-radius: 50%; display: grid; place-items: center; font-size: 24px; color: var(--saffron);
+    background: rgba(246,235,217,.07); box-shadow: inset 0 0 0 1.5px rgba(246,235,217,.18); transition: box-shadow .2s, background .2s; }
+  .chip-t { font-size: 14px; font-weight: 600; line-height: 1.15; text-align: center; color: rgba(246,235,217,.85); }
+  .chip[aria-pressed="true"] .chip-ico { background: rgba(240,138,36,.22); box-shadow: inset 0 0 0 2.5px var(--saffron), 0 0 18px rgba(240,138,36,.35); }
+  .chip[aria-pressed="true"] .chip-t { color: var(--cream); }
+  .chip[aria-pressed="true"]::after { content: '✓'; position: absolute; top: 4px; right: calc(50% - 30px); width: 20px; height: 20px; border-radius: 50%;
+    background: var(--saffron); color: #1f140b; font-size: 12px; font-weight: 800; line-height: 20px; text-align: center; }
+  .modal { position: fixed; inset: 0; z-index: 70; display: flex; align-items: flex-end; justify-content: center; }
+  .modal-backdrop { position: absolute; inset: 0; background: rgba(8,5,3,.55); backdrop-filter: blur(3px); -webkit-backdrop-filter: blur(3px); }
+  .modal-card { position: relative; width: min(100vw, 480px); border-radius: 28px 28px 0 0; padding: 18px 16px calc(var(--safe-b) + 18px);
+    max-height: 88dvh; overflow-y: auto; animation: sheetUp .3s ease; }
+  @keyframes sheetUp { from { transform: translateY(40px); opacity: 0; } }
+  @media (min-aspect-ratio: 11/10) and (min-width: 760px) { .modal { align-items: center; } .modal-card { border-radius: 28px; } }
+  .board-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }
+  .board-list li { display: flex; align-items: center; gap: 12px; padding: 10px 14px; border-radius: 14px; background: rgba(246,235,217,.05); font-size: 16px; }
+  .board-list li.me { background: rgba(240,138,36,.18); box-shadow: inset 0 0 0 1.5px var(--saffron); }
+  .board-list .rk { width: 30px; text-align: center; font-weight: 700; color: var(--saffron); }
+  .board-list .nm { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .board-list .tt { font-weight: 700; }
+  .board-list .note { justify-content: center; color: rgba(246,235,217,.75); font-size: 15px; }
+  .text-in { width: 100%; min-height: 50px; padding: 0 14px; border-radius: 14px; font-size: 17px; color: var(--cream);
+    background: rgba(20,14,10,.6); border: 1.5px solid rgba(246,235,217,.22); }
+  .text-in:focus { border-color: var(--saffron); outline: none; }
+  .stat-pill.board-pill { cursor: pointer; border-color: rgba(240,138,36,.7); }
   .btn-secondary { width: 100%; min-height: 56px; display: flex; align-items: center; justify-content: center; gap: 10px; border-radius: 18px;
     border: 2px solid var(--saffron); background: rgba(240,138,36,.12); color: var(--cream); font-size: 18px; font-weight: 600; }
   .btn-secondary:active { transform: scale(.98); background: rgba(240,138,36,.24); }
@@ -378,38 +419,42 @@
 <body data-view="setup">
 
 <div id="backdrop" aria-hidden="true"></div>
-<!-- Video Hanuman: colour-keyed clip; floats on setup, turns once on Start, then keeps floating through the session -->
+<!-- Video Hanuman: home clip floats on setup and turns on Start; the seated meditation clip
+     dissolves in (with a golden flash) for jaap, pranayama and Chalisa, and back out afterwards -->
 <div id="hv" aria-hidden="true">
   <div id="hv-glow"><div class="core"></div><div class="rays"></div><div class="ring"></div></div>
-  <video id="hv-loop" muted playsinline autoplay loop preload="auto" poster="assets/hanuman-poster.webp?v=3"></video>
-  <video id="hv-full" muted playsinline preload="auto"></video>
+  <div id="hv-home" class="hv-layer">
+    <video id="hv-loop" muted playsinline autoplay loop preload="auto" poster="assets/hanuman-poster.webp?v=4"></video>
+    <video id="hv-full" muted playsinline preload="auto"></video>
+  </div>
+  <div id="hv-medwrap" class="hv-layer">
+    <video id="hv-med" muted playsinline loop preload="none"></video>
+  </div>
 </div>
 
 <!-- ═════════════════════════ VIEW 1 · SETUP ═════════════════════════ -->
 <section id="view-setup" class="view is-on" aria-labelledby="app-title">
   <div class="scrim-top" aria-hidden="true"></div>
-  <header id="setup-head" class="absolute top-0 inset-x-0 px-4 pt-safe flex items-center justify-between gap-3">
-    <div class="flex items-center gap-2.5 min-w-0">
-      <span class="font-deva text-[36px] leading-none text-saffron glow-text" aria-hidden="true">राम</span>
-      <div class="min-w-0">
-        <h1 id="app-title" class="text-[21px] font-semibold leading-tight" data-t="appName">नाम जप साधना</h1>
-        <p id="lifetime" class="text-[14px] text-cream/85 leading-tight"></p>
-      </div>
+  <header id="setup-head" class="absolute top-0 inset-x-0 px-4 pt-safe">
+    <div class="flex items-center gap-2">
+      <button id="settings-btn" class="icon-chip" data-t-aria="settings" aria-label="सेटिंग्स" aria-haspopup="dialog">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>
+      </button>
+      <h1 id="app-title" class="flex-1 min-w-0 text-center font-deva text-[27px] leading-tight text-saffron glow-text truncate" data-t="appName">नाम जप साधना</h1>
+      <button id="lang-btn" class="lang-btn" aria-label="भाषा बदलें / Change language">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.7 3.8 5.7 3.8 9s-1.3 6.3-3.8 9c-2.5-2.7-3.8-5.7-3.8-9S9.5 5.7 12 3z"/></svg>
+        <span id="lang-label">English</span>
+      </button>
     </div>
-    <button id="lang-btn" class="lang-btn" aria-label="भाषा बदलें / Change language">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.7 3.8 5.7 3.8 9s-1.3 6.3-3.8 9c-2.5-2.7-3.8-5.7-3.8-9S9.5 5.7 12 3z"/></svg>
-      <span id="lang-label">English</span>
-    </button>
+    <div id="lifetime" class="stats-row" aria-live="polite"></div>
   </header>
 
   <div class="sheet panel">
     <div class="sheet-grip" aria-hidden="true"></div>
     <div class="sheet-scroll space-y-4">
-
       <div class="wheel-row">
         <div class="flex-1 min-w-0">
-          <h2 class="q !mb-1" data-t="howLong">कितनी देर जप करेंगे?</h2>
-          <p class="hint mb-3" data-t="wheelHint">ऊपर-नीचे घुमाकर मिनट चुनें</p>
+          <h2 class="q" data-t="howLong">कितनी देर जप करेंगे?</h2>
           <div class="flex gap-3">
             <button class="step-btn" data-step="-1" data-t-aria="minLess" aria-label="एक मिनट कम">−</button>
             <button class="step-btn" data-step="1" data-t-aria="minMore" aria-label="एक मिनट ज़्यादा">+</button>
@@ -425,56 +470,12 @@
           <h2 class="q" data-t="whichSound">कौन सी ध्वनि चलेगी?</h2>
           <span class="hint" data-t="tapToHear">छूकर सुनें</span>
         </div>
-        <div class="grid grid-cols-2 gap-2.5" data-group="sound">
-          <button class="opt tile" data-value="ram" aria-pressed="false">
-            <span class="tile-ico font-deva" style="font-size:16px" aria-hidden="true">राम</span>
-            <span class="min-w-0"><span class="tile-t" data-t="sRam">राम राम</span><span class="tile-s" data-t="sRamSub">राम नाम की धुन</span></span>
-          </button>
-          <button class="opt tile" data-value="bead" aria-pressed="false">
-            <span class="tile-ico" aria-hidden="true">📿</span>
-            <span class="min-w-0"><span class="tile-t" data-t="sBead">माला</span><span class="tile-s" data-t="sBeadSub">मनकों की आवाज़</span></span>
-          </button>
-          <button class="opt tile" data-value="drone" aria-pressed="false">
-            <span class="tile-ico font-deva" style="font-size:26px" aria-hidden="true">ॐ</span>
-            <span class="min-w-0"><span class="tile-t" data-t="sDrone">ॐ गूँज</span><span class="tile-s" data-t="sDroneSub">गहरी शांत ध्वनि</span></span>
-          </button>
-          <button class="opt tile" data-value="mute" aria-pressed="false">
-            <span class="tile-ico" aria-hidden="true"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9.5h3.5L12 5.5v13l-4.5-4H4z"/><path d="m16 9.5 5 5m0-5-5 5"/></svg></span>
-            <span class="min-w-0"><span class="tile-t" data-t="sMute">शांत</span><span class="tile-s" data-t="sMuteSub">कोई आवाज़ नहीं</span></span>
-          </button>
-        </div>
-      </div>
-
-      <button id="more-btn" class="more-btn" aria-expanded="false" aria-controls="more-panel">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="text-saffron"><path d="M4 7h10M18 7h2M4 17h4M12 17h8"/><circle cx="16" cy="7" r="2"/><circle cx="10" cy="17" r="2"/></svg>
-        <span data-t="more">और विकल्प</span>
-        <svg class="chev" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="m6 9 6 6 6-6"/></svg>
-      </button>
-
-      <div id="more-panel" class="space-y-5" hidden>
-        <div class="opt flex items-center gap-4 p-4">
-          <div class="flex-1 min-w-0">
-            <h3 class="text-[17px] font-semibold flex items-center gap-2">
-              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="text-saffron"><rect x="5" y="11" width="14" height="10" rx="2.5"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>
-              <span data-t="lockTitle">स्क्रीन लॉक</span>
-            </h3>
-            <p class="text-[14px] text-cream/75 mt-1 leading-snug" data-t="lockSub">जप के समय गलती से छूने पर कुछ न बदले। बाहर जाने के लिए बटन दबाकर रखें।</p>
-          </div>
-          <button id="lockout-switch" class="switch" role="switch" aria-checked="true" data-t-aria="lockTitle" aria-label="स्क्रीन लॉक"></button>
-        </div>
-
-        <div>
-          <div class="flex items-baseline justify-between gap-2">
-            <h3 class="q" data-t="vibTitle">कंपन (वाइब्रेशन)</h3>
-            <button id="vib-test" class="text-[15px] text-saffron font-semibold px-2 py-1" data-t="vibTest">जाँचें</button>
-          </div>
-          <div class="seg grid grid-cols-4" data-group="vib">
-            <button data-value="off" aria-pressed="false" data-t="vibOff">बंद</button>
-            <button data-value="gentle" aria-pressed="false" data-t="vibGentle">हल्का</button>
-            <button data-value="medium" aria-pressed="false" data-t="vibMedium">मध्यम</button>
-            <button data-value="strong" aria-pressed="false" data-t="vibStrong">तेज़</button>
-          </div>
-          <p id="vib-note" class="text-[13.5px] text-cream/70 mt-2 leading-snug"></p>
+        <div class="grid grid-cols-5 gap-1" data-group="sound">
+          <button class="chip" data-value="ram" aria-pressed="false"><span class="chip-ico font-deva" style="font-size:15px">राम</span><span class="chip-t" data-t="sRam">राम राम</span></button>
+          <button class="chip" data-value="bead" aria-pressed="false"><span class="chip-ico" aria-hidden="true">📿</span><span class="chip-t" data-t="sBead">माला</span></button>
+          <button class="chip" data-value="drone" aria-pressed="false"><span class="chip-ico font-deva" style="font-size:25px" aria-hidden="true">ॐ</span><span class="chip-t" data-t="sDrone">ॐ गूँज</span></button>
+          <button class="chip" data-value="mute" aria-pressed="false"><span class="chip-ico" aria-hidden="true"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9.5h3.5L12 5.5v13l-4.5-4H4z"/><path d="m16 9.5 5 5m0-5-5 5"/></svg></span><span class="chip-t" data-t="sMute">शांत</span></button>
+          <button class="chip" data-value="chalisa" aria-pressed="false"><span class="chip-ico" aria-hidden="true">🚩</span><span class="chip-t" data-t="sChalisa">चालीसा</span></button>
         </div>
       </div>
     </div>
@@ -491,6 +492,85 @@
     </div>
   </div>
 </section>
+
+<!-- Leaderboard + online save (opened from the 🏆 pill) -->
+<div id="board" class="modal" role="dialog" aria-modal="true" aria-labelledby="board-title" hidden>
+  <div class="modal-backdrop" data-close></div>
+  <div class="modal-card panel">
+    <div class="flex items-center justify-between mb-3">
+      <h2 id="board-title" class="text-[21px] font-semibold">🏆 <span data-t="board">भक्त सूची</span></h2>
+      <button class="icon-chip" data-close data-t-aria="close" aria-label="बंद करें"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
+    </div>
+    <p id="board-global" class="text-[15px] text-cream/90 text-center mb-3"></p>
+    <div class="seg grid grid-cols-3 mb-3" id="board-period">
+      <button data-p="week" aria-pressed="true" data-t="pWeek">इस हफ़्ते</button>
+      <button data-p="month" aria-pressed="false" data-t="pMonth">इस महीने</button>
+      <button data-p="all" aria-pressed="false" data-t="pAll">अब तक</button>
+    </div>
+    <ol id="board-list" class="board-list" aria-live="polite"></ol>
+
+    <div id="board-me" class="mt-4 space-y-4">
+      <div class="opt p-4">
+        <label for="my-name" class="q !mb-2 block" data-t="myName">आपका नाम</label>
+        <input id="my-name" class="text-in" maxlength="40" autocomplete="nickname" data-t-ph="namePh" placeholder="जैसे: राम भक्त सुनील">
+        <div class="flex items-center gap-3 mt-3">
+          <p class="flex-1 text-[14.5px] text-cream/85 leading-snug" data-t="showMe">सूची में मेरा नाम दिखाएँ</p>
+          <button id="show-me" class="switch" role="switch" aria-checked="false" data-t-aria="showMe" aria-label="सूची में मेरा नाम दिखाएँ"></button>
+        </div>
+        <button id="save-me" class="btn-secondary mt-3" data-t="save">सहेजें</button>
+      </div>
+      <div class="opt p-4">
+        <h3 class="q !mb-1" data-t="saveTitle">अपना जप सुरक्षित रखें</h3>
+        <p id="acct-sub" class="text-[14px] text-cream/75 leading-snug mb-3" data-t="saveSub">ईमेल जोड़ें — फ़ोन बदलने पर भी आपकी गिनती मिलेगी।</p>
+        <div id="acct-anon">
+          <input id="my-email" class="text-in" type="email" inputmode="email" autocomplete="email" data-t-ph="emailPh" placeholder="आपका ईमेल">
+          <button id="send-link" class="btn-secondary mt-3" data-t="sendLink">ईमेल पर लिंक भेजें</button>
+        </div>
+        <div id="acct-user" hidden>
+          <p id="acct-email" class="text-[15px] text-cream mb-3"></p>
+          <button id="sign-out" class="btn-secondary" data-t="logout">लॉग आउट</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Settings sheet (opened from ⚙): screen lock + vibration -->
+<div id="settings" class="modal" role="dialog" aria-modal="true" aria-labelledby="settings-title" hidden>
+  <div class="modal-backdrop" data-close></div>
+  <div class="modal-card panel">
+    <div class="flex items-center justify-between mb-4">
+      <h2 id="settings-title" class="text-[21px] font-semibold" data-t="settings">सेटिंग्स</h2>
+      <button class="icon-chip" data-close data-t-aria="close" aria-label="बंद करें"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
+    </div>
+    <div class="space-y-5">
+      <div class="opt flex items-center gap-4 p-4">
+        <div class="flex-1 min-w-0">
+          <h3 class="text-[17px] font-semibold flex items-center gap-2">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="text-saffron"><rect x="5" y="11" width="14" height="10" rx="2.5"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>
+            <span data-t="lockTitle">स्क्रीन लॉक</span>
+          </h3>
+          <p class="text-[14px] text-cream/75 mt-1 leading-snug" data-t="lockSub">जप के समय गलती से छूने पर कुछ न बदले। बाहर जाने के लिए बटन दबाकर रखें।</p>
+        </div>
+        <button id="lockout-switch" class="switch" role="switch" aria-checked="true" data-t-aria="lockTitle" aria-label="स्क्रीन लॉक"></button>
+      </div>
+      <div>
+        <div class="flex items-baseline justify-between gap-2">
+          <h3 class="q" data-t="vibTitle">कंपन (वाइब्रेशन)</h3>
+          <button id="vib-test" class="text-[15px] text-saffron font-semibold px-2 py-1" data-t="vibTest">जाँचें</button>
+        </div>
+        <div class="seg grid grid-cols-4" data-group="vib">
+          <button data-value="off" aria-pressed="false" data-t="vibOff">बंद</button>
+          <button data-value="gentle" aria-pressed="false" data-t="vibGentle">हल्का</button>
+          <button data-value="medium" aria-pressed="false" data-t="vibMedium">मध्यम</button>
+          <button data-value="strong" aria-pressed="false" data-t="vibStrong">तेज़</button>
+        </div>
+        <p id="vib-note" class="text-[13.5px] text-cream/70 mt-2 leading-snug"></p>
+      </div>
+      <button class="btn-primary w-full text-[19px] font-bold" data-close data-t="done">ठीक है</button>
+    </div>
+  </div>
+</div>
 
 <!-- ═════════════════════════ VIEW 2 · JAAP (immersive) ═════════════════════════
      Only Hanuman and his glow. Touching anywhere counts one Naam and briefly shows the bar at the bottom. -->
@@ -620,6 +700,9 @@ const FAST = new URLSearchParams(location.search).has('fast');
 const MINUTE_MS = FAST ? 1000 : 60000;
 const PRANAYAMA_MS = FAST ? 20000 : 5 * 60000;
 const MALA = 108;
+/* Supabase project (publishable/anon key only — never the service_role/secret key).
+   Leave empty to run offline-only. */
+const CLOUD = { url: 'https://brtlirkvtkocdxginvlj.supabase.co', key: 'sb_publishable_24QkSSh1OPhLpWETMwa_gg_XtlAyclB' };
 const REDUCED_MOTION = matchMedia('(prefers-reduced-motion: reduce)').matches;
 const WIDE_MQ = matchMedia('(min-aspect-ratio: 11/10) and (min-width: 760px)');
 
@@ -639,11 +722,11 @@ settings.minutes = Math.min(MAX_MINUTES, Math.max(MIN_MINUTES, Math.round(+setti
 /* ── Words on screen: Hindi first, plain English as the alternative ── */
 const I18N = {
   hi: {
-    appName: 'नाम जप साधना', lifeLine: 'कुल जप: {j}', switchTo: 'English',
+    appName: 'नाम जप साधना', lifeLine: 'कुल जप: {j}', settings: 'सेटिंग्स', close: 'बंद करें', done: 'ठीक है', statToday: 'आज', statTotal: 'कुल', statMala: 'माला', board: 'भक्त सूची', boardAll: 'सभी भक्तों ने मिलकर {n} नाम जप किए 🙏', pWeek: 'इस हफ़्ते', pMonth: 'इस महीने', pAll: 'अब तक', myName: 'आपका नाम', namePh: 'जैसे: राम भक्त सुनील', showMe: 'सूची में मेरा नाम दिखाएँ', save: 'सहेजें', savedOk: 'सहेज लिया 🙏', saveTitle: 'अपना जप सुरक्षित रखें', saveSub: 'ईमेल जोड़ें — फ़ोन बदलने पर भी आपकी गिनती मिलेगी।', emailPh: 'आपका ईमेल', sendLink: 'ईमेल पर लिंक भेजें', linkSent: 'ईमेल में लिंक भेजा है — उसे खोलें 🙏', linked: 'जुड़ा हुआ ईमेल: {e}', logout: 'लॉग आउट', cloudOff: 'ऑनलाइन सूची अभी उपलब्ध नहीं है', boardEmpty: 'अभी सूची खाली है — अपना नाम जोड़कर पहले बनें!', boardLoading: 'लोड हो रहा है…', cloudErr: 'कुछ गड़बड़ हुई, फिर कोशिश करें', needName: 'पहले अपना नाम लिखें', badEmail: 'सही ईमेल लिखें', switchTo: 'English',
     howLong: 'कितनी देर जप करेंगे?', wheelHint: 'ऊपर-नीचे घुमाकर मिनट चुनें', minLess: 'एक मिनट कम', minMore: 'एक मिनट ज़्यादा', min: 'मिनट', d12: 'थोड़ा', d24: 'मध्यम', d48: 'लंबा',
     whichSound: 'कौन सी ध्वनि चलेगी?', tapToHear: 'छूकर सुनें',
     sRam: 'राम राम', sRamSub: 'राम नाम की धुन', sBead: 'माला', sBeadSub: 'मनकों की आवाज़',
-    sDrone: 'ॐ गूँज', sDroneSub: 'गहरी शांत ध्वनि', sMute: 'शांत', sMuteSub: 'कोई आवाज़ नहीं',
+    sDrone: 'ॐ गूँज', sDroneSub: 'गहरी शांत ध्वनि', sMute: 'शांत', sMuteSub: 'कोई आवाज़ नहीं', sChalisa: 'चालीसा',
     more: 'और विकल्प', lockTitle: 'स्क्रीन लॉक',
     lockSub: 'जप के समय गलती से छूने पर कुछ न बदले। बाहर जाने के लिए बटन दबाकर रखें।',
     vibTitle: 'कंपन (वाइब्रेशन)', vibTest: 'जाँचें', vibOff: 'बंद', vibGentle: 'हल्का', vibMedium: 'मध्यम', vibStrong: 'तेज़',
@@ -667,11 +750,11 @@ const I18N = {
     tNoVib: 'इस फ़ोन में कंपन नहीं चलता', tVibOff: 'कंपन बंद है', tFast: 'टेस्ट मोड: मिनट की जगह सेकंड'
   },
   en: {
-    appName: 'Naam Jaap', lifeLine: 'Total jaap: {j}', switchTo: 'हिंदी',
+    appName: 'Naam Jaap', lifeLine: 'Total jaap: {j}', settings: 'Settings', close: 'Close', done: 'Done', statToday: 'Today', statTotal: 'Total', statMala: 'Malas', board: 'Devotees', boardAll: 'All devotees together: {n} Naam 🙏', pWeek: 'This week', pMonth: 'This month', pAll: 'All time', myName: 'Your name', namePh: 'e.g. Ram bhakt Sunil', showMe: 'Show my name on the list', save: 'Save', savedOk: 'Saved 🙏', saveTitle: 'Keep your jaap safe', saveSub: 'Add an email — your count stays with you even on a new phone.', emailPh: 'Your email', sendLink: 'Send link to email', linkSent: 'We emailed you a link — open it 🙏', linked: 'Linked email: {e}', logout: 'Log out', cloudOff: 'The online list isn’t available right now', boardEmpty: 'The list is empty — add your name and be the first!', boardLoading: 'Loading…', cloudErr: 'Something went wrong, please try again', needName: 'Please write your name first', badEmail: 'Please enter a valid email', switchTo: 'हिंदी',
     howLong: 'How long will you chant?', wheelHint: 'Scroll up or down to pick minutes', minLess: 'One minute less', minMore: 'One minute more', min: 'minutes', d12: 'Short', d24: 'Medium', d48: 'Long',
     whichSound: 'Which sound?', tapToHear: 'Tap to hear',
     sRam: 'Ram Ram', sRamSub: 'Ram naam chant', sBead: 'Mala', sBeadSub: 'Bead clicks',
-    sDrone: 'Om hum', sDroneSub: 'Deep calm sound', sMute: 'Silent', sMuteSub: 'No sound',
+    sDrone: 'Om hum', sDroneSub: 'Deep calm sound', sMute: 'Silent', sMuteSub: 'No sound', sChalisa: 'Chalisa',
     more: 'More options', lockTitle: 'Screen lock',
     lockSub: 'Stray touches won’t change anything while you chant. Press and hold the button to leave.',
     vibTitle: 'Vibration', vibTest: 'Test', vibOff: 'Off', vibGentle: 'Light', vibMedium: 'Medium', vibStrong: 'Strong',
@@ -696,7 +779,12 @@ const I18N = {
   }
 };
 const t = (k, v = {}) => String((I18N[settings.lang] || I18N.hi)[k] ?? I18N.hi[k] ?? k).replace(/\{(\w+)\}/g, (_, n) => v[n]);
-const lifetime = Object.assign({ jaap: 0, sessions: 0, minutes: 0 }, saved.lifetime);
+const lifetime = Object.assign({ jaap: 0, sessions: 0, minutes: 0, day: '', dayJaap: 0 }, saved.lifetime);
+const todayKey = () => new Date().toLocaleDateString('en-CA');
+function addJaapToStats(n) {
+  if (lifetime.day !== todayKey()) { lifetime.day = todayKey(); lifetime.dayJaap = 0; }
+  lifetime.jaap += n; lifetime.dayJaap += n;
+}
 const persist = () => Store.write({ settings, lifetime });
 
 /* ───────────────────────── 2 · HAPTICS ─────────────────────────
@@ -867,10 +955,18 @@ const AudioEngine = (() => {
     }
   }
 
-  api.startProfile = name => {
+  // "chalisa" plays the recorded Hanuman Chalisa on repeat instead of a synthesised sound
+  let chalisaOn = false, chalisaPos = 0;
+  api.startProfile = (name, resume = false) => {
     clearTimeout(previewTimer);
     api.stopProfile(0.25);
     current = name;
+    if (name === 'chalisa') {
+      const a = $('#chalisa-audio'); chalisaOn = true; a.loop = true;
+      try { a.currentTime = resume ? chalisaPos : 0; } catch (_) {}
+      a.play().catch(() => {});
+      return;
+    }
     if (name === 'mute' || !api.ensure()) return;
     const t = ctx.currentTime;
     out = gain(0); out._nodes = [];
@@ -882,6 +978,7 @@ const AudioEngine = (() => {
 
   api.stopProfile = (fade = 0.8) => {
     clearInterval(sched); sched = null;
+    if (chalisaOn) { const a = $('#chalisa-audio'); chalisaPos = a.currentTime || 0; a.pause(); a.loop = false; chalisaOn = false; }
     if (!out || !ctx) { out = null; return; }
     const o = out, t = ctx.currentTime; out = null;
     o.gain.cancelScheduledValues(t); o.gain.setValueAtTime(o.gain.value, t); o.gain.linearRampToValueAtTime(0, t + fade);
@@ -1067,7 +1164,14 @@ function holdToConfirm(btn, onDone) {
 
 /* ── Setup screen ─────────────────────────────────────────────────────── */
 function renderLifetime() {
-  $('#lifetime').textContent = lifetime.jaap ? t('lifeLine', { j: fmtNum(lifetime.jaap) }) : '';
+  let online = null; try { online = Cloud.stats; } catch (_) { /* cloud module not ready yet */ }
+  const today = Math.max(lifetime.day === todayKey() ? lifetime.dayJaap : 0, online ? +online.today : 0);
+  const total = Math.max(lifetime.jaap, online ? +online.total : 0);
+  $('#lifetime').innerHTML =
+    `<span class="stat-pill">📅 ${t('statToday')} <b class="tabular">${fmtNum(today)}</b></span>` +
+    `<span class="stat-pill">🙏 ${t('statTotal')} <b class="tabular">${fmtNum(total)}</b></span>` +
+    `<span class="stat-pill">📿 <b class="tabular">${fmtNum(Math.floor(total / MALA))}</b> ${t('statMala')}</span>` +
+    `<button class="stat-pill board-pill" id="board-btn" aria-haspopup="dialog" aria-label="${t('board')}">🏆</button>`;
 }
 function refreshSetup() {
   $('#start-sub').textContent = t('startSub', { m: settings.minutes });
@@ -1080,6 +1184,7 @@ function applyLang() {
   document.documentElement.lang = settings.lang;
   $$('[data-t]').forEach(el => { el.textContent = t(el.dataset.t); });
   $$('[data-t-aria]').forEach(el => el.setAttribute('aria-label', t(el.dataset.tAria)));
+  $$('[data-t-ph]').forEach(el => el.setAttribute('placeholder', t(el.dataset.tPh)));
   $('#lang-label').textContent = t('switchTo');
   refreshSetup();
   if (session) { setPauseIcon(session.pausedAt != null); setStatus(liveStatus()); renderCount(); session.lastPhase = -1; }
@@ -1099,13 +1204,148 @@ bindGroup('sound', v => AudioEngine.preview(v));
 bindGroup('vib', v => { if (v !== 'off') Haptics.fire([160]); });
 $('#lockout-switch').addEventListener('click', () => { settings.lockout = !settings.lockout; persist(); refreshSetup(); });
 $('#lang-btn').addEventListener('click', () => { settings.lang = settings.lang === 'hi' ? 'en' : 'hi'; persist(); applyLang(); });
-$('#more-btn').addEventListener('click', () => {
-  const open = $('#more-btn').getAttribute('aria-expanded') !== 'true';
-  $('#more-btn').setAttribute('aria-expanded', String(open));
-  $('#more-panel').hidden = !open;
-  if (open) setTimeout(() => $('#more-panel').scrollIntoView({ behavior: 'smooth', block: 'nearest' }), 30);
-  layoutHanuman();
-});
+/* ── Online: Supabase (anonymous sign-in first; email can be linked later) ── */
+const Cloud = (() => {
+  const api = { ready: false, user: null, profile: null, stats: null };
+  const QKEY = 'naam-jaap-sadhna.queue';
+  let sb = null;
+  const readQ = () => { try { return JSON.parse(localStorage.getItem(QKEY)) || []; } catch (_) { return []; } };
+  const writeQ = q => { try { localStorage.setItem(QKEY, JSON.stringify(q.slice(-300))); } catch (_) {} };
+  const redirect = () => location.origin + location.pathname;
+
+  async function init() {
+    if (!CLOUD.url || !CLOUD.key || !window.supabase) return;
+    try {
+      sb = window.supabase.createClient(CLOUD.url, CLOUD.key, { auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true } });
+      let { data: { session } } = await sb.auth.getSession();
+      if (session) {
+        // a saved login whose account no longer exists → start fresh
+        const chk = await sb.auth.getUser();
+        if (chk.error || !chk.data.user) { await sb.auth.signOut({ scope: 'local' }); session = null; }
+      }
+      if (!session) {
+        const r = await sb.auth.signInAnonymously();
+        if (r.error) throw r.error;
+        session = r.data.session;
+      }
+      api.user = session.user; api.ready = true;
+      sb.auth.onAuthStateChange((_e, sess) => { api.user = sess ? sess.user : null; Board.renderAccount(); });
+      await loadProfile(); await flush(); await refreshStats();
+    } catch (e) { console.warn('[cloud] offline', e); api.ready = false; }
+  }
+  async function loadProfile() {
+    const { data } = await sb.from('profiles').select('display_name, show_on_leaderboard').eq('id', api.user.id).maybeSingle();
+    api.profile = data || null;
+  }
+  async function refreshStats() {
+    if (!api.ready) return;
+    const { data, error } = await sb.rpc('my_stats', { p_today: todayKey() });
+    if (!error && data && data[0]) { api.stats = data[0]; renderLifetime(); }
+  }
+  async function flush() {
+    if (!api.ready) return;
+    const q = readQ(); if (!q.length) return;
+    const { error } = await sb.from('jaap_sessions').insert(q);
+    if (!error) writeQ([]); else console.warn('[cloud] upload later', error.message);
+  }
+  async function record(row) {
+    writeQ([...readQ(), Object.assign({ client_day: todayKey() }, row)]);
+    if (api.ready) { await flush(); await refreshStats(); }
+  }
+  async function saveProfile(name, show) {
+    const { error } = await sb.from('profiles').upsert({ id: api.user.id, display_name: name || null, show_on_leaderboard: !!show });
+    if (error) throw error;
+    api.profile = { display_name: name, show_on_leaderboard: !!show };
+  }
+  const leaderboard = async period => { const { data, error } = await sb.rpc('leaderboard', { p_period: period, p_limit: 50 }); if (error) throw error; return data || []; };
+  const totals = async () => { const { data, error } = await sb.rpc('global_totals'); if (error) throw error; return data && data[0]; };
+  // Anonymous → permanent: attach the email to this account; if it already has an account, log in to it instead
+  async function linkEmail(email) {
+    const r = await sb.auth.updateUser({ email }, { emailRedirectTo: redirect() });
+    if (!r.error) return 'linked';
+    if (/already|exists|registered/i.test(r.error.message || '')) {
+      const s2 = await sb.auth.signInWithOtp({ email, options: { shouldCreateUser: false, emailRedirectTo: redirect() } });
+      if (s2.error) throw s2.error;
+      return 'signin';
+    }
+    throw r.error;
+  }
+  async function signOut() {
+    await sb.auth.signOut();
+    api.stats = null; api.profile = null;
+    const r = await sb.auth.signInAnonymously(); if (!r.error) api.user = r.data.user;
+    renderLifetime();
+  }
+  addEventListener('online', () => { flush().then(refreshStats); });
+  Object.assign(api, { init, record, refreshStats, saveProfile, leaderboard, totals, linkEmail, signOut, loadProfile });
+  return api;
+})();
+
+/* Bottom sheets (settings, leaderboard): open/close with focus return and Escape */
+function makeSheet(el, onOpen) {
+  let lastFocus = null;
+  const close = () => { el.hidden = true; if (lastFocus && lastFocus.focus) lastFocus.focus(); };
+  const open = () => { lastFocus = document.activeElement; el.hidden = false; setTimeout(() => { const c = el.querySelector('[data-close].icon-chip'); if (c) c.focus(); }, 30); if (onOpen) onOpen(); };
+  el.querySelectorAll('[data-close]').forEach(b => b.addEventListener('click', close));
+  document.addEventListener('keydown', e => { if (e.key === 'Escape' && !el.hidden) close(); });
+  return { open, close };
+}
+
+/* 🏆 Leaderboard + name + email */
+const Board = (() => {
+  const el = $('#board');
+  let period = 'week';
+  const sheet = makeSheet(el, () => { load(); renderAccount(); });
+  const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  const note = msg => { $('#board-list').innerHTML = `<li class="note">${esc(msg)}</li>`; };
+  async function load() {
+    $('#board-me').hidden = !Cloud.ready;
+    if (!Cloud.ready) { $('#board-global').textContent = ''; note(t('cloudOff')); return; }
+    note(t('boardLoading'));
+    try {
+      const [rows, tot] = await Promise.all([Cloud.leaderboard(period), Cloud.totals()]);
+      $('#board-global').textContent = tot ? t('boardAll', { n: fmtNum(+tot.total_jaap) }) : '';
+      if (!rows.length) { note(t('boardEmpty')); return; }
+      $('#board-list').innerHTML = rows.map(r => `<li class="${r.is_me ? 'me' : ''}"><span class="rk">${r.rank}</span><span class="nm">${esc(r.display_name)}</span><span class="tt tabular">${fmtNum(+r.total)}</span></li>`).join('');
+    } catch (e) { note(t('cloudErr')); }
+  }
+  function renderAccount() {
+    if (!Cloud.ready) return;
+    const p = Cloud.profile || {};
+    $('#my-name').value = p.display_name || '';
+    $('#show-me').setAttribute('aria-checked', String(!!p.show_on_leaderboard));
+    const email = Cloud.user && !Cloud.user.is_anonymous ? Cloud.user.email : '';
+    $('#acct-anon').hidden = !!email; $('#acct-user').hidden = !email;
+    $('#acct-email').textContent = email ? t('linked', { e: email }) : '';
+  }
+  $$('#board-period button').forEach(b => b.addEventListener('click', () => {
+    period = b.dataset.p;
+    $$('#board-period button').forEach(x => x.setAttribute('aria-pressed', String(x === b)));
+    load();
+  }));
+  $('#show-me').addEventListener('click', e => { const sw = e.currentTarget; sw.setAttribute('aria-checked', String(sw.getAttribute('aria-checked') !== 'true')); });
+  $('#save-me').addEventListener('click', async () => {
+    const name = $('#my-name').value.trim(), show = $('#show-me').getAttribute('aria-checked') === 'true';
+    if (show && !name) { toast(t('needName')); $('#my-name').focus(); return; }
+    try { await Cloud.saveProfile(name, show); toast(t('savedOk')); load(); } catch (_) { toast(t('cloudErr')); }
+  });
+  $('#send-link').addEventListener('click', async () => {
+    const email = $('#my-email').value.trim();
+    if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) { toast(t('badEmail')); $('#my-email').focus(); return; }
+    try { await Cloud.linkEmail(email); toast(t('linkSent')); } catch (_) { toast(t('cloudErr')); }
+  });
+  $('#sign-out').addEventListener('click', async () => { try { await Cloud.signOut(); renderAccount(); } catch (_) { toast(t('cloudErr')); } });
+  // the 🏆 pill is re-rendered with the stats, so listen on its parent
+  $('#lifetime').addEventListener('click', e => { if (e.target.closest('#board-btn')) sheet.open(); });
+  return { open: sheet.open, renderAccount };
+})();
+
+/* Settings sheet (⚙) */
+const Settings = (() => {
+  const sheet = makeSheet($('#settings'));
+  $('#settings-btn').addEventListener('click', sheet.open);
+  return sheet;
+})();
 
 /* ── Minute wheel (like an alarm clock): 20–60 minutes ── */
 const Wheel = (() => {
@@ -1260,7 +1500,7 @@ function togglePause() {
     AudioEngine.stopProfile(0.6); Stage.setPaused(true);
   } else {
     session.pausedTotal += performance.now() - session.pausedAt; session.pausedAt = null;
-    AudioEngine.startProfile(settings.sound); Stage.setPaused(false);
+    AudioEngine.startProfile(settings.sound, true); Stage.setPaused(false);
   }
   setPauseIcon(session.pausedAt != null);
   setStatus(liveStatus());
@@ -1375,7 +1615,8 @@ function finishSession(breathDone) {
   s.phase = 'done';
   cleanupSession();
   if (breathDone) { AudioEngine.bell(0.45); Haptics.fire([300, 120, 180]); }
-  lifetime.jaap += s.count; lifetime.sessions += 1; lifetime.minutes += Math.round(s.meditatedMs / 60000);
+  addJaapToStats(s.count); lifetime.sessions += 1; lifetime.minutes += Math.round(s.meditatedMs / 60000);
+  Cloud.record({ kind: 'jaap', jaap_count: s.count, minutes: Math.round(s.meditatedMs / 60000), completed: true });
   persist();
   $('#c-jaap').textContent = fmtNum(s.count);
   $('#c-mala').textContent = String(Math.floor(s.count / MALA));
@@ -1384,6 +1625,7 @@ function finishSession(breathDone) {
   $('#c-life').textContent = t('life', { j: fmtNum(lifetime.jaap), s: lifetime.sessions });
   session = null;
   showView('complete');
+  VideoHanuman.showIdle();
   Stage.setMode('float');
   Stage.setView('complete');
 }
@@ -1392,7 +1634,8 @@ function abandonSadhna() {
   const med = s.phase === 'sadhna' ? elapsed() : s.meditatedMs;
   s.phase = 'done';
   cleanupSession();
-  lifetime.jaap += s.count; lifetime.minutes += Math.round(med / 60000);
+  addJaapToStats(s.count); lifetime.minutes += Math.round(med / 60000);
+  if (s.count > 0 || med >= 60000) Cloud.record({ kind: 'jaap', jaap_count: s.count, minutes: Math.round(med / 60000), completed: false });
   persist();
   session = null;
   refreshSetup();
@@ -1417,22 +1660,28 @@ document.addEventListener('visibilitychange', () => {
 WIDE_MQ.addEventListener && WIDE_MQ.addEventListener('change', () => dispatchEvent(new Event('resize')));
 
 /* ── Video Hanuman ─────────────────────────────────────────────────────
- * Idle: ping-pong loop of the clip's first second (frames 1→24→2).
- * Start Sadhna: the full clip (his turn) plays from the loop's current frame.
- * Its last 8 frames are pre-blended into loop frame 11, so when it ends the
- * up-down loop carries on from there without a jump. */
+ * Home clip (HD): idle ping-pong loop of its first second (frames 1→24→2); on Start the full
+ * clip (his turn) plays from the loop's current frame.
+ * Meditation clip: seated Hanuman with golden dust, a seamless ~6 s loop. As the turn ends it
+ * cross-dissolves in under a golden flash, and dissolves back to the home loop afterwards.
+ * If it hasn't downloaded yet, the turn's last 8 frames (pre-blended into home-loop frame 11)
+ * hand back to the home loop, and the dissolve happens as soon as the clip is ready. */
 const VideoHanuman = (() => {
-  const wrap = $('#hv'), loop = $('#hv-loop'), full = $('#hv-full');
-  const FPS = 24, FWD = 24, LOOP_FRAMES = 46, RESUME = 11;   // full clip ends on loop index 10 → resume on 11
+  const wrap = $('#hv'), loop = $('#hv-loop'), full = $('#hv-full'), med = $('#hv-med'), glow = $('#hv-glow');
+  const FPS = 24, FWD = 24, LOOP_FRAMES = 46, RESUME = 11;
   // Safari and every iOS browser (WebKit) only render transparency from HEVC; the rest use VP9 WebM
   const ua = navigator.userAgent;
   const ext = /AppleWebKit/.test(ua) && !/Chrome|Chromium|Edg|OPR|Android/.test(ua) ? 'mov' : 'webm';
-  const V = 3;                                    // bump when the clips are re-rendered (busts phone caches)
+  const V = 4;                                    // bump when the clips are re-rendered (busts phone caches)
   loop.src = `assets/hanuman-loop.${ext}?v=${V}`;
   full.src = `assets/hanuman-full.${ext}?v=${V}`;
-  loop.muted = full.muted = true;
-  let state = 'idle', timer = 0;
+  med.poster = `assets/hanuman-meditate-poster.webp?v=${V}`;
+  loop.muted = full.muted = med.muted = true;
+  let state = 'idle', timer = 0, wantMed = false, medRequested = false;
 
+  const loadMed = () => { if (medRequested) return; medRequested = true; med.preload = 'auto'; med.src = `assets/hanuman-meditate.${ext}?v=${V}`; med.load(); };
+  const medReady = () => med.readyState >= 3;
+  const flash = () => { glow.classList.remove('flash'); void glow.offsetWidth; glow.classList.add('flash'); setTimeout(() => glow.classList.remove('flash'), 1800); };
   const showLoop = () => { wrap.classList.remove('playing'); full.pause(); };
   const nudge = () => { if (state === 'idle' && loop.paused) loop.play().catch(() => {}); };
 
@@ -1443,8 +1692,22 @@ const VideoHanuman = (() => {
     loop.play()
       .then(() => { if (loop.requestVideoFrameCallback) loop.requestVideoFrameCallback(showLoop); else showLoop(); })
       .catch(showLoop);
+    if (wantMed) med.addEventListener('canplay', () => { if (wantMed && state === 'idle') startMed(); }, { once: true });
+  }
+  function startMed() {
+    if (state === 'med' || !wantMed) return;
+    state = 'med'; clearTimeout(timer);
+    try { med.currentTime = 0; } catch (_) {}
+    med.play().then(() => {
+      const go = () => {
+        wrap.classList.add('med'); flash();
+        setTimeout(() => { if (state === 'med') { loop.pause(); full.pause(); } }, 1700);
+      };
+      if (med.requestVideoFrameCallback) med.requestVideoFrameCallback(go); else go();
+    }).catch(() => { state = 'turn'; resumeLoop(); });
   }
   function playFull() {
+    wantMed = true; loadMed();
     if (state !== 'idle') return;
     state = 'turn';
     // jump the full clip to the frame the loop is showing right now → seamless switch
@@ -1454,12 +1717,20 @@ const VideoHanuman = (() => {
     const swap = () => { if (state === 'turn') { wrap.classList.add('playing'); loop.pause(); } };
     full.play()
       .then(() => { if (full.requestVideoFrameCallback) full.requestVideoFrameCallback(swap); else swap(); })
-      .catch(() => { state = 'idle'; nudge(); });
-    timer = setTimeout(resumeLoop, ((full.duration || 6.6) - src / FPS) * 1000 + 1500);   // safety net if 'ended' never fires
+      .catch(() => { state = 'idle'; nudge(); if (medReady()) startMed(); });
+    timer = setTimeout(() => (medReady() ? startMed() : resumeLoop()), ((full.duration || 6.6) - src / FPS) * 1000 + 1500);
   }
-  // Back on setup: keep floating; if the turn was cut short, restart the loop
+  // Back on setup / finish screen: dissolve to the floating home loop
   function showIdle() {
-    if (state === 'turn') {
+    wantMed = false;
+    if (state === 'med') {
+      state = 'idle';
+      try { loop.currentTime = 0; } catch (_) {}
+      wrap.classList.remove('playing');
+      loop.play().catch(() => {});
+      wrap.classList.remove('med');
+      setTimeout(() => { if (state !== 'med') med.pause(); }, 1700);
+    } else if (state === 'turn') {
       state = 'idle'; clearTimeout(timer);
       try { loop.currentTime = 0; } catch (_) {}
       loop.play().catch(() => {});
@@ -1467,10 +1738,14 @@ const VideoHanuman = (() => {
     } else nudge();
   }
 
-  full.addEventListener('ended', resumeLoop);
+  // start the dissolve during the turn's last half-second so it overlaps his final pose
+  full.addEventListener('timeupdate', () => { if (state === 'turn' && wantMed && medReady() && full.duration && full.currentTime >= full.duration - 0.6) startMed(); });
+  full.addEventListener('ended', () => { if (state === 'turn') (wantMed && medReady() ? startMed() : resumeLoop()); });
   loop.addEventListener('canplay', nudge);
-  document.addEventListener('visibilitychange', nudge);
+  document.addEventListener('visibilitychange', () => { nudge(); if (state === 'med' && med.paused && document.visibilityState === 'visible') med.play().catch(() => {}); });
   document.addEventListener('pointerdown', nudge, { capture: true });
+  // fetch the meditation clip quietly once the home screen has settled
+  setTimeout(loadMed, 4000);
   return { showIdle, playFull };
 })();
 
@@ -1492,6 +1767,7 @@ const Chalisa = (() => {
   function start() {
     if (session) return;
     AudioEngine.stopProfile(0.3);                 // stop any sound preview
+    audio.loop = false;
     try { audio.currentTime = 0; } catch (_) {}
     audio.play().catch(() => toast(t('tChErr')));
     showView('chalisa');
@@ -1507,6 +1783,7 @@ const Chalisa = (() => {
     }
   }
   function stop() {
+    if (!audio.paused || audio.currentTime > 60) Cloud.record({ kind: 'chalisa', jaap_count: 0, minutes: Math.round(audio.currentTime / 60), completed: audio.ended || audio.currentTime >= (audio.duration || 790) - 2 });
     audio.pause();
     Wake.off();
     Ctl.hide();
@@ -1526,6 +1803,7 @@ const Chalisa = (() => {
 
 /* Boot */
 applyLang();
+addEventListener('load', () => { Cloud.init().then(() => { renderLifetime(); Board.renderAccount(); }); });
 Wheel.sync();
 showView('setup');
 Stage.setView('setup');
