@@ -139,7 +139,7 @@
   .figure video, .figure img { filter: drop-shadow(0 0 4px rgba(255,226,160,.50)) drop-shadow(0 0 22px rgba(255,176,80,.30)); }
 
   /* ---------- Home ---------- */
-  .topbar { display: grid; grid-template-columns: 44px 1fr auto 44px; align-items: center; gap: 8px; min-height: 48px; }
+  .topbar { display: grid; grid-template-columns: 1fr auto 44px; align-items: center; gap: 8px; min-height: 48px; }
   .brand { display: flex; align-items: center; gap: 7px; font-family: var(--serif); font-size: 22px; font-weight: 600; letter-spacing: .02em; white-space: nowrap; overflow: hidden; }
   :lang(hi) .brand { font-family: var(--deva); font-weight: 400; font-size: 21px; }
   .brand svg { color: var(--gold-2); flex: none; }
@@ -407,6 +407,42 @@
   .tag-soon { font-size: 12px; padding: 3px 9px; border-radius: 999px; border: 1px solid var(--line-2); color: var(--ivory-3); white-space: nowrap; }
   .link-btn { color: var(--gold-2); font-weight: 600; font-size: 15px; min-height: 44px; min-width: 44px; padding: 0 6px; }
 
+  /* ---------- Streaks (Duolingo-style) ---------- */
+  .streak-hero { padding: 16px 14px 12px; }
+  .hero-row { display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 12px; }
+  .hero-flame { width: 64px; height: 64px; border-radius: 50%; display: grid; place-items: center; color: var(--ivory-3); background: rgba(246,235,211,.06); }
+  .hero-flame.lit { color: #FFB347; background: radial-gradient(circle, rgba(255,170,60,.35), rgba(255,140,40,.08) 70%); filter: drop-shadow(0 0 12px rgba(255,160,60,.55)); }
+  .hero-num b { display: block; font-size: 46px; font-weight: 700; line-height: .9; color: var(--ivory); }
+  .hero-num .k { font-size: 14px; }
+  .hero-best { text-align: right; } .hero-best b { display: block; font-size: 16px; font-weight: 600; }
+  .week-strip { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; margin-top: 14px; }
+  .wk { display: flex; flex-direction: column; align-items: center; gap: 5px; }
+  .wk-d { font-size: 12px; color: var(--ivory-3); }
+  .wk-c { width: 36px; height: 36px; border-radius: 50%; display: grid; place-items: center; font-size: 13px; color: var(--ivory-3); border: 1.5px solid var(--line-2); }
+  .wk.done .wk-c { border: 0; color: #1F150A; background: radial-gradient(circle at 40% 35%, #FFD27A, #F0A030 60%, #C47318); box-shadow: 0 0 12px rgba(255,170,60,.4); }
+  .wk.done .wk-d { color: var(--gold-2); font-weight: 600; }
+  .wk.today .wk-c { border-color: var(--gold-2); color: var(--ivory); }
+  .wk.today .wk-d { color: var(--ivory); font-weight: 600; }
+  .wk.future .wk-c { opacity: .45; }
+  .week-line { display: flex; align-items: center; justify-content: center; gap: 6px; margin-top: 12px; font-size: 14px; color: var(--ivory-2); }
+  .week-line svg { color: var(--gold-2); }
+  .goal-box { padding: 14px; margin-top: 12px; display: grid; gap: 8px; }
+  .goal-box b { font-size: 20px; font-weight: 600; }
+  .goal-track { height: 8px; border-radius: 9px; background: rgba(246,235,211,.1); overflow: hidden; }
+  .goal-track i { display: block; height: 100%; width: 0; background: linear-gradient(90deg, var(--gold-3), var(--gold-2)); transition: width .6s ease; }
+  .ach4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
+  .ach-av { display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 10px 2px; border-radius: 16px; text-align: center; background: rgba(8,20,26,.5); border: 1px solid var(--line-2); }
+  .ach-av.got { border-color: var(--line); background: var(--card); }
+  .ach-ring { --p: 0; position: relative; width: 62px; height: 62px; border-radius: 50%; padding: 3px;
+    background: conic-gradient(var(--gold-2) calc(var(--p) * 1turn), rgba(246,235,211,.14) 0); }
+  .ach-img { display: block; width: 100%; height: 100%; border-radius: 50%; overflow: hidden; background: #0B1A20; }
+  .ach-img img { width: 100%; height: 100%; object-fit: cover; object-position: 50% 8%; transform: scale(1.9); transform-origin: 50% 12%; }
+  .ach-av:not(.got) .ach-img img { filter: grayscale(.85) brightness(.55); }
+  .ach-lock { position: absolute; right: -2px; bottom: -2px; width: 22px; height: 22px; border-radius: 50%; display: grid; place-items: center; background: #0B1A20; border: 1px solid var(--line); color: var(--ivory-2); }
+  .ach-av b { font-size: 12.5px; font-weight: 600; line-height: 1.15; }
+  .ach-av small { font-size: 10.5px; color: var(--ivory-3); line-height: 1.2; }
+  .ach-av.got small { color: var(--gold-2); }
+
   /* ---------- Profile ---------- */
   .avatar-btn { padding: 0; overflow: hidden; }
   .avatar-sm { width: 100%; height: 100%; display: grid; place-items: center; border-radius: 50%; overflow: hidden; }
@@ -489,7 +525,6 @@
 <!-- ═══════════════ HOME (Jaap tab) ═══════════════ -->
 <section id="s-home" class="screen tabbed is-on" aria-labelledby="home-brand">
   <header class="topbar">
-    <button class="icon-btn avatar-btn" data-go="profile" data-t-aria="profile" aria-label="प्रोफ़ाइल"><span class="avatar-sm" id="top-avatar"><svg width="20" height="20"><use href="#i-user"/></svg></span></button>
     <h1 id="home-brand" class="brand"><svg width="22" height="22"><use href="#i-lotus"/></svg><span data-t="appName">आराध्य</span></h1>
     <button class="token-pill" data-go="aaradhya" data-t-aria="tokensAria" aria-label="भक्ति टोकन"><span class="coin" aria-hidden="true"></span><span class="tok-n num">0</span></button>
     <button class="icon-btn" data-go="settings" data-t-aria="settings" aria-label="सेटिंग्स"><svg width="20" height="20"><use href="#i-gear"/></svg></button>
@@ -653,34 +688,31 @@
   </div>
 </section>
 
-<!-- ═══════════════ STREAKS ═══════════════ -->
+<!-- ═══════════════ STREAKS — day streak, this week, daily goal, achievements, community ═══════════════ -->
 <section id="s-streaks" class="screen tabbed" aria-labelledby="str-h">
-  <header class="page-head"><h1 id="str-h" class="h-title" data-t="streaks">साधना क्रम</h1></header>
+  <header class="page-head"><h1 id="str-h" class="h-title" data-t="streaks">साधना क्रम</h1><button class="token-pill" data-go="aaradhya" data-t-aria="tokensAria" aria-label="भक्ति टोकन"><span class="coin" aria-hidden="true"></span><span class="tok-n num">0</span></button></header>
   <div class="page-body scroll">
-    <div class="card streak-top">
-      <div class="stat-cell"><svg width="26" height="26" aria-hidden="true"><use href="#i-flame"/></svg><div><span class="k" data-t="curStreak">वर्तमान क्रम</span><b id="st-cur"></b></div></div>
-      <div class="sep"></div>
-      <div class="stat-cell"><div><span class="k" data-t="longStreak">सबसे लंबा क्रम</span><b id="st-long"></b></div></div>
+    <div class="card streak-hero">
+      <div class="hero-row">
+        <div class="hero-flame" id="hero-flame" aria-hidden="true"><svg width="54" height="54"><use href="#i-flame"/></svg></div>
+        <div class="hero-num"><b id="st-cur" class="num">0</b><span id="st-cur-k" class="k"></span></div>
+        <div class="hero-best"><span class="k" data-t="longStreak">सबसे लंबा क्रम</span><b id="st-long"></b></div>
+      </div>
+      <div class="week-strip" id="week-strip" role="list" data-t-aria="thisWeek" aria-label="इस हफ़्ते"></div>
+      <p class="week-line"><svg width="16" height="16" aria-hidden="true"><use href="#i-check"/></svg><span id="st-weeks"></span></p>
     </div>
-    <div class="card cal">
-      <div class="cal-head"><button class="cal-nav" id="cal-prev" data-t-aria="prevMonth" aria-label="पिछला महीना"><svg width="18" height="18" style="transform:scaleX(-1)"><use href="#i-chev"/></svg></button><h3 id="cal-title"></h3><button class="cal-nav" id="cal-next" data-t-aria="nextMonth" aria-label="अगला महीना"><svg width="18" height="18"><use href="#i-chev"/></svg></button></div>
-      <div class="cal-grid" id="cal-grid"></div>
-    </div>
-    <div class="tot-row">
-      <div class="card tot"><span class="k" data-t="totTime">कुल साधना समय</span><b id="st-time" class="num">0</b></div>
-      <div class="card tot"><span class="k" data-t="totReps">कुल जप</span><b id="st-reps" class="num">0</b></div>
-      <div class="card tot"><span class="k" data-t="totMalas">पूर्ण माला</span><b id="st-malas" class="num">0</b></div>
-    </div>
-    <h3 class="sec-t" data-t="milestones">आने वाले पड़ाव</h3>
-    <div class="ms-row" id="ms-row"></div>
-    <p class="note" id="st-note" style="margin-top:12px"></p>
-  </div>
-</section>
 
-<!-- ═══════════════ COMMUNITY ═══════════════ -->
-<section id="s-community" class="screen tabbed" aria-labelledby="com-h">
-  <header class="page-head"><h1 id="com-h" class="h-title" data-t="community">सत्संग</h1></header>
-  <div class="page-body scroll">
+    <div class="card goal-box">
+      <div class="row-between"><span class="k" data-t="goalToday">आज का लक्ष्य</span><b id="goal-today" class="num"></b></div>
+      <div class="goal-track"><i id="goal-today-bar"></i></div>
+      <span class="k" data-t="dailyGoal">दैनिक लक्ष्य</span>
+      <div class="seg" data-group="goal"><button data-value="108">108</button><button data-value="216">216</button><button data-value="540">540</button><button data-value="1080">1080</button></div>
+    </div>
+
+    <h3 class="sec-t" data-t="achievements">उपलब्धियाँ</h3>
+    <div class="ach4" id="ach4"></div>
+
+    <h3 class="sec-t" data-t="community">सत्संग</h3>
     <div class="seg" id="com-seg"><button data-tab="board" aria-pressed="true" data-t="weekly">भक्त सूची</button><button data-tab="goals" aria-pressed="false" data-t="comGoals">सामूहिक लक्ष्य</button></div>
     <div id="com-board">
       <div class="seg" id="board-period" style="margin-top:10px"><button data-p="week" aria-pressed="true" data-t="pWeek">इस हफ़्ते</button><button data-p="month" aria-pressed="false" data-t="pMonth">इस महीने</button><button data-p="all" aria-pressed="false" data-t="pAll">अब तक</button></div>
@@ -695,8 +727,6 @@
       </div>
     </div>
     <div class="card join-card" id="join-card">
-      <div class="row-between"><h3 style="font-size:17px;font-weight:600" data-t="joinTitle">सत्संग से जुड़ें</h3><svg width="22" height="22" style="color:var(--gold-2)" aria-hidden="true"><use href="#i-people"/></svg></div>
-      <p class="note" data-t="joinSub">अपना नाम लिखें और चाहें तो भक्त सूची में दिखें। आपकी गिनती आपके फ़ोन से ही आती है।</p>
       <div class="row-between"><span id="com-name" style="font-size:16px;font-weight:600"></span><button class="link-btn" data-go="profile" data-t="editInProfile">प्रोफ़ाइल में बदलें</button></div>
       <div class="row-between"><span style="font-size:15px" data-t="showMe">सूची में मेरा नाम दिखाएँ</span><button id="show-me" class="switch" role="switch" aria-checked="false" data-t-aria="showMe" aria-label="सूची में मेरा नाम दिखाएँ"></button></div>
       <button id="save-me" class="btn-gold" style="min-height:50px;font-size:17px" data-t="save">सहेजें</button>
@@ -705,9 +735,9 @@
   </div>
 </section>
 
-<!-- ═══════════════ PROFILE ═══════════════ -->
-<section id="s-profile" class="screen" aria-labelledby="prof-h">
-  <header class="subbar"><button class="icon-btn" data-back data-t-aria="back" aria-label="वापस"><svg width="20" height="20"><use href="#i-back"/></svg></button><h1 id="prof-h" class="h-title" data-t="profileT">मेरी प्रोफ़ाइल</h1><span></span></header>
+<!-- ═══════════════ PROFILE (tab) ═══════════════ -->
+<section id="s-profile" class="screen tabbed" aria-labelledby="prof-h">
+  <header class="page-head"><h1 id="prof-h" class="h-title" data-t="profileT">मेरी प्रोफ़ाइल</h1><button class="icon-btn" data-go="settings" data-t-aria="settings" aria-label="सेटिंग्स"><svg width="20" height="20"><use href="#i-gear"/></svg></button></header>
   <div class="page-body scroll">
     <div class="prof-top">
       <div class="avatar-lg" id="prof-avatar"></div>
@@ -726,8 +756,6 @@
       <div class="card tot"><span class="k" data-t="sessionsK">साधनाएँ</span><b id="pf-sessions" class="num">0</b></div>
       <div class="card tot"><span class="k" data-t="tokensK">भक्ति टोकन</span><b id="pf-tokens" class="num">0</b></div>
     </div>
-    <h3 class="sec-t" data-t="achievements">उपलब्धियाँ</h3>
-    <div class="ach-grid" id="ach-grid"></div>
     <p class="note" data-t="idNote" style="margin-top:14px"></p>
   </div>
 </section>
@@ -751,7 +779,6 @@
   <div class="page-body scroll">
     <div class="set-group"><h3 data-t="gPractice">साधना</h3>
       <div class="card set-list">
-        <div class="set-item"><span data-t="dailyGoal">दैनिक लक्ष्य</span><div class="seg" data-group="goal"><button data-value="108">108</button><button data-value="216">216</button><button data-value="540">540</button><button data-value="1080">1080</button></div></div>
         <div class="set-item"><span data-t="language">भाषा · Language</span><div class="seg" id="lang-seg"><button data-lang="hi">हिंदी</button><button data-lang="en">English</button></div></div>
         <div class="set-item"><div class="row-between"><span data-t="vibTitle">कंपन</span><button id="vib-test" class="link-btn" data-t="vibTest">जाँचें</button></div>
           <div class="seg" data-group="vib"><button data-value="off" data-t="vibOff">बंद</button><button data-value="gentle" data-t="vibGentle">हल्का</button><button data-value="medium" data-t="vibMedium">मध्यम</button><button data-value="strong" data-t="vibStrong">तेज़</button></div>
@@ -793,9 +820,9 @@
 <!-- Bottom tabs -->
 <nav id="tabbar" aria-label="मुख्य">
   <button class="tab" data-tab="home" aria-current="page"><svg width="24" height="24" aria-hidden="true"><use href="#i-lotus"/></svg><span data-t="tabJaap">जप</span></button>
-  <button class="tab" data-tab="aaradhya"><svg width="22" height="22" aria-hidden="true"><use href="#i-user"/></svg><span data-t="aaradhya">आराध्य</span></button>
+  <button class="tab" data-tab="aaradhya"><svg width="24" height="24" aria-hidden="true"><use href="#i-om"/></svg><span data-t="aaradhya">आराध्य</span></button>
   <button class="tab" data-tab="streaks"><svg width="22" height="22" aria-hidden="true"><use href="#i-flame"/></svg><span data-t="tabStreaks">क्रम</span></button>
-  <button class="tab" data-tab="community"><svg width="22" height="22" aria-hidden="true"><use href="#i-people"/></svg><span data-t="community">सत्संग</span></button>
+  <button class="tab" data-tab="profile"><svg width="22" height="22" aria-hidden="true"><use href="#i-user"/></svg><span data-t="tabProfile">प्रोफ़ाइल</span></button>
 </nav>
 
 <!-- Finish confirmation -->
@@ -904,6 +931,9 @@ const I18N = {
     resumeTxt: 'चल रही साधना · {n} जप', mala: 'माला', malaSub: '108 मनकों का एक चक्र', jaap: 'जप', jaapSub: 'समय चुनें या खुला जप',
     setTimer: 'समय चुनें', setTimerSub: 'कितनी देर जप करना चाहते हैं?', minShort: 'मिनट', start: 'शुरू करें', or: 'या',
     noTimer: 'बिना समय के', noTimerSub: 'सिर्फ़ जप गिनें', mantra: 'मंत्र', selectMala: 'माला चुनें', eachMala: 'एक माला = 108 जप',
+    tabProfile: 'प्रोफ़ाइल', thisWeek: 'इस हफ़्ते', goalToday: 'आज का लक्ष्य', dayStreak: 'दिन का क्रम', dayStreak1: 'दिन का क्रम',
+    weekStreak: '{n} हफ़्ते लगातार साधना', weekStreak1: 'इस हफ़्ते की साधना शुरू — 1 हफ़्ता', weekStreak0: 'इस हफ़्ते साधना शुरू करें',
+    achUnlocked: 'खुल गए', achFromStart: 'शुरू से साथ',
     finishQ: 'साधना अभी पूरी नहीं हुई', finishSoFar: 'अब तक {n} जप · {time}।', finishLeftMala: 'लक्ष्य में {n} जप बाकी हैं।', finishLeftTime: 'समय में {m} बाकी है।',
     finishSaved: 'क्या आप अभी साधना पूर्ण करना चाहते हैं? आपका जप सहेज लिया जाएगा।', finishYes: 'हाँ, पूर्ण करें', finishNo: 'नहीं, जारी रखें',
     profileT: 'मेरी प्रोफ़ाइल', changePhoto: 'फ़ोटो बदलें', photoUpload: 'फ़ोन से फ़ोटो चुनें', photoAaradhya: 'आराध्य का चित्र लगाएँ', photoRemove: 'फ़ोटो हटाएँ',
@@ -963,6 +993,9 @@ const I18N = {
     resumeTxt: 'Session in progress · {n} Naam', mala: 'Mala', malaSub: '108 beads per round', jaap: 'Jaap', jaapSub: 'Set a timer or count freely',
     setTimer: 'Set Timer', setTimerSub: 'Choose how long you want to practise', minShort: 'min', start: 'Start', or: 'or',
     noTimer: 'No Timer', noTimerSub: 'Just count repetitions', mantra: 'Mantra', selectMala: 'Select Mala Count', eachMala: 'Each mala = 108 repetitions',
+    tabProfile: 'Profile', thisWeek: 'This week', goalToday: 'Today’s goal', dayStreak: 'day streak', dayStreak1: 'day streak',
+    weekStreak: '{n} weeks in a row', weekStreak1: '1 week so far — keep it going', weekStreak0: 'Practise this week to start a weekly streak',
+    achUnlocked: 'Unlocked', achFromStart: 'With you from the start',
     finishQ: 'Your session isn’t finished yet', finishSoFar: 'So far: {n} repetitions · {time}.', finishLeftMala: '{n} left to reach your target.', finishLeftTime: '{m} left on the timer.',
     finishSaved: 'Do you want to finish now? Your jaap will be saved.', finishYes: 'Yes, finish', finishNo: 'No, continue',
     profileT: 'My profile', changePhoto: 'Change photo', photoUpload: 'Choose a photo', photoAaradhya: 'Use an Aaradhya picture', photoRemove: 'Remove photo',
@@ -1468,7 +1501,7 @@ const Cloud = (() => {
 /* ───────────────────────── 7 · SCREENS & NAVIGATION ─────────────────────────
  * Home is the root history entry. Setup / settings / tabs push one entry; practice replaces its setup
  * screen, so the phone's back button always leads home (and pauses a running session on the way). */
-const TABS = ['home', 'aaradhya', 'streaks', 'community'];
+const TABS = ['home', 'aaradhya', 'streaks', 'profile'];
 let current = 'home';
 const onEnter = {};
 function show(name) {
@@ -1479,7 +1512,7 @@ function show(name) {
   });
   document.body.dataset.screen = name;
   document.body.classList.toggle('tab-on', TABS.includes(name));
-  document.body.classList.toggle('tab-page', TABS.includes(name) && name !== 'home' || name === 'settings' || name === 'profile');
+  document.body.classList.toggle('tab-page', TABS.includes(name) && name !== 'home' || name === 'settings');
   $$('#tabbar .tab').forEach(b => b.setAttribute('aria-current', b.dataset.tab === name ? 'page' : 'false'));
   // only the visible screen's videos keep decoding
   $$('video').forEach(v => { if (v.id === 'bg-video') return; const vis = !!v.closest('.screen.is-on, .sheet-modal:not([hidden])'); if (vis) v.play().catch(() => {}); else v.pause(); });
@@ -2025,6 +2058,7 @@ function onRecordsChanged() {
   syncUnlocks(false); renderTokens();
   if (current === 'home') renderHome();
   if (current === 'streaks') renderStreaks();
+  if (current === 'profile') Profile.render();
   if (current === 'aaradhya') renderAaradhya();
   if (current === 'settings') renderSettings();
 }
@@ -2167,34 +2201,48 @@ onEnter.aaradhya = renderAaradhya;
 $('#aar-tokens').addEventListener('click', () => toast(t('tokensNote')));
 
 /* Streaks page */
-let calMonth = null;   // first day of the shown month (local)
-function renderStreaks() {
-  const st = streaks(), tot = totals();
-  $('#st-cur').textContent = daysLabel(st.cur);
-  $('#st-long').textContent = daysLabel(st.best);
-  if (!calMonth) { const d = new Date(); calMonth = new Date(d.getFullYear(), d.getMonth(), 1); }
-  const y = calMonth.getFullYear(), m = calMonth.getMonth(), first = new Date(y, m, 1), daysIn = new Date(y, m + 1, 0).getDate();
-  const loc = settings.lang === 'en' ? 'en-IN' : 'hi-IN';
-  $('#cal-title').textContent = first.toLocaleDateString(loc, { month: 'long', year: 'numeric' });
-  const dows = [...Array(7)].map((_, i) => new Date(2024, 0, 7 + i).toLocaleDateString(loc, { weekday: 'narrow' }));
-  const tk = todayKey();
-  let html = dows.map(d => `<span class="dow">${d}</span>`).join('') + '<span></span>'.repeat(first.getDay());
-  for (let d = 1; d <= daysIn; d++) {
-    const key = todayKey(new Date(y, m, d)), done = st.days.has(key);
-    html += `<span class="cal-day${done ? ' done' : ''}${key === tk ? ' today' : ''}${key > tk ? ' future' : ''}" aria-label="${d}${done ? ' ✓' : ''}">${d}</span>`;
-  }
-  $('#cal-grid').innerHTML = html;
-  const now = new Date();
-  $('#cal-next').disabled = y === now.getFullYear() && m === now.getMonth();
-  $('#st-time').textContent = fmtDur(tot.minutes * 60000);
-  $('#st-reps').textContent = fmtNum(tot.reps);
-  $('#st-malas').textContent = fmtNum(tot.malas);
-  $('#ms-row').innerHTML = [3, 7, 14, 30, 60, 100].map(n => `<div class="ms${st.best >= n ? ' done' : ''}"><span class="c">${n}</span><span>${st.best >= n ? t('msDone') : t('msDays', { n })}</span></div>`).join('');
-  $('#st-note').textContent = Cloud.ready ? t('stNote') : t('stNoteOff');
+// Monday of the week a day belongs to (local dates)
+const weekOf = key => { const d = new Date(key + 'T12:00:00'); d.setDate(d.getDate() - ((d.getDay() + 6) % 7)); return todayKey(d); };
+function weekStreak(days) {
+  const weeks = new Set([...days].map(weekOf));
+  let w = weekOf(todayKey()), n = 0;
+  if (!weeks.has(w)) w = shiftDay(w, -7);              // this week not started yet: last week keeps it alive
+  while (weeks.has(w)) { n++; w = shiftDay(w, -7); }
+  return n;
 }
-$('#cal-prev').addEventListener('click', () => { calMonth = new Date(calMonth.getFullYear(), calMonth.getMonth() - 1, 1); renderStreaks(); });
-$('#cal-next').addEventListener('click', () => { calMonth = new Date(calMonth.getFullYear(), calMonth.getMonth() + 1, 1); renderStreaks(); });
-onEnter.streaks = renderStreaks;
+function renderStreaks() {
+  const st = streaks(), tk = todayKey();
+  $('#st-cur').textContent = fmtNum(st.cur);
+  $('#st-cur-k').textContent = t(st.cur === 1 ? 'dayStreak1' : 'dayStreak');
+  $('#st-long').textContent = daysLabel(st.best);
+  $('#hero-flame').classList.toggle('lit', st.days.has(tk));
+  // this week, Monday → Sunday
+  const loc = settings.lang === 'en' ? 'en-IN' : 'hi-IN', mon = weekOf(tk);
+  $('#week-strip').innerHTML = [...Array(7)].map((_, i) => {
+    const key = shiftDay(mon, i), d = new Date(key + 'T12:00:00'), done = st.days.has(key);
+    const state = done ? 'done' : key === tk ? 'today' : key > tk ? 'future' : 'missed';
+    return `<div class="wk ${state}" role="listitem" aria-label="${d.toLocaleDateString(loc, { weekday: 'long' })}${done ? ' ✓' : ''}"><span class="wk-d">${d.toLocaleDateString(loc, { weekday: 'narrow' })}</span><span class="wk-c">${done ? '<svg width="16" height="16"><use href="#i-check"/></svg>' : d.getDate()}</span></div>`;
+  }).join('');
+  const wk = weekStreak(st.days);
+  $('#st-weeks').textContent = wk ? t(wk === 1 ? 'weekStreak1' : 'weekStreak', { n: wk }) : t('weekStreak0');
+  // today's goal
+  const tc = todayCount();
+  $('#goal-today').textContent = `${fmtNum(tc)}/${fmtNum(settings.goal)}`;
+  $('#goal-today-bar').style.width = `${Math.min(100, tc / settings.goal * 100)}%`;
+  syncers.forEach(f => f());
+  // four achievements: one for each Aaradhya avatar
+  const pm = practiceMin();
+  $('#ach4').innerHTML = AARADHYA.map(a => {
+    const got = isUnlocked(a);
+    const sub = got ? (a.unlockMin ? t('achUnlocked') : t('achFromStart')) : t('practiceOf', { a: fmtDur(pm * 60000), b: fmtDur(a.unlockMin * 60000) });
+    return `<button class="ach-av${got ? ' got' : ''}" data-a="${a.id}" aria-label="${aName(a)} — ${sub}">
+      <span class="ach-ring" style="--p:${got ? 1 : Math.min(1, pm / a.unlockMin)}"><span class="ach-img"><img src="assets/av-${a.id}-idle.webp?v=${AV}" alt="" loading="lazy"></span>${got ? '' : '<span class="ach-lock"><svg width="14" height="14"><use href="#i-lock"/></svg></span>'}</span>
+      <b>${aName(a)}</b><small>${sub}</small></button>`;
+  }).join('');
+  $$('#ach4 .ach-av').forEach(b => b.addEventListener('click', () => openASheet(aById(b.dataset.a))));
+  renderTokens();
+}
+onEnter.streaks = () => { renderStreaks(); if (!Cloud.ready) Cloud.init().then(Community.load); Community.load(); };
 
 /* Community page: leaderboard + community goal (real data only) + leaderboard visibility */
 const Community = (() => {
@@ -2242,7 +2290,6 @@ const Community = (() => {
   });
   return { load, renderAccount };
 })();
-onEnter.community = () => { if (!Cloud.ready) Cloud.init().then(Community.load); Community.load(); };
 
 /* Profile: photo (phone photo or an Aaradhya picture, kept on this phone), name, achievements */
 const Profile = (() => {
@@ -2256,16 +2303,6 @@ const Profile = (() => {
   }
   function renderAvatars() {
     $('#prof-avatar').innerHTML = avatarHTML();
-    $('#top-avatar').innerHTML = pr.photo || pr.aaradhyaPhoto ? avatarHTML() : '<svg width="20" height="20"><use href="#i-user"/></svg>';
-  }
-  function achievements() {
-    const tot = totals(), st = streaks(), unlockedN = AARADHYA.filter(isUnlocked).length;
-    return [
-      ['achFirst', tot.reps >= 1, tot.reps, 1], ['achMala1', tot.malas >= 1, tot.malas, 1], ['achMala10', tot.malas >= 10, tot.malas, 10],
-      ['achMala108', tot.malas >= 108, tot.malas, 108], ['achJaap1008', tot.reps >= 1008, tot.reps, 1008], ['achJaap10008', tot.reps >= 10008, tot.reps, 10008],
-      ['achStreak3', st.best >= 3, st.best, 3], ['achStreak7', st.best >= 7, st.best, 7], ['achStreak30', st.best >= 30, st.best, 30],
-      ['achHour', tot.minutes >= 60, tot.minutes, 60], ['achAaradhya', unlockedN >= 2, unlockedN - 1, 1], ['achAll', unlockedN >= AARADHYA.length, unlockedN, AARADHYA.length]
-    ];
   }
   function render() {
     renderAvatars();
@@ -2273,8 +2310,6 @@ const Profile = (() => {
     const tot = totals(), st = streaks();
     $('#pf-reps').textContent = fmtNum(tot.reps); $('#pf-malas').textContent = fmtNum(tot.malas); $('#pf-time').textContent = fmtDur(tot.minutes * 60000);
     $('#pf-streak').textContent = daysLabel(st.cur); $('#pf-sessions').textContent = fmtNum(Math.max(lifetime.sessions, records.history.length)); $('#pf-tokens').textContent = fmtNum(records.tokens);
-    $('#ach-grid').innerHTML = achievements().map(([k, got, have, need]) =>
-      `<div class="ach${got ? ' got' : ''}"><span class="badge"><svg width="24" height="24" aria-hidden="true"><use href="#${got ? 'i-lotus' : 'i-lock'}"/></svg></span><b>${t(k)}</b><small>${got ? t('earned') : `${fmtNum(Math.min(have, need))} / ${fmtNum(need)}`}</small></div>`).join('');
   }
   async function saveName() {
     const v = $('#prof-name').value.trim().slice(0, 40);
@@ -2322,7 +2357,7 @@ function bindGroup(name, key, onPick) {
   return sync;
 }
 const syncers = [
-  bindGroup('goal', 'goal'),
+  bindGroup('goal', 'goal', () => { if (current === 'streaks') renderStreaks(); }),
   bindGroup('vib', 'vib', v => { if (v !== 'off') Haptics.fire([160]); }),
   bindGroup('bg', 'bg', () => Backdrop.apply())
 ];
