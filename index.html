@@ -414,6 +414,15 @@
   .s-chip[aria-pressed="true"] { border-color: var(--gold); background: rgba(217,168,78,.16); color: var(--ivory); font-weight: 600; }
   .tag-soon { font-size: 12px; padding: 3px 9px; border-radius: 999px; border: 1px solid var(--line-2); color: var(--ivory-3); white-space: nowrap; }
   .set-list .sub:empty { display: none; }
+  .shop-bal { display: flex; align-items: center; justify-content: center; gap: 8px; margin: 0 0 18px; color: var(--ivory-2); font-size: 15px; }
+  .shop-bal b { color: var(--ivory); font-size: 18px; }
+  .packs { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .pack { position: relative; display: grid; justify-items: center; gap: 3px; padding: 20px 10px 14px; text-align: center; color: var(--ivory); }
+  .pack .coin { width: 26px; height: 26px; }
+  .pack b { font-size: 26px; line-height: 1.1; }
+  .pack small { color: var(--ivory-3); font-size: 13px; }
+  .pack-price { margin-top: 8px; padding: 7px 18px; border-radius: 999px; background: linear-gradient(180deg, var(--gold-2), var(--gold)); color: #2a1c0c; font-weight: 700; font-size: 15px; }
+  .pack-tag { position: absolute; top: -10px; left: 50%; transform: translateX(-50%); padding: 3px 10px; border-radius: 999px; background: var(--saffron); color: #fff; font-size: 11px; font-weight: 700; white-space: nowrap; }
   .set-link { display: block; width: 100%; text-align: left; color: inherit; text-decoration: none; }
   .set-danger span { color: #f2a08f; }
   .btn-gold.btn-danger { background: linear-gradient(180deg, #e08a76, #b9533f); color: #fff; }
@@ -538,7 +547,7 @@
 <section id="s-home" class="screen tabbed is-on" aria-labelledby="home-brand">
   <header class="topbar">
     <h1 id="home-brand" class="brand"><svg width="22" height="22"><use href="#i-lotus"/></svg><span data-t="appName">आराध्य</span></h1>
-    <button class="token-pill" data-go="aaradhya" data-t-aria="tokensAria" aria-label="भक्ति टोकन"><span class="coin" aria-hidden="true"></span><span class="tok-n num">0</span></button>
+    <button class="token-pill" data-to="aaradhya" data-t-aria="tokensAria" aria-label="भक्ति टोकन"><span class="coin" aria-hidden="true"></span><span class="tok-n num">0</span></button>
     <button class="icon-btn" data-go="settings" data-t-aria="settings" aria-label="सेटिंग्स"><svg width="20" height="20"><use href="#i-gear"/></svg></button>
   </header>
   <div class="home-row">
@@ -702,7 +711,7 @@
 
 <!-- ═══════════════ STREAKS — day streak, this week, daily goal, achievements, community ═══════════════ -->
 <section id="s-streaks" class="screen tabbed" aria-labelledby="str-h">
-  <header class="page-head"><h1 id="str-h" class="h-title" data-t="streaks">साधना क्रम</h1><button class="token-pill" data-go="aaradhya" data-t-aria="tokensAria" aria-label="भक्ति टोकन"><span class="coin" aria-hidden="true"></span><span class="tok-n num">0</span></button></header>
+  <header class="page-head"><h1 id="str-h" class="h-title" data-t="streaks">साधना क्रम</h1><button class="token-pill" data-to="aaradhya" data-t-aria="tokensAria" aria-label="भक्ति टोकन"><span class="coin" aria-hidden="true"></span><span class="tok-n num">0</span></button></header>
   <div class="page-body scroll">
     <div class="card streak-hero">
       <div class="hero-row">
@@ -836,6 +845,16 @@
 </nav>
 
 <!-- Finish confirmation -->
+<div id="shop-sheet" class="sheet-modal" role="dialog" aria-modal="true" aria-labelledby="shop-h" hidden>
+  <div class="bd" data-close></div>
+  <div class="sheet-card">
+    <div class="grip" aria-hidden="true"></div>
+    <div class="sheet-head"><h2 id="shop-h" data-t="bhaktiTokens">भक्ति टोकन</h2><button class="icon-btn" data-close data-t-aria="close" aria-label="बंद करें"><svg width="18" height="18"><use href="#i-close"/></svg></button></div>
+    <p class="shop-bal"><span data-t="shopBal">आपके टोकन</span><span class="coin" aria-hidden="true"></span><b id="shop-bal" class="num">0</b></p>
+    <div id="shop-packs" class="packs"></div>
+    <p class="note" data-t="shopNote" style="margin-top:14px;text-align:center"></p>
+  </div>
+</div>
 <div id="about-sheet" class="sheet-modal" role="dialog" aria-modal="true" aria-labelledby="about-h" hidden>
   <div class="bd" data-close></div>
   <div class="sheet-card confirm-card">
@@ -918,10 +937,11 @@
  * ════════════════════════════════════════════════════════════════════════════ */
 
 /* ───────────────────────── 1 · CONFIG, STORAGE & WORDS ───────────────────────── */
-// dev flags (website only — app builds replace these three lines with false, see vanarsathi-android/scripts/bundle-web.mjs)
+// dev flags (website only — app builds replace these lines with false, see vanarsathi-android/scripts/bundle-web.mjs)
 const FAST = new URLSearchParams(location.search).has('fast');
 const NO_CLOUD = new URLSearchParams(location.search).has('nocloud');   // dev: never sign in or upload (keeps test sessions out of the live database)
 const DEMO_BOARD = new URLSearchParams(location.search).has('demoboard'); // dev: 200 generated bots in the leaderboard, on this device only
+const SHOP_PREVIEW = new URLSearchParams(location.search).has('shop');    // dev: show the token shop before store billing is connected
 const MINUTE_MS = FAST ? 1000 : 60000;
 const PRANAYAMA_MS = FAST ? 20000 : 5 * 60000;
 const MALA = 108;
@@ -972,6 +992,8 @@ const I18N = {
     resumeTxt: 'चल रही साधना · {n} जप', mala: 'माला', malaSub: '108 मनकों का एक चक्र', jaap: 'जप', jaapSub: 'समय चुनें या खुला जप',
     setTimer: 'समय चुनें', setTimerSub: 'कितनी देर जप करना चाहते हैं?', minShort: 'मिनट', start: 'शुरू करें', or: 'या',
     noTimer: 'बिना समय के', noTimerSub: 'सिर्फ़ जप गिनें', mantra: 'मंत्र', selectMala: 'माला चुनें', eachMala: 'एक माला = 108 जप',
+    shopBal: 'आपके टोकन', shopNote: 'जप से हर घंटे लगभग 18 टोकन मिलते हैं। टोकन कभी ख़त्म नहीं होते।', packPopular: 'सबसे पसंदीदा', packValue: 'सबसे किफ़ायती',
+    shopSoon: 'टोकन ख़रीदना जल्द शुरू होगा — तब तक जप से कमाएँ 🙏', shopThanks: '{n} टोकन जुड़ गए 🙏', shopFail: 'ख़रीद पूरी नहीं हुई — फिर कोशिश करें', getMore: 'टोकन लें · {n} और चाहिए',
     bhaktN: 'भक्त #{n}', youTag: '(आप)', anonNote: 'सूची में आप केवल इसी नंबर से दिखते हैं — आपका नाम या फ़ोटो कभी नहीं।',
     privacyPolicy: 'गोपनीयता नीति', support: 'मदद और संपर्क', deleteData: 'मेरा सारा डेटा मिटाएँ', deleteSub: 'खाता, गिनती, साधना क्रम, टोकन और खुले आराध्य — फ़ोन से और हमारे सर्वर से',
     deleteQ: 'सब कुछ मिटा दें?', deleteMsg: 'आपका खाता, सारा जप, साधना क्रम, भक्ति टोकन और खुले आराध्य हमेशा के लिए मिट जाएँगे — इस फ़ोन से और हमारे सर्वर से। यह वापस नहीं हो सकता।',
@@ -1044,6 +1066,8 @@ const I18N = {
     resumeTxt: 'Session in progress · {n} Naam', mala: 'Mala', malaSub: '108 beads per round', jaap: 'Jaap', jaapSub: 'Set a timer or count freely',
     setTimer: 'Set Timer', setTimerSub: 'Choose how long you want to practise', minShort: 'min', start: 'Start', or: 'or',
     noTimer: 'No Timer', noTimerSub: 'Just count repetitions', mantra: 'Mantra', selectMala: 'Select Mala Count', eachMala: 'Each mala = 108 repetitions',
+    shopBal: 'Your tokens', shopNote: 'Chanting earns about 18 tokens an hour. Tokens never expire.', packPopular: 'Most popular', packValue: 'Best value',
+    shopSoon: 'Buying tokens opens soon — until then, earn them by chanting 🙏', shopThanks: '{n} tokens added 🙏', shopFail: "The purchase didn't complete — try again", getMore: 'Get tokens · {n} more needed',
     bhaktN: 'Bhakt #{n}', youTag: '(you)', anonNote: 'On the list you appear only as this number — never your name or photo.',
     privacyPolicy: 'Privacy policy', support: 'Help & contact', deleteData: 'Delete my data', deleteSub: 'Account, counts, streaks, tokens and unlocked Aaradhya — from this phone and our server',
     deleteQ: 'Delete everything?', deleteMsg: 'Your account, all your jaap, streaks, Bhakti tokens and unlocked Aaradhya will be deleted for good — from this phone and from our server. This cannot be undone.',
@@ -2496,7 +2520,10 @@ function openASheet(a) {
   } else {
     $('#a-sheet-status').textContent = t('lockedHow', { h: fmtDur(a.unlockMin * 60000), n: a.cost });
     go1.textContent = t('unlockFor', { n: a.cost });
-    if (bal < a.cost) { go1.disabled = true; alt.hidden = false; alt.textContent = t('needTokens', { n: a.cost - bal }); alt.disabled = true; }
+    if (bal < a.cost) {
+      go1.disabled = true; alt.hidden = false; alt.disabled = !Shop.visible();
+      alt.textContent = t(Shop.visible() ? 'getMore' : 'needTokens', { n: a.cost - bal });
+    }
   }
 }
 async function downloadChar(a) {
@@ -2527,7 +2554,39 @@ $('#a-sheet-go').addEventListener('click', async () => {
   ASheet.close(); renderAaradhya(); go('home');
 });
 onEnter.aaradhya = renderAaradhya;
-$('#aar-tokens').addEventListener('click', () => toast(t('tokensNote')));
+$$('.token-pill').forEach(b => b.addEventListener('click', () => {
+  if (Shop.visible()) Shop.open(); else if (b.dataset.to) go(b.dataset.to); else toast(t('tokensNote'));
+}));
+
+/* Bhakti token shop. Payments go through Google Play / App Store billing (Billing below); until that is connected the
+ * shop stays hidden (?shop previews it on the website). The packs mirror token_packs() on the server, and only the
+ * server credits bought tokens, after checking the purchase with the store. */
+const TOKEN_PACKS = [
+  { id: 'tokens_50', tokens: 50, inr: 19, hi: 'दीप', en: 'Diya' },
+  { id: 'tokens_150', tokens: 150, inr: 49, hi: 'पुष्प', en: 'Pushp' },
+  { id: 'tokens_350', tokens: 350, inr: 99, hi: 'माला', en: 'Mala', tag: 'packPopular' },
+  { id: 'tokens_800', tokens: 800, inr: 199, hi: 'कलश', en: 'Kalash', tag: 'packValue' }
+];
+// store billing plugs in here (Google Play Billing / StoreKit); buy() resolves once the server has credited the tokens
+const Billing = { available: false, async buy() { throw new Error('unavailable'); } };
+const Shop = (() => {
+  const visible = () => Billing.available || SHOP_PREVIEW;
+  function render() {
+    $('#shop-bal').textContent = fmtNum(tokenBalance());
+    $('#shop-packs').innerHTML = TOKEN_PACKS.map(k => `<button class="card pack" data-id="${k.id}" aria-label="${fmtNum(k.tokens)} ${t('bhaktiTokens')} — ₹${k.inr}">
+      ${k.tag ? `<span class="pack-tag">${t(k.tag)}</span>` : ''}<span class="coin" aria-hidden="true"></span>
+      <b class="num">${fmtNum(k.tokens)}</b><small>${settings.lang === 'en' ? k.en : k.hi}</small><span class="pack-price">₹${k.inr}</span></button>`).join('');
+    $$('#shop-packs .pack').forEach(b => b.addEventListener('click', () => buy(TOKEN_PACKS.find(k => k.id === b.dataset.id))));
+  }
+  const sheet = makeSheet($('#shop-sheet'), render);
+  async function buy(k) {
+    if (!Billing.available) { toast(t('shopSoon')); return; }
+    try { await Billing.buy(k); await Cloud.refreshStats(); toast(t('shopThanks', { n: fmtNum(k.tokens) })); render(); renderTokens(); }
+    catch (e) { if (!(e && e.cancelled)) toast(t('shopFail')); }
+  }
+  return { visible, open: sheet.open };
+})();
+$('#a-sheet-alt').addEventListener('click', () => { if (Shop.visible()) Shop.open(); });
 
 /* Streaks page */
 // Monday of the week a day belongs to (local dates)
