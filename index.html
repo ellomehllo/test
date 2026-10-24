@@ -971,8 +971,8 @@ const settings = Object.assign({
   voice: true,
   remind: true, remindTime: '07:00', nudge: false
 }, saved.settings);
-delete settings.lockout; delete settings.holdFinish; delete settings.reduceMotion;
-if (!settings.voiceV2) { settings.voice = true; settings.voiceV2 = 1; }   // voice counting became solid (offline in the app) and on by default   // hold-to-finish was removed: finishing is one tap + a yes/no question
+delete settings.lockout; delete settings.holdFinish; delete settings.reduceMotion;   // removed settings: hold-to-finish (one tap + a yes/no question), reduced motion (the phone's own setting still applies)
+if (!settings.voiceV2) { settings.voice = true; settings.voiceV2 = 1; }   // voice counting became solid (offline in the app) and on by default
 settings.sound = 'mute';
 // Grove became the default background: move everyone still on the old default (forest) over, once
 if (!settings.bgV2) { if (settings.bg === 'forest') settings.bg = 'grove'; settings.bgV2 = 1; }                 // silent practice: AudioEngine.bell/chime also stay quiet
@@ -996,7 +996,7 @@ const I18N = {
     setTimer: 'समय चुनें', setTimerSub: 'कितनी देर जप करना चाहते हैं?', minShort: 'मिनट', start: 'शुरू करें', or: 'या',
     noTimer: 'बिना समय के', noTimerSub: 'सिर्फ़ जप गिनें', mantra: 'मंत्र', selectMala: 'माला चुनें', eachMala: 'एक माला = 108 जप',
     shopBal: 'आपके टोकन', shopNote: 'जप से हर घंटे लगभग 18 टोकन मिलते हैं। टोकन कभी ख़त्म नहीं होते।', packPopular: 'सबसे पसंदीदा', packValue: 'सबसे किफ़ायती',
-    shopSoon: 'टोकन ख़रीदना जल्द शुरू होगा — तब तक जप से कमाएँ 🙏', shopPending: 'मंज़ूरी का इंतज़ार है — मंज़ूर होते ही टोकन जुड़ जाएँगे', shopTest: 'टेस्ट ख़रीद — टोकन नहीं जुड़े',
+    shopSoon: 'टोकन ख़रीदना जल्द शुरू होगा — तब तक जप से कमाएँ 🙏', shopPending: 'मंज़ूरी का इंतज़ार है — मंज़ूर होते ही टोकन जुड़ जाएँगे', shopTest: 'टेस्ट ख़रीद — टोकन नहीं जुड़े', shopPaidLater: 'भुगतान मिल गया — आपके टोकन थोड़ी देर में जुड़ जाएँगे 🙏',
     tokensNoteShop: 'भक्ति टोकन साधना से मिलते हैं — या दुकान से। टोकन आपके खाते में ऑनलाइन सुरक्षित रहते हैं।', shopThanks: '{n} टोकन जुड़ गए 🙏', shopFail: 'ख़रीद पूरी नहीं हुई — फिर कोशिश करें', getMore: 'टोकन लें · {n} और चाहिए',
     bhaktN: 'भक्त #{n}', youTag: '(आप)', anonNote: 'सूची में आप केवल इसी नंबर से दिखते हैं — आपका नाम या फ़ोटो कभी नहीं।',
     privacyPolicy: 'गोपनीयता नीति', support: 'मदद और संपर्क', deleteData: 'मेरा सारा डेटा मिटाएँ', deleteSub: 'खाता, गिनती, साधना क्रम, टोकन और खुले आराध्य — फ़ोन से और हमारे सर्वर से',
@@ -1071,7 +1071,7 @@ const I18N = {
     setTimer: 'Set Timer', setTimerSub: 'Choose how long you want to practise', minShort: 'min', start: 'Start', or: 'or',
     noTimer: 'No Timer', noTimerSub: 'Just count repetitions', mantra: 'Mantra', selectMala: 'Select Mala Count', eachMala: 'Each mala = 108 repetitions',
     shopBal: 'Your tokens', shopNote: 'Chanting earns about 18 tokens an hour. Tokens never expire.', packPopular: 'Most popular', packValue: 'Best value',
-    shopSoon: 'Buying tokens opens soon — until then, earn them by chanting 🙏', shopPending: 'Waiting for approval — the tokens arrive once it is approved', shopTest: 'Test purchase — no tokens added',
+    shopSoon: 'Buying tokens opens soon — until then, earn them by chanting 🙏', shopPending: 'Waiting for approval — the tokens arrive once it is approved', shopTest: 'Test purchase — no tokens added', shopPaidLater: 'Payment received — your tokens will be added shortly 🙏',
     tokensNoteShop: 'Bhakti tokens come from practice — or from the shop. They are kept online with your account.', shopThanks: '{n} tokens added 🙏', shopFail: "The purchase didn't complete — try again", getMore: 'Get tokens · {n} more needed',
     bhaktN: 'Bhakt #{n}', youTag: '(you)', anonNote: 'On the list you appear only as this number — never your name or photo.',
     privacyPolicy: 'Privacy policy', support: 'Help & contact', deleteData: 'Delete my data', deleteSub: 'Account, counts, streaks, tokens and unlocked Aaradhya — from this phone and our server',
@@ -2346,7 +2346,7 @@ $('#voice-chip').addEventListener('click', () => Voice.toggle());
 const Reminders = (() => {
   const LN = nativePlugin('LocalNotifications');
   const DAILY = 100, NUDGE = 200, AHEAD = 14, NUDGE_HOUR = 20;   // ids 100–113 daily, 200–201 nudges
-  let running = false, again = false, timer = 0;
+  let chain = Promise.resolve(), timer = 0;
   function plan() {
     const out = [], days = practiceDays(), today = todayKey(), done = days.has(today), cur = streaks().cur, now = Date.now();
     const [hh, mm] = (settings.remindTime || '07:00').split(':').map(Number);
@@ -2370,11 +2370,16 @@ const Reminders = (() => {
     if (p.display !== 'granted' && ask) p = await LN.requestPermissions();
     return p.display === 'granted';
   }
-  // ask = the person just switched a reminder on, so the permission prompt may appear; returns false if it was refused
-  async function sync(ask = false) {
-    if (!LN) return true;
-    if (running) { again = true; return true; }
-    running = true; let ok = true;
+  // ask = the person just switched a reminder on, so the permission prompt may appear; resolves false if it was refused.
+  // Calls queue up so an overlapping update can't skip another one's permission prompt.
+  function sync(ask = false) {
+    if (!LN) return Promise.resolve(true);
+    const run = chain.then(() => syncNow(ask));
+    chain = run.catch(() => {});
+    return run;
+  }
+  async function syncNow(ask) {
+    let ok = true;
     try {
       const pending = await LN.getPending();
       const ours = (pending.notifications || []).filter(n => n.id >= DAILY && n.id < NUDGE + 100).map(n => ({ id: n.id }));
@@ -2384,8 +2389,6 @@ const Reminders = (() => {
         else if (ask) ok = false;
       }
     } catch (e) { console.warn('[reminders]', e && e.message); }
-    running = false;
-    if (again) { again = false; sync(); }
     return ok;
   }
   const soon = () => { clearTimeout(timer); timer = setTimeout(() => sync(), 600); };
@@ -2612,6 +2615,7 @@ const Billing = (() => {
     } catch (e) { console.warn('[billing]', e && e.message); }
     await Cloud.init();
     if (Cloud.ready) retryUnfinished();
+    document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible' && Cloud.ready) retryUnfinished(); });
   };
   // resolves with the server's answer once the tokens are credited; cancelled / pending purchases reject with a flag
   api.buy = async k => {
@@ -2623,8 +2627,10 @@ const Billing = (() => {
       const code = e && e.code;
       throw Object.assign(new Error(code || 'failed'), { cancelled: code === 'CANCELLED', pending: code === 'PENDING' });
     }
-    const r = await credit(tx);
-    if (!settled(r)) throw new Error((r && r.error) || 'not credited');
+    // Apple has the payment from here on: if the check fails it is retried (next visit or launch), never bought twice
+    let r = null;
+    try { r = await credit(tx); } catch (_) { /* r stays null */ }
+    if (!settled(r)) throw Object.assign(new Error((r && r.error) || 'not credited yet'), { paid: true });
     return r;
   };
   return api;
@@ -2647,7 +2653,9 @@ const Shop = (() => {
       await Cloud.refreshStats();
       toast(r.status === 'test' ? t('shopTest') : t('shopThanks', { n: fmtNum(r.tokens || k.tokens) }));
     } catch (e) {
-      if (e && e.pending) toast(t('shopPending')); else if (!(e && e.cancelled)) toast(t('shopFail'));
+      if (e && e.paid) toast(t('shopPaidLater'));
+      else if (e && e.pending) toast(t('shopPending'));
+      else if (!(e && e.cancelled)) toast(t('shopFail'));
     }
     render(); renderTokens();
   }
