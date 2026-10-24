@@ -875,6 +875,7 @@
 /* ───────────────────────── 1 · CONFIG, STORAGE & WORDS ───────────────────────── */
 const FAST = new URLSearchParams(location.search).has('fast');
 const NO_CLOUD = new URLSearchParams(location.search).has('nocloud');   // dev: never sign in or upload (keeps test sessions out of the live database)
+const DEMO_BOARD = new URLSearchParams(location.search).has('demoboard'); // dev: 200 generated bots in the leaderboard, on this device only
 const MINUTE_MS = FAST ? 1000 : 60000;
 const PRANAYAMA_MS = FAST ? 20000 : 5 * 60000;
 const MALA = 108;
@@ -2229,12 +2230,44 @@ function renderStreaks() {
 }
 onEnter.streaks = () => { renderStreaks(); if (!Cloud.ready) Cloud.init().then(Community.load); Community.load(); };
 
+/* Test-only leaderboard (?demoboard): 200 generated devotees from North Indian states, created on this device and
+   never sent anywhere. Ranked like the server's leaderboard() — per period, ties share a rank, top 50 returned. */
+const DemoBoard = (() => {
+  const first = ['रमेश', 'सुनील', 'अनीता', 'पूजा', 'राजेश', 'सीमा', 'विकास', 'नेहा', 'मनोज', 'कविता', 'अमित', 'प्रिया', 'संजय', 'रेखा', 'दीपक', 'सुनीता', 'अजय', 'ममता', 'राहुल', 'गीता',
+    'Ramesh', 'Sunil', 'Anita', 'Pooja', 'Rajesh', 'Seema', 'Vikas', 'Neha', 'Manoj', 'Kavita', 'Amit', 'Priya', 'Sanjay', 'Rekha', 'Deepak', 'Harpreet', 'Gurdeep', 'Kamla', 'Bhupendra', 'Lakshmi'];
+  const last = ['शर्मा', 'वर्मा', 'यादव', 'सिंह', 'गुप्ता', 'मिश्रा', 'तिवारी', 'पांडेय', 'चौहान', 'राठौर', 'Sharma', 'Verma', 'Yadav', 'Singh', 'Gupta', 'Mishra', 'Tiwari', 'Pandey', 'Chauhan', 'Rathore', 'Kaur', 'Joshi', 'Negi', 'Thakur'];
+  const states = ['उत्तर प्रदेश', 'बिहार', 'राजस्थान', 'मध्य प्रदेश', 'हरियाणा', 'पंजाब', 'दिल्ली', 'उत्तराखंड', 'हिमाचल', 'जम्मू', 'झारखंड', 'छत्तीसगढ़',
+    'Uttar Pradesh', 'Bihar', 'Rajasthan', 'Madhya Pradesh', 'Haryana', 'Punjab', 'Delhi', 'Uttarakhand', 'Himachal', 'Jammu', 'Jharkhand', 'Chhattisgarh'];
+  let seed = 108; const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+  const bots = [...Array(200)].map((_, i) => {
+    const week = Math.round(Math.pow(rnd(), 2.2) * 9000) + (i % 17 === 0 ? 108 : 0);   // a long tail of small counts, a few heavy chanters
+    const month = week + Math.round(rnd() * 3 * week + rnd() * 2000), all = month + Math.round(rnd() * 8 * month + rnd() * 20000);
+    const long = i % 23 === 5;                                                          // a few very long names to test truncation
+    const name = `${first[Math.floor(rnd() * first.length)]} ${last[Math.floor(rnd() * last.length)]}${long ? ' श्री राम भक्त सेवक' : ''} · ${states[Math.floor(rnd() * states.length)]}`;
+    return { name, week, month, all, me: i === 37 };
+  });
+  bots[120].week = bots[121].week = 4321;                                              // a tie, to check shared ranks
+  function leaderboard(period) {
+    const rows = bots.map(b => ({ display_name: b.name, total: b[period], is_me: b.me })).filter(r => r.total > 0).sort((a, b) => b.total - a.total);
+    let rank = 0; rows.forEach((r, i) => { if (i === 0 || r.total !== rows[i - 1].total) rank = i + 1; r.rank = rank; });
+    return rows.slice(0, 50);
+  }
+  return { leaderboard };
+})();
+
 /* Leaderboard on the Streaks page (real data only) + leaderboard visibility */
 const Community = (() => {
   let period = 'week';
   const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
   const note = msg => { $('#board-list').innerHTML = `<li class="empty">${esc(msg)}</li>`; };
   async function load() {
+    if (DEMO_BOARD) {                                   // test data only: never shown without ?demoboard
+      $('#join-card').hidden = true; $('#board-period').hidden = false;
+      $('#com-offline').hidden = false; $('#com-offline').textContent = 'TEST DATA (?demoboard): 200 generated devotees on this device only — top 50 shown, as the server would return.';
+      const rows = DemoBoard.leaderboard(period);
+      $('#board-list').innerHTML = rows.map(r => `<li class="${r.is_me ? 'me' : ''}"><span class="rk">${r.rank}</span><span class="nm">${esc(r.display_name)}</span><span class="tt">${fmtNum(+r.total)}</span></li>`).join('');
+      return;
+    }
     const ok = Cloud.ready;
     $('#join-card').hidden = !ok;
     $('#com-offline').hidden = true; $('#board-period').hidden = !ok;
