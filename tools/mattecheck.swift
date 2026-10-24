@@ -1,6 +1,8 @@
 // mattecheck.swift — numbers for the problems you see on a dark background, per frame of a matted clip.
 //   fringe  pale half-transparent pixels near the silhouette (cream background bleeding into the edge), weighted by
 //           opacity: they read as a white outline / white patches in gaps on a dark backdrop. Per mille of figure area.
+//   dark    near-black half-transparent pixels, weighted by opacity: black background left at the edge (a dark rim on
+//           light backdrops). Per mille of figure area.
 //   halo    half-transparent pixels (8–90 % opacity) in general, per mille of figure area: a wide soft ring.
 //   flick   mean change of opacity from the previous frame where the colour hardly changed (unjustified flicker).
 //   top     top edge of the figure, to see where in the loop the figure rises and sinks.
@@ -50,12 +52,12 @@ if let i = args.firstIndex(of: "--map"), i + 2 < args.count, let n = Int(args[i 
   CGImageDestinationAddImage(d, cg, nil); CGImageDestinationFinalize(d)
   _ = px; exit(0)
 }
-print("frame  fringe‰  halo‰  flick   top  region")
+print("frame  fringe‰  dark‰  halo‰  flick   top  region")
 var prev: [UInt8] = []
-var tot = (fr: 0.0, ha: 0.0, fl: 0.0, n: 0)
+var tot = (fr: 0.0, dk: 0.0, ha: 0.0, fl: 0.0, n: 0)
 for (i, name) in files.enumerated() where i % every == 0 || every == 1 {
   let (w, h, px) = load("\(dir)/\(name)")
-  var area = 0, fringe = 0.0, halo = 0, top = h, inBox = 0, boxN = 0
+  var area = 0, fringe = 0.0, dark = 0.0, halo = 0, top = h, inBox = 0, boxN = 0
   var fl = 0.0
   let bx = box.map { (Int($0[0] * Double(w)), Int($0[1] * Double(h)), Int($0[2] * Double(w)), Int($0[3] * Double(h))) }
   for y in 0..<h { for x in 0..<w {
@@ -67,6 +69,7 @@ for (i, name) in files.enumerated() where i % every == 0 || every == 1 {
       let r = Double(px[k]) * 255 / Double(a), g = Double(px[k + 1]) * 255 / Double(a), b = Double(px[k + 2]) * 255 / Double(a)
       let L = 0.299 * r + 0.587 * g + 0.114 * b, sat = max(r, g, b) - min(r, g, b)
       if L > 190 && sat < 70 { fringe += Double(a) / 255 }   // weighted by how much of it shows
+      if L < 40 { dark += Double(a) / 255 }
     }
     if let (x0, y0, x1, y1) = bx, x >= x0, x < x1, y >= y0, y < y1 { boxN += 1; if a > 128 { inBox += 1 } }
     if !prev.isEmpty {
@@ -77,10 +80,11 @@ for (i, name) in files.enumerated() where i % every == 0 || every == 1 {
       }
     }
   } }
+  let dk = dark / Double(max(1, area)) * 1000
   let fr = fringe / Double(max(1, area)) * 1000, ha = Double(halo) / Double(max(1, area)) * 1000
   let flick = prev.isEmpty ? 0 : fl / Double(w * h) * 1000
-  tot.fr += fr; tot.ha += ha; tot.fl += flick; tot.n += 1
-  print(String(format: "%5d  %7.2f  %5.1f  %5.3f  %4d  %@", i, fr, ha, flick, top, bx == nil ? "" : String(format: "%.3f", Double(inBox) / Double(max(1, boxN)))))
+  tot.fr += fr; tot.dk += dk; tot.ha += ha; tot.fl += flick; tot.n += 1
+  print(String(format: "%5d  %7.2f  %5.2f  %5.1f  %5.3f  %4d  %@", i, fr, dk, ha, flick, top, bx == nil ? "" : String(format: "%.3f", Double(inBox) / Double(max(1, boxN)))))
   prev = px
 }
-print(String(format: "mean   %7.2f  %5.1f  %5.3f", tot.fr / Double(tot.n), tot.ha / Double(tot.n), tot.fl / Double(max(1, tot.n - 1))))
+print(String(format: "mean   %7.2f  %5.2f  %5.1f  %5.3f", tot.fr / Double(tot.n), tot.dk / Double(tot.n), tot.ha / Double(tot.n), tot.fl / Double(max(1, tot.n - 1))))

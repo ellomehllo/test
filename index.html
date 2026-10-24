@@ -129,19 +129,31 @@
   @keyframes floatStill { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-1.6%); } }
   /* Divine glow behind the Aaradhya: breathing aura + slow light rays + bright core, screen-blended into the scene */
   .halo { position: absolute; left: 50%; top: 46%; width: min(132%, 580px); aspect-ratio: 1; transform: translate(-50%, -50%); pointer-events: none; }
-  .halo i { position: absolute; border-radius: 50%; mix-blend-mode: screen; }
-  .halo .aura { inset: 0; background: radial-gradient(circle, rgba(255,228,170,.58) 0%, rgba(255,204,120,.42) 14%, rgba(246,164,70,.26) 30%, rgba(214,118,40,.10) 46%, rgba(180,90,30,0) 64%);
+  /* sacred glow: a warm aura, a faint golden aureole ring, slow soft rays and a bright heart. Gradients only: no blur,
+     drop-shadow or blend modes, so nothing is recomputed while the figure's video plays, and the slow breathing and turning
+     (opacity and transform) run on the phone's compositor. */
+  .halo i { position: absolute; border-radius: 50%; will-change: transform, opacity; }
+  .halo .aura { inset: 0; background: radial-gradient(circle, rgba(255,222,150,.72) 0%, rgba(255,198,108,.52) 16%, rgba(244,156,64,.30) 32%, rgba(206,110,38,.12) 48%, rgba(170,80,25,0) 66%);
     animation: glowBreath 7s ease-in-out infinite; }
-  .halo .rays { inset: 4%; background: repeating-conic-gradient(from 0deg, rgba(255,222,160,0) 0deg, rgba(255,222,160,.09) 3deg, rgba(255,222,160,0) 6deg 14deg);
-    filter: blur(3px);
+  .halo::after { content: ""; position: absolute; inset: 4%; border-radius: 50%; pointer-events: none; will-change: transform, opacity;
+    background: radial-gradient(circle, rgba(255,215,140,0) 56%, rgba(255,215,140,.20) 62%, rgba(255,238,196,.42) 65%, rgba(255,215,140,.18) 68.5%, rgba(255,215,140,0) 75%);
+    animation: ringGlow 9s ease-in-out infinite; }
+  .halo .rays { inset: 4%; background: repeating-conic-gradient(from 0deg, rgba(255,222,160,0) 0deg, rgba(255,222,160,.05) 2deg, rgba(255,222,160,.08) 4deg, rgba(255,222,160,.05) 6deg, rgba(255,222,160,0) 8deg 15deg);
     -webkit-mask-image: radial-gradient(circle, transparent 12%, #000 22%, rgba(0,0,0,.35) 40%, transparent 60%); mask-image: radial-gradient(circle, transparent 12%, #000 22%, rgba(0,0,0,.35) 40%, transparent 60%);
     animation: raysSpin 160s linear infinite; }
-  .halo .core { inset: 31%; background: radial-gradient(circle, rgba(255,226,170,.42) 0%, rgba(255,206,130,.22) 38%, rgba(255,190,100,0) 72%);
-    filter: blur(8px); animation: glowBreath 7s ease-in-out infinite reverse; }
+  .halo .core { inset: 28%; background: radial-gradient(circle, rgba(255,236,190,.55) 0%, rgba(255,218,156,.38) 22%, rgba(255,202,124,.18) 44%, rgba(255,190,100,.06) 62%, rgba(255,190,100,0) 76%);
+    animation: glowBreath 7s ease-in-out infinite reverse; }
   @keyframes glowBreath { 0%, 100% { opacity: .8; transform: scale(.95); } 50% { opacity: 1; transform: scale(1.05); } }
+  @keyframes ringGlow { 0%, 100% { opacity: .55; transform: scale(.985); } 50% { opacity: 1; transform: scale(1.015); } }
   @keyframes raysSpin { to { transform: rotate(360deg); } }
-  /* a soft warm glow around the figure (no tight rim: it traced the silhouette as a pale outline) */
-  .figure video, .figure img { filter: drop-shadow(0 0 26px rgba(255,170,72,.18)); }
+  /* Safari / iOS (WebKit): frosted glass over the playing figure video is re-blurred every frame, so those panels skip the
+     blur there and are a touch more opaque instead (set from script with the video format) */
+  body.lite-glass * { -webkit-backdrop-filter: none !important; backdrop-filter: none !important; }
+  body.lite-glass { --card: linear-gradient(180deg, rgba(12,30,34,.88), rgba(7,17,24,.94)); }
+  body.lite-glass .icon-btn, body.lite-glass .token-pill { background: rgba(6,16,20,.74); }
+  body.lite-glass .pick-ico { background: rgba(6,16,20,.78); }
+  body.lite-glass .paused-panel { background: linear-gradient(180deg, rgba(4,10,14,.78), rgba(4,10,14,.92)); }
+  body.lite-glass .sheet-modal .bd { background: rgba(2,6,8,.82); }
 
   /* ---------- Home ---------- */
   .topbar { display: grid; grid-template-columns: 1fr auto 44px; align-items: center; gap: 8px; min-height: 48px; }
@@ -503,8 +515,8 @@
     .p-stats b { font-size: 19px; } .pause-btn { width: 66px; height: 66px; } .ctl-ico { width: 46px; height: 46px; }
     .home-name h2 { font-size: 22px; } .stats-card { padding: 7px 6px; }
   }
-  @media (prefers-reduced-motion: reduce) { .halo i, .figure.still img { animation: none !important; } .screen { transition-duration: .01ms; } }
-  body.reduce-motion .halo i, body.reduce-motion .figure.still img, body.reduce-motion .voice-chip .vd { animation: none !important; }
+  @media (prefers-reduced-motion: reduce) { .halo i, .halo::after, .figure.still img { animation: none !important; } .screen { transition-duration: .01ms; } }
+  body.reduce-motion .halo i, body.reduce-motion .halo::after, body.reduce-motion .figure.still img, body.reduce-motion .voice-chip .vd { animation: none !important; }
 </style>
 </head>
 
@@ -1729,6 +1741,7 @@ function makeSheet(el, onOpen) {
 const AV = 3;
 const UA = navigator.userAgent;
 const VEXT = /AppleWebKit/.test(UA) && !/Chrome|Chromium|Edg|OPR|Android/.test(UA) ? 'mov' : 'webm';
+if (VEXT === 'mov') document.body.classList.add('lite-glass');   // WebKit: no frosted glass over the video (see CSS)
 /* In the Android/iOS app only Hanuman's animations ship inside the app (plus every Aaradhya's small idle picture for the
  * cards). The others are downloaded once, from the private 'aaradhya' storage bucket, after the server has unlocked them,
  * and kept in the app's Cache Storage; on the website every file is simply under assets/. */
