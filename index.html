@@ -7,8 +7,8 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<title>आराध्य - नाम जप · Aradhya - Naam Jaap</title>
-<meta name="application-name" content="Aradhya - Naam Jaap">
+<title>Aradhya</title>
+<meta name="application-name" content="Aradhya">
 <meta name="apple-mobile-web-app-title" content="Aradhya">
 
 <!-- Fonts: Mukta (UI — Devanagari + Latin), Cormorant Garamond (numbers, headings), Tiro Devanagari (mantras) -->
@@ -143,9 +143,6 @@
   .brand { display: flex; align-items: center; gap: 7px; font-family: var(--serif); font-size: 22px; font-weight: 600; letter-spacing: .02em; white-space: nowrap; overflow: hidden; }
   :lang(hi) .brand { font-family: var(--deva); font-weight: 400; font-size: 21px; }
   .brand svg { color: var(--gold-2); flex: none; }
-  .brand-txt { display: flex; flex-direction: column; line-height: 1; min-width: 0; }
-  .brand-txt small { font-family: 'Mukta', sans-serif; font-size: 10.5px; font-weight: 600; letter-spacing: .22em; text-transform: uppercase; color: var(--gold-2); margin-top: 3px; }
-  :lang(hi) .brand-txt small { letter-spacing: .04em; font-size: 12px; }
   .token-pill { display: inline-flex; align-items: center; gap: 7px; height: 44px; padding: 0 13px 0 9px; border-radius: 999px; font-size: 15px; font-weight: 600;
     background: rgba(6,16,20,.6); border: 1px solid var(--line); color: var(--ivory); }
   .home-row { display: flex; align-items: flex-start; gap: 10px; margin-top: 10px; }
@@ -493,7 +490,7 @@
 <section id="s-home" class="screen tabbed is-on" aria-labelledby="home-brand">
   <header class="topbar">
     <button class="icon-btn avatar-btn" data-go="profile" data-t-aria="profile" aria-label="प्रोफ़ाइल"><span class="avatar-sm" id="top-avatar"><svg width="20" height="20"><use href="#i-user"/></svg></span></button>
-    <h1 id="home-brand" class="brand"><svg width="22" height="22"><use href="#i-lotus"/></svg><span class="brand-txt"><span data-t="brandMain">आराध्य</span><small data-t="brandSub">नाम जप</small></span><span class="sr-only" data-t="appName">आराध्य - नाम जप</span></h1>
+    <h1 id="home-brand" class="brand"><svg width="22" height="22"><use href="#i-lotus"/></svg><span data-t="appName">आराध्य</span></h1>
     <button class="token-pill" data-go="aaradhya" data-t-aria="tokensAria" aria-label="भक्ति टोकन"><span class="coin" aria-hidden="true"></span><span class="tok-n num">0</span></button>
     <button class="icon-btn" data-go="settings" data-t-aria="settings" aria-label="सेटिंग्स"><svg width="20" height="20"><use href="#i-gear"/></svg></button>
   </header>
@@ -786,7 +783,7 @@
       </div>
     </div>
     <div class="set-group">
-      <div class="card set-list"><div class="set-item"><div class="row-between"><span data-t="about">आराध्य - नाम जप के बारे में</span><span class="k">v2.0.0</span></div></div></div>
+      <div class="card set-list"><div class="set-item"><div class="row-between"><span data-t="about">आराध्य के बारे में</span><span class="k">v2.0.0</span></div></div></div>
     </div>
   </div>
 </section>
@@ -834,7 +831,7 @@
   <div class="bd" data-close></div>
   <div class="sheet-card">
     <div class="grip" aria-hidden="true"></div>
-    <div class="sheet-head"><h2 id="app-title-h" data-t="appTitle">आराध्य - नाम जप ऐप</h2><button class="icon-btn" data-close data-t-aria="close" aria-label="बंद करें"><svg width="18" height="18"><use href="#i-close"/></svg></button></div>
+    <div class="sheet-head"><h2 id="app-title-h" data-t="appTitle">आराध्य ऐप</h2><button class="icon-btn" data-close data-t-aria="close" aria-label="बंद करें"><svg width="18" height="18"><use href="#i-close"/></svg></button></div>
     <p class="lead" style="text-align:left;margin-bottom:12px" data-t="appWhy"></p>
     <ol class="board" style="list-style:decimal inside;margin-bottom:14px"><li data-t="appStep1"></li><li data-t="appStep2"></li><li data-t="appStep3"></li><li data-t="appStep4"></li></ol>
     <a id="apk-link" class="btn-gold" style="text-decoration:none" href="#" download><span data-t="appDownload">ऐप डाउनलोड करें</span></a>
@@ -850,7 +847,7 @@
 <script>
 'use strict';
 /* ════════════════════════════════════════════════════════════════════════════
- *  VANAR SATHI — Naam Jaap & Mala
+ *  ARADHYA — Naam Jaap & Mala
  *  Sections:  1 Config, storage & words · 2 Haptics · 3 Audio engine (Web Audio)
  *             4 Aaradhya & mantras · 5 Records (history, streaks, tokens) · 6 Cloud
  *             7 Screens & navigation · 8 Figures · 9 3D Mala · 10 Session engine
@@ -902,7 +899,7 @@ const reduceMotion = () => SYS_REDUCED || settings.reduceMotion;
 /* ── Words on screen: Hindi first, plain English as the alternative ── */
 const I18N = {
   hi: {
-    appName: 'आराध्य - नाम जप', brandMain: 'आराध्य', brandSub: 'नाम जप', profile: 'प्रोफ़ाइल', settings: 'सेटिंग्स', close: 'बंद करें', back: 'वापस', tokensAria: 'भक्ति टोकन',
+    appName: 'आराध्य', profile: 'प्रोफ़ाइल', settings: 'सेटिंग्स', close: 'बंद करें', back: 'वापस', tokensAria: 'भक्ति टोकन',
     sankalp: 'आज का संकल्प', dailyGoal: 'दैनिक लक्ष्य', streak: 'लगातार', days: '{n} दिन', day1: '1 दिन', continue: 'जारी रखें',
     resumeTxt: 'चल रही साधना · {n} जप', mala: 'माला', malaSub: '108 मनकों का एक चक्र', jaap: 'जप', jaapSub: 'समय चुनें या खुला जप',
     setTimer: 'समय चुनें', setTimerSub: 'कितनी देर जप करना चाहते हैं?', minShort: 'मिनट', start: 'शुरू करें', or: 'या',
@@ -952,8 +949,8 @@ const I18N = {
     vMuted: 'आवाज़ से गिनती चालू है, इसलिए रिकॉर्ड किया जप नहीं बजेगा (वरना वही गिना जाता)', vNet: 'आवाज़ पहचान के लिए इंटरनेट चाहिए',
     gLook: 'रूप', bgSet: 'पृष्ठभूमि', bgForest: 'वन', bgClouds: 'बादल', bgKailash: 'कैलाश', motionSet: 'कम हलचल', motionSetSub: 'चलती तस्वीरों की जगह स्थिर चित्र — बैटरी और डेटा भी बचता है',
     gNotify: 'सूचनाएँ', reminder: 'दैनिक याद', soon: 'जल्द आएगा', reminderSub: 'अभी उपलब्ध नहीं है — इसके लिए ऐप में सूचना की सुविधा चाहिए।',
-    gPrivacy: 'गोपनीयता और खाता', privacySub: 'आपका जप अपने-आप किसी को नहीं दिखता। नाम केवल तब दिखता है जब आप सत्संग में यह चालू करें।', about: 'आराध्य - नाम जप के बारे में',
-    getApp: 'ऐप डाउनलोड करें', appTitle: 'आराध्य - नाम जप ऐप', appWhy: 'बिना इंटरनेट के भी जप करें — सारे वीडियो, राम नाम मंत्र और चालीसा फ़ोन में रहेंगे। इंटरनेट आते ही आपकी गिनती अपने-आप जुड़ जाएगी।',
+    gPrivacy: 'गोपनीयता और खाता', privacySub: 'आपका जप अपने-आप किसी को नहीं दिखता। नाम केवल तब दिखता है जब आप सत्संग में यह चालू करें।', about: 'आराध्य के बारे में',
+    getApp: 'ऐप डाउनलोड करें', appTitle: 'आराध्य ऐप', appWhy: 'बिना इंटरनेट के भी जप करें — सारे वीडियो, राम नाम मंत्र और चालीसा फ़ोन में रहेंगे। इंटरनेट आते ही आपकी गिनती अपने-आप जुड़ जाएगी।',
     appStep1: 'नीचे दिए बटन से ऐप डाउनलोड करें', appStep2: 'डाउनलोड हुई फ़ाइल खोलें', appStep3: 'फ़ोन पूछे तो “इस स्रोत से ऐप की अनुमति दें” चालू करें', appStep4: '“इंस्टॉल” दबाएँ — हो गया 🙏', appDownload: 'ऐप डाउनलोड करें', appSize: 'केवल Android',
     tHalf: 'आधा समय पूरा 🙏', tMala: 'माला {n} पूरी — 108 जप 🙏', tHold: 'पूर्ण करने के लिए बटन दबाकर रखें', tNothing: 'साधना बंद — सहेजने को कुछ नहीं था', tPausedTap: 'साधना रुकी है — फिर शुरू करें',
     tRestored: 'आपकी पिछली साधना वहीं से जारी है 🙏', tNoVib: 'इस फ़ोन में कंपन नहीं चलता', tVibOff: 'कंपन बंद है', tFast: 'टेस्ट मोड: मिनट की जगह सेकंड', tUndoNone: 'वापस लेने को कुछ नहीं',
@@ -961,7 +958,7 @@ const I18N = {
     sk: ['वर्तमान में रहें, दयालु रहें।', 'आज मीठा बोलें।', 'किसी की निःस्वार्थ सेवा करें।', 'एक चिंता को छोड़ दें।', 'गति नहीं, प्रेम से जप करें।', 'इस साँस के लिए आभार।', 'जल्दी क्षमा करें।']
   },
   en: {
-    appName: 'Aradhya - Naam Jaap', brandMain: 'Aradhya', brandSub: 'Naam Jaap', profile: 'Profile', settings: 'Settings', close: 'Close', back: 'Back', tokensAria: 'Bhakti tokens',
+    appName: 'Aradhya', profile: 'Profile', settings: 'Settings', close: 'Close', back: 'Back', tokensAria: 'Bhakti tokens',
     sankalp: 'Today’s Sankalp', dailyGoal: 'Daily goal', streak: 'Streak', days: '{n} days', day1: '1 day', continue: 'Continue',
     resumeTxt: 'Session in progress · {n} Naam', mala: 'Mala', malaSub: '108 beads per round', jaap: 'Jaap', jaapSub: 'Set a timer or count freely',
     setTimer: 'Set Timer', setTimerSub: 'Choose how long you want to practise', minShort: 'min', start: 'Start', or: 'or',
@@ -1011,8 +1008,8 @@ const I18N = {
     vMuted: 'Voice counting is on, so the recorded chant won’t play (it would be counted)', vNet: 'Speech recognition needs an internet connection',
     gLook: 'Appearance', bgSet: 'Background', bgForest: 'Forest', bgClouds: 'Clouds', bgKailash: 'Kailash', motionSet: 'Reduced motion', motionSetSub: 'Still pictures instead of animation — also saves battery and data',
     gNotify: 'Notifications', reminder: 'Daily reminder', soon: 'Coming soon', reminderSub: 'Not available yet — it needs notifications in the app.',
-    gPrivacy: 'Privacy & account', privacySub: 'Your jaap is never shown to anyone by default. Your name appears only if you turn it on in Community.', about: 'About Aradhya - Naam Jaap',
-    getApp: 'Get the app', appTitle: 'Aradhya - Naam Jaap app', appWhy: 'Chant even without internet — all videos, the Ram Naam chant and the Chalisa stay on your phone. Your count syncs automatically when you are back online.',
+    gPrivacy: 'Privacy & account', privacySub: 'Your jaap is never shown to anyone by default. Your name appears only if you turn it on in Community.', about: 'About Aradhya',
+    getApp: 'Get the app', appTitle: 'Aradhya app', appWhy: 'Chant even without internet — all videos, the Ram Naam chant and the Chalisa stay on your phone. Your count syncs automatically when you are back online.',
     appStep1: 'Download the app with the button below', appStep2: 'Open the downloaded file', appStep3: 'If asked, allow installing apps from this source', appStep4: 'Tap “Install” — done 🙏', appDownload: 'Download the app', appSize: 'Android only',
     tHalf: 'Halfway done 🙏', tMala: 'Mala {n} complete — 108 Naam 🙏', tHold: 'Press and hold to finish', tNothing: 'Session ended — nothing to save', tPausedTap: 'Paused — tap Resume to continue',
     tRestored: 'Your last session is waiting where you left it 🙏', tNoVib: 'This phone can’t vibrate', tVibOff: 'Vibration is off', tFast: 'Test mode: minutes run as seconds', tUndoNone: 'Nothing to undo',
