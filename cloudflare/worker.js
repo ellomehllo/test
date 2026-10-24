@@ -4,7 +4,7 @@
 export default {
   async fetch(request, env) {
     const range = request.headers.get('Range');
-    if (!range) return env.ASSETS.fetch(request);
+    if (!range) return withRanges(await env.ASSETS.fetch(request));
     const head = request.method === 'HEAD';
     const res = await env.ASSETS.fetch(new Request(request.url, { method: 'GET' }));
     const m = /^bytes=(\d*)-(\d*)$/.exec(range.trim());
