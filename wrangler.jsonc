@@ -1,0 +1,13 @@
+{
+  // Cloudflare (Worker "aradhya"): the site's static files + cloudflare/worker.js for video Range requests.
+  // Deployed by Cloudflare Workers Builds on every push to main (or locally with `npx wrangler deploy`).
+  "name": "aradhya",
+  "main": "cloudflare/worker.js",
+  "compatibility_date": "2026-10-01",
+  "assets": {
+    "directory": ".",
+    "binding": "ASSETS",
+    "not_found_handling": "404-page",
+    "run_worker_first": true
+  }
+}

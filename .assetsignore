@@ -1,0 +1,14 @@
+# Not part of the public site (Cloudflare uploads everything else in the repo as static files)
+.git
+.github
+.gitignore
+.assetsignore
+wrangler.jsonc
+CNAME
+supabase
+cloudflare
+deploy-cloudflare.sh
+node_modules
+.wrangler
+# 99 MB, over Cloudflare's 25 MiB file limit; unused while chanting is silent
+assets/ram-naam.mp3
