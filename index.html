@@ -412,6 +412,9 @@
   .s-chip { min-height: 46px; border-radius: 14px; font-size: 13px; line-height: 1.15; padding: 4px 2px; background: rgba(8,20,26,.6); border: 1px solid var(--line-2); color: var(--ivory-2); }
   .s-chip[aria-pressed="true"] { border-color: var(--gold); background: rgba(217,168,78,.16); color: var(--ivory); font-weight: 600; }
   .tag-soon { font-size: 12px; padding: 3px 9px; border-radius: 999px; border: 1px solid var(--line-2); color: var(--ivory-3); white-space: nowrap; }
+  .set-link { display: block; width: 100%; text-align: left; color: inherit; text-decoration: none; }
+  .set-danger span { color: #f2a08f; }
+  .btn-gold.btn-danger { background: linear-gradient(180deg, #e08a76, #b9533f); color: #fff; }
   .link-btn { color: var(--gold-2); font-weight: 600; font-size: 15px; min-height: 44px; min-width: 44px; padding: 0 6px; }
 
   /* ---------- Streaks (Duolingo-style) ---------- */
@@ -541,7 +544,7 @@
       <svg width="22" height="22" aria-hidden="true"><use href="#i-leaf"/></svg>
       <div><small data-t="sankalp">आज का संकल्प</small><p id="sankalp-text"></p></div>
     </div>
-    <button id="get-app" class="icon-btn" hidden data-t-aria="getApp" aria-label="ऐप डाउनलोड करें"><svg width="19" height="19"><use href="#i-download"/></svg></button>
+    <!-- app-strip:start --><button id="get-app" class="icon-btn" hidden data-t-aria="getApp" aria-label="ऐप डाउनलोड करें"><svg width="19" height="19"><use href="#i-download"/></svg></button><!-- app-strip:end -->
   </div>
   <div class="home-stage" aria-hidden="true"><div class="halo"><i class="aura"></i><i class="rays"></i><i class="core"></i></div><div id="home-fig" class="figure"></div></div>
   <div class="home-name"><h2 id="home-aname"></h2><p id="home-mantra"></p></div>
@@ -719,7 +722,7 @@
       <button id="board-more" class="btn-line board-more" hidden aria-controls="board-list"></button>
     </div>
     <div class="card join-card" id="join-card">
-      <div class="row-between"><span id="com-name" style="font-size:16px;font-weight:600"></span><button class="link-btn" data-go="profile" data-t="editInProfile">प्रोफ़ाइल में बदलें</button></div>
+      <div><span id="com-name" style="font-size:16px;font-weight:600"></span><p class="sub" data-t="anonNote" style="margin-top:4px">सूची में आप केवल इसी नंबर से दिखते हैं — आपका नाम या फ़ोटो कभी नहीं।</p></div>
       <div class="row-between"><span style="font-size:15px" data-t="showMe">सूची में मेरा नाम दिखाएँ</span><button id="show-me" class="switch" role="switch" aria-checked="false" data-t-aria="showMe" aria-label="सूची में मेरा नाम दिखाएँ"></button></div>
       <button id="save-me" class="btn-gold" style="min-height:50px;font-size:17px" data-t="save">सहेजें</button>
     </div>
@@ -804,11 +807,16 @@
     <div class="set-group"><h3 data-t="gPrivacy">गोपनीयता और खाता</h3>
       <div class="card set-list">
         <div class="set-item"><div class="row-between"><span data-t="myName">आपका नाम</span><button class="link-btn" data-go="profile" id="set-name"></button></div></div>
-        <div class="set-item"><div class="row-between"><span data-t="showMe">सूची में मेरा नाम दिखाएँ</span><span class="k" id="set-visible"></span></div><p class="sub" data-t="privacySub">आपका जप अपने-आप किसी को नहीं दिखता। नाम केवल तब दिखता है जब आप सत्संग में यह चालू करें।</p></div>
+        <div class="set-item"><div class="row-between"><span data-t="showMe">सूची में मुझे दिखाएँ</span><span class="k" id="set-visible"></span></div><p class="sub" data-t="privacySub">आपका नाम और फ़ोटो इसी फ़ोन पर रहते हैं।</p></div>
       </div>
     </div>
     <div class="set-group">
-      <div class="card set-list"><div class="set-item"><div class="row-between"><span data-t="about">आराध्य के बारे में</span><span class="k">v2.0.0</span></div></div></div>
+      <div class="card set-list">
+        <a class="set-item set-link" href="https://vanarsathi.online/privacy.html" target="_blank" rel="noopener"><div class="row-between"><span data-t="privacyPolicy">गोपनीयता नीति</span><span class="k" aria-hidden="true">↗</span></div></a>
+        <a class="set-item set-link" href="https://vanarsathi.online/support.html" target="_blank" rel="noopener"><div class="row-between"><span data-t="support">मदद और संपर्क</span><span class="k" aria-hidden="true">↗</span></div></a>
+        <button class="set-item set-link set-danger" id="set-delete"><div class="row-between"><span data-t="deleteData">मेरा सारा डेटा मिटाएँ</span></div><p class="sub" data-t="deleteSub">खाता, गिनती, साधना क्रम, टोकन और खुले आराध्य — फ़ोन से और हमारे सर्वर से</p></button>
+        <div class="set-item"><div class="row-between"><span data-t="about">आराध्य के बारे में</span><span class="k">v2.1.0</span></div></div>
+      </div>
     </div>
   </div>
 </section>
@@ -824,6 +832,18 @@
 </nav>
 
 <!-- Finish confirmation -->
+<div id="delete-sheet" class="sheet-modal" role="alertdialog" aria-modal="true" aria-labelledby="delete-h" aria-describedby="delete-msg" hidden>
+  <div class="bd" data-close></div>
+  <div class="sheet-card confirm-card">
+    <div class="grip" aria-hidden="true"></div>
+    <h2 id="delete-h" data-t="deleteQ">सब कुछ मिटा दें?</h2>
+    <p id="delete-msg" class="lead" data-t="deleteMsg"></p>
+    <div class="confirm-actions">
+      <button id="delete-no" class="btn-line" data-close data-t="deleteNo">नहीं, रहने दें</button>
+      <button id="delete-yes" class="btn-gold btn-danger" data-t="deleteYes">हाँ, सब मिटाएँ</button>
+    </div>
+  </div>
+</div>
 <div id="finish-sheet" class="sheet-modal" role="alertdialog" aria-modal="true" aria-labelledby="finish-h" aria-describedby="finish-msg" hidden>
   <div class="bd" data-close></div>
   <div class="sheet-card confirm-card">
@@ -851,6 +871,7 @@
   </div>
 </div>
 
+<!-- app-strip:start -->
 <!-- Android app download + install steps (website on Android only) -->
 <div id="app-sheet" class="sheet-modal" role="dialog" aria-modal="true" aria-labelledby="app-title-h" hidden>
   <div class="bd" data-close></div>
@@ -863,6 +884,7 @@
     <p class="pill-note" style="margin-top:10px" data-t="appSize"></p>
   </div>
 </div>
+<!-- app-strip:end -->
 
 <!-- Hanuman Chalisa / Ram Naam recordings (sound options) -->
 <audio id="chalisa-audio" preload="none" src="assets/hanuman-chalisa.m4a?v=1"></audio>
@@ -881,6 +903,7 @@
  * ════════════════════════════════════════════════════════════════════════════ */
 
 /* ───────────────────────── 1 · CONFIG, STORAGE & WORDS ───────────────────────── */
+// dev flags (website only — app builds replace these three lines with false, see vanarsathi-android/scripts/bundle-web.mjs)
 const FAST = new URLSearchParams(location.search).has('fast');
 const NO_CLOUD = new URLSearchParams(location.search).has('nocloud');   // dev: never sign in or upload (keeps test sessions out of the live database)
 const DEMO_BOARD = new URLSearchParams(location.search).has('demoboard'); // dev: 200 generated bots in the leaderboard, on this device only
@@ -932,6 +955,10 @@ const I18N = {
     resumeTxt: 'चल रही साधना · {n} जप', mala: 'माला', malaSub: '108 मनकों का एक चक्र', jaap: 'जप', jaapSub: 'समय चुनें या खुला जप',
     setTimer: 'समय चुनें', setTimerSub: 'कितनी देर जप करना चाहते हैं?', minShort: 'मिनट', start: 'शुरू करें', or: 'या',
     noTimer: 'बिना समय के', noTimerSub: 'सिर्फ़ जप गिनें', mantra: 'मंत्र', selectMala: 'माला चुनें', eachMala: 'एक माला = 108 जप',
+    bhaktN: 'भक्त #{n}', youTag: '(आप)', anonNote: 'सूची में आप केवल इसी नंबर से दिखते हैं — आपका नाम या फ़ोटो कभी नहीं।',
+    privacyPolicy: 'गोपनीयता नीति', support: 'मदद और संपर्क', deleteData: 'मेरा सारा डेटा मिटाएँ', deleteSub: 'खाता, गिनती, साधना क्रम, टोकन और खुले आराध्य — फ़ोन से और हमारे सर्वर से',
+    deleteQ: 'सब कुछ मिटा दें?', deleteMsg: 'आपका खाता, सारा जप, साधना क्रम, भक्ति टोकन और खुले आराध्य हमेशा के लिए मिट जाएँगे — इस फ़ोन से और हमारे सर्वर से। यह वापस नहीं हो सकता।',
+    deleteNo: 'नहीं, रहने दें', deleteYes: 'हाँ, सब मिटाएँ', deleteFail: 'मिटा नहीं पाए — इंटरनेट से जुड़कर फिर कोशिश करें',
     you: 'आप', youHidden: '(सिर्फ़ आपको दिखता है)', showMore: 'सभी {n} देखें', showLess: 'कम दिखाएँ',
     tabProfile: 'प्रोफ़ाइल', thisWeek: 'इस हफ़्ते', goalToday: 'आज का लक्ष्य', dayStreak: 'दिन का क्रम', dayStreak1: 'दिन का क्रम',
     weekStreak: '{n} हफ़्ते लगातार साधना', weekStreak1: 'इस हफ़्ते की साधना शुरू — 1 हफ़्ता', weekStreak0: 'इस हफ़्ते साधना शुरू करें',
@@ -966,8 +993,8 @@ const I18N = {
     community: 'सत्संग', weekly: 'भक्त सूची', comGoals: 'सामूहिक लक्ष्य', pWeek: 'इस हफ़्ते', pMonth: 'इस महीने', pAll: 'अब तक',
     togetherNaam: 'सभी भक्तों का कुल जप', devotees: '{n} भक्त', nextGoal: 'अगला पड़ाव: {n} जप', boardEmpty: 'अभी सूची में कोई नाम नहीं है — अपना नाम जोड़कर पहले बनें!',
     boardLoading: 'लोड हो रहा है…', cloudOff: 'ऑनलाइन सत्संग अभी उपलब्ध नहीं है — इंटरनेट जुड़ने पर दिखेगा। आपका जप फ़ोन में सुरक्षित है।', cloudErr: 'कुछ गड़बड़ हुई, फिर कोशिश करें',
-    joinTitle: 'सत्संग से जुड़ें', joinSub: 'अपना नाम लिखें और चाहें तो भक्त सूची में दिखें। आपकी गिनती आपके फ़ोन से ही आती है।',
-    myName: 'आपका नाम', namePh: 'जैसे: राम भक्त सुनील', showMe: 'सूची में मेरा नाम दिखाएँ', save: 'सहेजें', savedOk: 'सहेज लिया 🙏', needName: 'पहले अपना नाम लिखें',
+    joinTitle: 'सत्संग से जुड़ें', joinSub: 'चाहें तो भक्त सूची में एक नंबर वाले भक्त के रूप में दिखें। आपकी गिनती केवल आपके फ़ोन से आती है।',
+    myName: 'आपका नाम', namePh: 'जैसे: राम भक्त सुनील', showMe: 'सूची में मुझे दिखाएँ', save: 'सहेजें', savedOk: 'सहेज लिया 🙏', needName: 'पहले अपना नाम लिखें',
     saveTitle: 'अपना जप सुरक्षित रखें', saveSub: 'ईमेल जोड़ें — फ़ोन बदलने पर भी आपकी गिनती मिलेगी।', emailPh: 'आपका ईमेल', sendLink: 'ईमेल पर लिंक भेजें',
     linkSent: 'ईमेल में लिंक भेजा है — उसे खोलें 🙏', linked: 'जुड़ा हुआ ईमेल: {e}', logout: 'लॉग आउट', badEmail: 'सही ईमेल लिखें', notSet: 'नहीं लिखा', visOn: 'दिख रहा है', visOff: 'छिपा है',
     gPractice: 'साधना', language: 'भाषा · Language', whichSound: 'जप के साथ ध्वनि', tapToHear: 'छूकर सुनें',
@@ -983,7 +1010,7 @@ const I18N = {
     vMuted: 'आवाज़ से गिनती चालू है, इसलिए रिकॉर्ड किया जप नहीं बजेगा (वरना वही गिना जाता)', vNet: 'आवाज़ पहचान के लिए इंटरनेट चाहिए',
     gLook: 'रूप', bgSet: 'पृष्ठभूमि', bgForest: 'वन', bgClouds: 'बादल', bgKailash: 'कैलाश', bgGrove: 'उपवन', motionSet: 'कम हलचल', motionSetSub: 'चलती तस्वीरों की जगह स्थिर चित्र — बैटरी और डेटा भी बचता है',
     gNotify: 'सूचनाएँ', reminder: 'दैनिक याद', soon: 'जल्द आएगा', reminderSub: 'अभी उपलब्ध नहीं है — इसके लिए ऐप में सूचना की सुविधा चाहिए।',
-    gPrivacy: 'गोपनीयता और खाता', privacySub: 'आपका जप अपने-आप किसी को नहीं दिखता। नाम केवल तब दिखता है जब आप सत्संग में यह चालू करें।', about: 'आराध्य के बारे में',
+    gPrivacy: 'गोपनीयता और खाता', privacySub: 'आपका नाम और फ़ोटो इसी फ़ोन पर रहते हैं। भक्त सूची में आप केवल एक नंबर वाले भक्त के रूप में दिखते हैं — और वह भी तभी जब आप चालू करें।', about: 'आराध्य के बारे में',
     getApp: 'ऐप डाउनलोड करें', appTitle: 'आराध्य ऐप', appWhy: 'बिना इंटरनेट के भी जप करें — सारे वीडियो, राम नाम मंत्र और चालीसा फ़ोन में रहेंगे। इंटरनेट आते ही आपकी गिनती अपने-आप जुड़ जाएगी।',
     appStep1: 'नीचे दिए बटन से ऐप डाउनलोड करें', appStep2: 'डाउनलोड हुई फ़ाइल खोलें', appStep3: 'फ़ोन पूछे तो “इस स्रोत से ऐप की अनुमति दें” चालू करें', appStep4: '“इंस्टॉल” दबाएँ — हो गया 🙏', appDownload: 'ऐप डाउनलोड करें', appSize: 'केवल Android',
     tHalf: 'आधा समय पूरा 🙏', tMala: 'माला {n} पूरी — 108 जप 🙏', tHold: 'पूर्ण करने के लिए बटन दबाकर रखें', tNothing: 'साधना बंद — सहेजने को कुछ नहीं था', tPausedTap: 'साधना रुकी है — फिर शुरू करें',
@@ -997,6 +1024,10 @@ const I18N = {
     resumeTxt: 'Session in progress · {n} Naam', mala: 'Mala', malaSub: '108 beads per round', jaap: 'Jaap', jaapSub: 'Set a timer or count freely',
     setTimer: 'Set Timer', setTimerSub: 'Choose how long you want to practise', minShort: 'min', start: 'Start', or: 'or',
     noTimer: 'No Timer', noTimerSub: 'Just count repetitions', mantra: 'Mantra', selectMala: 'Select Mala Count', eachMala: 'Each mala = 108 repetitions',
+    bhaktN: 'Bhakt #{n}', youTag: '(you)', anonNote: 'On the list you appear only as this number — never your name or photo.',
+    privacyPolicy: 'Privacy policy', support: 'Help & contact', deleteData: 'Delete my data', deleteSub: 'Account, counts, streaks, tokens and unlocked Aaradhya — from this phone and our server',
+    deleteQ: 'Delete everything?', deleteMsg: 'Your account, all your jaap, streaks, Bhakti tokens and unlocked Aaradhya will be deleted for good — from this phone and from our server. This cannot be undone.',
+    deleteNo: 'Keep my data', deleteYes: 'Delete everything', deleteFail: "Couldn't delete — connect to the internet and try again",
     you: 'You', youHidden: '(only you see this)', showMore: 'Show all {n}', showLess: 'Show less',
     tabProfile: 'Profile', thisWeek: 'This week', goalToday: 'Today’s goal', dayStreak: 'day streak', dayStreak1: 'day streak',
     weekStreak: '{n} weeks in a row', weekStreak1: '1 week so far — keep it going', weekStreak0: 'Practise this week to start a weekly streak',
@@ -1031,8 +1062,8 @@ const I18N = {
     community: 'Community', weekly: 'Leaderboard', comGoals: 'Community goal', pWeek: 'This week', pMonth: 'This month', pAll: 'All time',
     togetherNaam: 'All devotees together', devotees: '{n} devotees', nextGoal: 'Next milestone: {n} Naam', boardEmpty: 'No names on the list yet — add yours and be the first!',
     boardLoading: 'Loading…', cloudOff: 'The online community isn’t available right now — it appears when you are online. Your jaap is safe on this phone.', cloudErr: 'Something went wrong, please try again',
-    joinTitle: 'Join the community', joinSub: 'Add your name and, if you wish, appear on the leaderboard. Counts come only from your own phone.',
-    myName: 'Your name', namePh: 'e.g. Ram bhakt Sunil', showMe: 'Show my name on the list', save: 'Save', savedOk: 'Saved 🙏', needName: 'Please write your name first',
+    joinTitle: 'Join the community', joinSub: 'If you wish, appear on the leaderboard as a numbered Bhakt. Counts come only from your own phone.',
+    myName: 'Your name', namePh: 'e.g. Ram bhakt Sunil', showMe: 'Show me on the list', save: 'Save', savedOk: 'Saved 🙏', needName: 'Please write your name first',
     saveTitle: 'Keep your jaap safe', saveSub: 'Add an email — your count stays with you even on a new phone.', emailPh: 'Your email', sendLink: 'Send link to email',
     linkSent: 'We emailed you a link — open it 🙏', linked: 'Linked email: {e}', logout: 'Log out', badEmail: 'Please enter a valid email', notSet: 'Not set', visOn: 'Visible', visOff: 'Hidden',
     gPractice: 'Practice', language: 'Language · भाषा', whichSound: 'Sound while chanting', tapToHear: 'Tap to hear',
@@ -1048,7 +1079,7 @@ const I18N = {
     vMuted: 'Voice counting is on, so the recorded chant won’t play (it would be counted)', vNet: 'Speech recognition needs an internet connection',
     gLook: 'Appearance', bgSet: 'Background', bgForest: 'Forest', bgClouds: 'Clouds', bgKailash: 'Kailash', bgGrove: 'Grove', motionSet: 'Reduced motion', motionSetSub: 'Still pictures instead of animation — also saves battery and data',
     gNotify: 'Notifications', reminder: 'Daily reminder', soon: 'Coming soon', reminderSub: 'Not available yet — it needs notifications in the app.',
-    gPrivacy: 'Privacy & account', privacySub: 'Your jaap is never shown to anyone by default. Your name appears only if you turn it on in Community.', about: 'About Aradhya',
+    gPrivacy: 'Privacy & account', privacySub: 'Your name and photo stay on this phone. On the leaderboard you appear only as a numbered Bhakt, and only if you turn it on.', about: 'About Aradhya',
     getApp: 'Get the app', appTitle: 'Aradhya app', appWhy: 'Chant even without internet — all videos, the Ram Naam chant and the Chalisa stay on your phone. Your count syncs automatically when you are back online.',
     appStep1: 'Download the app with the button below', appStep2: 'Open the downloaded file', appStep3: 'If asked, allow installing apps from this source', appStep4: 'Tap “Install” — done 🙏', appDownload: 'Download the app', appSize: 'Android only',
     tHalf: 'Halfway done 🙏', tMala: 'Mala {n} complete — 108 Naam 🙏', tHold: 'Press and hold to finish', tNothing: 'Session ended — nothing to save', tPausedTap: 'Paused — tap Resume to continue',
@@ -1356,7 +1387,7 @@ const isUnlocked = a => !a.unlockMin || (SERVER_UNLOCKS
 // the server's answer from my_aaradhya() / unlock_aaradhya()
 function applyServerState(r) {
   records.server = { tokens: +r.tokens || 0, minutes: +r.practice_minutes || 0, unlocked: r.unlocked || [] };
-  (r.new_unlocks || []).forEach(id => { toast(t('unlockedNow', { name: aName(aById(id)) })); Assets.fetchChar(id).catch(() => {}); });
+  (r.new_unlocks || []).forEach(id => toast(t('unlockedNow', { name: aName(aById(id)) })));   // downloading waits for a tap
   if (!isUnlocked(aById(settings.aaradhya))) settings.aaradhya = 'hanuman';
   persist();
 }
@@ -1520,10 +1551,21 @@ const Cloud = (() => {
     writeQ([...readQ(), Object.assign({ client_day: todayKey() }, row)]);
     if (api.ready) { await flush(); await refreshStats(); }
   }
-  async function saveProfile(name, show) {
-    const { error } = await sb.from('profiles').upsert({ id: api.user.id, display_name: name || null, show_on_leaderboard: !!show });
+  async function saveProfile(show) {
+    const { error } = await sb.from('profiles').upsert({ id: api.user.id, show_on_leaderboard: !!show });
     if (error) throw error;
-    api.profile = { display_name: name, show_on_leaderboard: !!show };
+    api.profile = { show_on_leaderboard: !!show };
+  }
+  // the 4 digits this account appears under on the leaderboard (same as public.bhakt_code() on the server)
+  const myCode = () => (api.user ? String(parseInt(api.user.id.replace(/-/g, '').slice(0, 8), 16) % 10000).padStart(4, '0') : '····');
+  // Delete my data: the server removes the account with its profile, sessions and unlocks
+  async function deleteAccount() {
+    if (NO_CLOUD) return;
+    await init();
+    if (!api.ready) throw new Error('offline');
+    const { error } = await sb.rpc('delete_my_account');
+    if (error) throw error;
+    await sb.auth.signOut({ scope: 'local' }).catch(() => {});
   }
   const leaderboard = async period => { const { data, error } = await sb.rpc('leaderboard', { p_period: period, p_limit: 50 }); if (error) throw error; return data || []; };
   // your own place even outside the top 50; null if the server doesn't have my_rank() yet or anything fails
@@ -1550,7 +1592,7 @@ const Cloud = (() => {
   const resume = () => { if (!api.ready) init().then(() => { onRecordsChanged(); Community.renderAccount(); }); else flush().then(refreshStats); };
   addEventListener('online', resume);
   document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') resume(); });
-  Object.assign(api, { init, record, refreshStats, unlock, fileUrl, pending: readQ, saveProfile, leaderboard, myRank, totalsAll, linkEmail, signOut, loadProfile });
+  Object.assign(api, { init, record, refreshStats, unlock, fileUrl, pending: readQ, myCode, deleteAccount, saveProfile, leaderboard, myRank, totalsAll, linkEmail, signOut, loadProfile });
   return api;
 })();
 
@@ -2326,8 +2368,7 @@ $('#a-sheet-go').addEventListener('click', async () => {
     try { await Cloud.unlock(a.id); }
     catch (e) { toast(/not enough/.test((e && e.message) || '') ? t('needTokens', { n: a.cost - tokenBalance() }) : t('needOnline')); }
     renderAaradhya(); renderTokens();
-    if (isUnlocked(a) && !Assets.has(a.id)) return downloadChar(a);   // applyServerState already announced it
-    openASheet(a); return;
+    openASheet(a); return;                             // if unlocked, the sheet now offers the download with its size
   }
   if (!Assets.has(a.id)) return downloadChar(a);
   settings.aaradhya = a.id; persist();
@@ -2375,6 +2416,7 @@ function renderStreaks() {
 }
 onEnter.streaks = () => { renderStreaks(); if (!Cloud.ready) Cloud.init().then(Community.load); Community.load(); };
 
+/* app-strip:start */
 /* Test-only leaderboard (?demoboard): 200 generated devotees from North Indian states, created on this device and
    never sent anywhere. Ranked like the server's leaderboard() — per period, ties share a rank, top 50 returned. */
 const DemoBoard = (() => {
@@ -2404,6 +2446,7 @@ const DemoBoard = (() => {
   }
   return { leaderboard, myRank };
 })();
+/* app-strip:end */
 
 /* Leaderboard on the Streaks page (real data only) + leaderboard visibility */
 const Community = (() => {
@@ -2411,14 +2454,16 @@ const Community = (() => {
   const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
   const note = msg => { $('#board-list').innerHTML = `<li class="empty">${esc(msg)}</li>`; $('#board-more').hidden = true; };
   let expanded = false, lastRows = [], lastMine = null, lastListed = true;
-  const row = r => `<li class="${r.is_me ? 'me' : ''}"><span class="rk">${r.rank}</span><span class="nm">${esc(r.display_name)}</span><span class="tt">${fmtNum(+r.total)}</span></li>`;
+  // the server sends a 4-digit code instead of a name (only the test leaderboard has names)
+  const label = n => (/^\d{4}$/.test(n || '') ? t('bhaktN', { n }) : n);
+  const row = r => `<li class="${r.is_me ? 'me' : ''}"><span class="rk">${r.rank}</span><span class="nm">${esc(label(r.display_name))}${r.is_me ? ` <small>${esc(t('youTag'))}</small>` : ''}</span><span class="tt">${fmtNum(+r.total)}</span></li>`;
   // top 10 (or all on "show more"); your own row is pinned underneath whenever it isn't in view
   function render(rows = lastRows, mine = lastMine, listed = lastListed) {
     lastRows = rows; lastMine = mine; lastListed = listed;
     const shown = expanded ? rows : rows.slice(0, 10);
     let html = shown.map(row).join('');
     if (mine && +mine.total > 0 && !shown.some(r => r.is_me)) {
-      const myName = (listed ? Profile.name() : '') || t('you');
+      const myName = listed ? t('bhaktN', { n: Cloud.myCode() }) : t('you');
       html += `<li class="gap" aria-hidden="true">⋯</li><li class="me"><span class="rk">${mine.rank}</span><span class="nm">${esc(myName)}${listed ? '' : ` <small>${esc(t('youHidden'))}</small>`}</span><span class="tt">${fmtNum(+mine.total)}</span></li>`;
     }
     if (!rows.length && !html) { note(t('boardEmpty')); return; }
@@ -2430,12 +2475,14 @@ const Community = (() => {
     more.setAttribute('aria-expanded', String(expanded));
   }
   async function load() {
+    /* app-strip:start */
     if (DEMO_BOARD) {                                   // test data only: never shown without ?demoboard
       $('#join-card').hidden = true; $('#board-period').hidden = false;
       $('#com-offline').hidden = false; $('#com-offline').textContent = 'TEST DATA (?demoboard): 200 generated devotees on this device only — top 50 shown, as the server would return.';
       render(DemoBoard.leaderboard(period), DemoBoard.myRank(period), true);
       return;
     }
+    /* app-strip:end */
     const ok = Cloud.ready;
     $('#join-card').hidden = !ok;
     $('#com-offline').hidden = true; $('#board-period').hidden = !ok;
@@ -2450,7 +2497,7 @@ const Community = (() => {
   function renderAccount() {
     if (!Cloud.ready) return;
     const p = Cloud.profile || {};
-    $('#com-name').textContent = Profile.name() || t('nameNotSet');
+    $('#com-name').textContent = t('bhaktN', { n: Cloud.myCode() });
     $('#show-me').setAttribute('aria-checked', String(!!p.show_on_leaderboard));
   }
   $$('#board-period button').forEach(b => b.addEventListener('click', () => {
@@ -2458,9 +2505,8 @@ const Community = (() => {
   }));
   $('#show-me').addEventListener('click', e => { const sw = e.currentTarget; sw.setAttribute('aria-checked', String(sw.getAttribute('aria-checked') !== 'true')); });
   $('#save-me').addEventListener('click', async () => {
-    const name = Profile.name(), showMe = $('#show-me').getAttribute('aria-checked') === 'true';
-    if (showMe && !name) { toast(t('needName')); go('profile'); return; }
-    try { await Cloud.saveProfile(name, showMe); toast(t('savedOk')); load(); } catch (_) { toast(t('cloudErr')); }
+    const showMe = $('#show-me').getAttribute('aria-checked') === 'true';
+    try { await Cloud.saveProfile(showMe); toast(t('savedOk')); load(); } catch (_) { toast(t('cloudErr')); }
   });
   $('#board-more').addEventListener('click', () => { expanded = !expanded; render(); if (!expanded) $('#board-list').scrollIntoView({ block: 'nearest' }); });
   return { load, renderAccount };
@@ -2470,7 +2516,7 @@ const Community = (() => {
 const Profile = (() => {
   records.profile = Object.assign({ name: '', photo: '', aaradhyaPhoto: '' }, records.profile);
   const pr = records.profile;
-  const name = () => pr.name || (Cloud.profile && Cloud.profile.display_name) || '';
+  const name = () => pr.name;                        // stays on this phone; the leaderboard only ever shows a numbered Bhakt
   function avatarHTML() {
     if (pr.photo) return `<img src="${pr.photo}" alt="">`;
     if (pr.aaradhyaPhoto) return `<img class="aar" src="assets/av-${pr.aaradhyaPhoto}-idle.webp?v=${AV}" alt="">`;
@@ -2493,7 +2539,6 @@ const Profile = (() => {
   async function saveName() {
     const v = $('#prof-name').value.trim().slice(0, 40);
     pr.name = v; persist(); toast(t('nameSaved'));
-    try { if (Cloud.ready) await Cloud.saveProfile(v, !!(Cloud.profile && Cloud.profile.show_on_leaderboard) && !!v); } catch (_) { /* saved on the phone; synced next time */ }
   }
   // a phone photo is cropped square and shrunk to 256 px so it fits comfortably in local storage
   function usePhoto(file) {
@@ -2524,6 +2569,20 @@ const Profile = (() => {
   return { name, render, renderAvatars };
 })();
 onEnter.profile = Profile.render;
+
+// in the app, web links (privacy policy, help) open in the phone's browser: Capacitor hands off navigation to other hosts
+if (IS_APP) $$('a.set-link[target="_blank"]').forEach(a => a.addEventListener('click', e => { e.preventDefault(); location.href = a.href; }));
+
+/* Delete my data: account + everything on the server, then everything on this phone */
+const DeleteSheet = makeSheet($('#delete-sheet'));
+$('#set-delete').addEventListener('click', DeleteSheet.open);
+$('#delete-yes').addEventListener('click', async () => {
+  const b = $('#delete-yes'); b.disabled = true;
+  try { await Cloud.deleteAccount(); } catch (e) { console.warn('[delete]', e && e.message); b.disabled = false; toast(t('deleteFail')); return; }
+  try { localStorage.clear(); } catch (_) {}
+  try { if (window.caches) for (const k of await caches.keys()) await caches.delete(k); } catch (_) {}
+  location.reload();
+});
 
 /* Settings */
 function bindGroup(name, key, onPick) {
@@ -2583,6 +2642,7 @@ function applyMotion() {
   setupMala.start();
 }
 
+/* app-strip:start */
 /* Android app download (website on Android only) */
 (() => {
   const isAndroidWeb = !IS_APP && /Android/i.test(navigator.userAgent);
@@ -2590,6 +2650,7 @@ function applyMotion() {
   $('#apk-link').href = APK_URL;
   if (isAndroidWeb) { $('#get-app').hidden = false; $('#get-app').addEventListener('click', sheet.open); }
 })();
+/* app-strip:end */
 
 /* Put every fixed label in the chosen language */
 function applyLang() {
