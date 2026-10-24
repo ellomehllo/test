@@ -702,29 +702,13 @@
       <p class="week-line"><svg width="16" height="16" aria-hidden="true"><use href="#i-check"/></svg><span id="st-weeks"></span></p>
     </div>
 
-    <div class="card goal-box">
-      <div class="row-between"><span class="k" data-t="goalToday">आज का लक्ष्य</span><b id="goal-today" class="num"></b></div>
-      <div class="goal-track"><i id="goal-today-bar"></i></div>
-      <span class="k" data-t="dailyGoal">दैनिक लक्ष्य</span>
-      <div class="seg" data-group="goal"><button data-value="108">108</button><button data-value="216">216</button><button data-value="540">540</button><button data-value="1080">1080</button></div>
-    </div>
-
     <h3 class="sec-t" data-t="achievements">उपलब्धियाँ</h3>
     <div class="ach4" id="ach4"></div>
 
-    <h3 class="sec-t" data-t="community">सत्संग</h3>
-    <div class="seg" id="com-seg"><button data-tab="board" aria-pressed="true" data-t="weekly">भक्त सूची</button><button data-tab="goals" aria-pressed="false" data-t="comGoals">सामूहिक लक्ष्य</button></div>
+    <h3 class="sec-t" data-t="weekly">भक्त सूची</h3>
     <div id="com-board">
-      <div class="seg" id="board-period" style="margin-top:10px"><button data-p="week" aria-pressed="true" data-t="pWeek">इस हफ़्ते</button><button data-p="month" aria-pressed="false" data-t="pMonth">इस महीने</button><button data-p="all" aria-pressed="false" data-t="pAll">अब तक</button></div>
+      <div class="seg" id="board-period"><button data-p="week" aria-pressed="true" data-t="pWeek">इस हफ़्ते</button><button data-p="month" aria-pressed="false" data-t="pMonth">इस महीने</button><button data-p="all" aria-pressed="false" data-t="pAll">अब तक</button></div>
       <ol class="board" id="board-list" aria-live="polite"></ol>
-    </div>
-    <div id="com-goals" hidden>
-      <div class="card goal-card">
-        <div class="row-between"><span class="k" data-t="togetherNaam">सभी भक्तों का कुल जप</span><span class="k" id="goal-devotees"></span></div>
-        <b class="num" id="goal-total" style="font-size:30px">—</b>
-        <div class="bar"><i id="goal-fill"></i></div>
-        <span class="k" id="goal-next"></span>
-      </div>
     </div>
     <div class="card join-card" id="join-card">
       <div class="row-between"><span id="com-name" style="font-size:16px;font-weight:600"></span><button class="link-btn" data-go="profile" data-t="editInProfile">प्रोफ़ाइल में बदलें</button></div>
@@ -755,6 +739,12 @@
       <div class="card tot"><span class="k" data-t="curStreak">वर्तमान क्रम</span><b id="pf-streak">0</b></div>
       <div class="card tot"><span class="k" data-t="sessionsK">साधनाएँ</span><b id="pf-sessions" class="num">0</b></div>
       <div class="card tot"><span class="k" data-t="tokensK">भक्ति टोकन</span><b id="pf-tokens" class="num">0</b></div>
+    </div>
+    <div class="card goal-box">
+      <div class="row-between"><span class="k" data-t="goalToday">आज का लक्ष्य</span><b id="goal-today" class="num"></b></div>
+      <div class="goal-track"><i id="goal-today-bar"></i></div>
+      <span class="k" data-t="dailyGoal">दैनिक लक्ष्य</span>
+      <div class="seg" data-group="goal"><button data-value="108">108</button><button data-value="216">216</button><button data-value="540">540</button><button data-value="1080">1080</button></div>
     </div>
     <p class="note" data-t="idNote" style="margin-top:14px"></p>
   </div>
@@ -2225,11 +2215,6 @@ function renderStreaks() {
   }).join('');
   const wk = weekStreak(st.days);
   $('#st-weeks').textContent = wk ? t(wk === 1 ? 'weekStreak1' : 'weekStreak', { n: wk }) : t('weekStreak0');
-  // today's goal
-  const tc = todayCount();
-  $('#goal-today').textContent = `${fmtNum(tc)}/${fmtNum(settings.goal)}`;
-  $('#goal-today-bar').style.width = `${Math.min(100, tc / settings.goal * 100)}%`;
-  syncers.forEach(f => f());
   // four achievements: one for each Aaradhya avatar
   const pm = practiceMin();
   $('#ach4').innerHTML = AARADHYA.map(a => {
@@ -2244,29 +2229,22 @@ function renderStreaks() {
 }
 onEnter.streaks = () => { renderStreaks(); if (!Cloud.ready) Cloud.init().then(Community.load); Community.load(); };
 
-/* Community page: leaderboard + community goal (real data only) + leaderboard visibility */
+/* Leaderboard on the Streaks page (real data only) + leaderboard visibility */
 const Community = (() => {
-  let period = 'week', tab = 'board';
+  let period = 'week';
   const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
   const note = msg => { $('#board-list').innerHTML = `<li class="empty">${esc(msg)}</li>`; };
   async function load() {
     const ok = Cloud.ready;
     $('#join-card').hidden = !ok;
     $('#com-offline').hidden = true; $('#board-period').hidden = !ok;
-    if (!ok) { note(t('cloudOff')); $('#goal-total').textContent = '—'; $('#goal-next').textContent = ''; $('#goal-devotees').textContent = ''; $('#goal-fill').style.width = '0'; return; }
+    if (!ok) { note(t('cloudOff')); return; }
     renderAccount();
     note(t('boardLoading'));
     try {
-      const [rows, tot] = await Promise.all([Cloud.leaderboard(period), Cloud.totalsAll()]);
+      const rows = await Cloud.leaderboard(period);
       if (!rows.length) note(t('boardEmpty'));
       else $('#board-list').innerHTML = rows.map(r => `<li class="${r.is_me ? 'me' : ''}"><span class="rk">${r.rank}</span><span class="nm">${esc(r.display_name)}</span><span class="tt">${fmtNum(+r.total)}</span></li>`).join('');
-      if (tot) {
-        const total = +tot.total_jaap, next = [1e4, 1e5, 1e6, 1e7, 1e8, 1e9].find(v => v > total) || total;
-        $('#goal-total').textContent = fmtNum(total);
-        $('#goal-devotees').textContent = t('devotees', { n: fmtNum(+tot.devotees) });
-        $('#goal-next').textContent = t('nextGoal', { n: fmtNum(next) });
-        $('#goal-fill').style.width = `${Math.min(100, total / next * 100)}%`;
-      }
     } catch (e) { note(t('cloudErr')); }
   }
   function renderAccount() {
@@ -2275,10 +2253,6 @@ const Community = (() => {
     $('#com-name').textContent = Profile.name() || t('nameNotSet');
     $('#show-me').setAttribute('aria-checked', String(!!p.show_on_leaderboard));
   }
-  $$('#com-seg button').forEach(b => b.addEventListener('click', () => {
-    tab = b.dataset.tab; $$('#com-seg button').forEach(x => x.setAttribute('aria-pressed', String(x === b)));
-    $('#com-board').hidden = tab !== 'board'; $('#com-goals').hidden = tab !== 'goals';
-  }));
   $$('#board-period button').forEach(b => b.addEventListener('click', () => {
     period = b.dataset.p; $$('#board-period button').forEach(x => x.setAttribute('aria-pressed', String(x === b))); load();
   }));
@@ -2309,7 +2283,11 @@ const Profile = (() => {
     if (document.activeElement !== $('#prof-name')) $('#prof-name').value = name();
     const tot = totals(), st = streaks();
     $('#pf-reps').textContent = fmtNum(tot.reps); $('#pf-malas').textContent = fmtNum(tot.malas); $('#pf-time').textContent = fmtDur(tot.minutes * 60000);
-    $('#pf-streak').textContent = daysLabel(st.cur); $('#pf-sessions').textContent = fmtNum(Math.max(lifetime.sessions, records.history.length)); $('#pf-tokens').textContent = fmtNum(records.tokens);
+    $('#pf-streak').textContent = daysLabel(st.cur);
+    const tc = todayCount();
+    $('#goal-today').textContent = `${fmtNum(tc)}/${fmtNum(settings.goal)}`;
+    $('#goal-today-bar').style.width = `${Math.min(100, tc / settings.goal * 100)}%`;
+    syncers.forEach(f => f()); $('#pf-sessions').textContent = fmtNum(Math.max(lifetime.sessions, records.history.length)); $('#pf-tokens').textContent = fmtNum(records.tokens);
   }
   async function saveName() {
     const v = $('#prof-name').value.trim().slice(0, 40);
@@ -2357,7 +2335,7 @@ function bindGroup(name, key, onPick) {
   return sync;
 }
 const syncers = [
-  bindGroup('goal', 'goal', () => { if (current === 'streaks') renderStreaks(); }),
+  bindGroup('goal', 'goal', () => { if (current === 'profile') Profile.render(); }),
   bindGroup('vib', 'vib', v => { if (v !== 'off') Haptics.fire([160]); }),
   bindGroup('bg', 'bg', () => Backdrop.apply())
 ];
