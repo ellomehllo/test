@@ -705,7 +705,7 @@
   <div class="page-body scroll">
     <p class="note" data-t="aarIntro" style="margin-bottom:10px">जिनका ध्यान करते हुए जप करना चाहें, उन्हें चुनें। साधना के समय से नए आराध्य खुलते हैं।</p>
     <div class="a-grid" id="a-grid"></div>
-    <p class="note" data-t="tokensNote" style="margin-top:12px">भक्ति टोकन केवल साधना से मिलते हैं — इन्हें खरीदा नहीं जा सकता। टोकन आपके खाते में ऑनलाइन सुरक्षित रहते हैं।</p>
+    <p class="note" id="tokens-note" data-t="tokensNote" style="margin-top:12px">भक्ति टोकन केवल साधना से मिलते हैं — इन्हें खरीदा नहीं जा सकता। टोकन आपके खाते में ऑनलाइन सुरक्षित रहते हैं।</p>
   </div>
 </section>
 
@@ -951,6 +951,11 @@ const SYS_REDUCED = matchMedia('(prefers-reduced-motion: reduce)').matches;
 // Inside the Android app (Capacitor) everything is bundled; the native bridge handles vibration and keep-awake
 const IS_APP = !!(window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform());
 const NATIVE = (IS_APP && window.Capacitor.Plugins && window.Capacitor.Plugins.VanarNative) || null;
+function nativePlugin(name) {
+  const cap = IS_APP && window.Capacitor;
+  if (!cap || !(cap.isPluginAvailable ? cap.isPluginAvailable(name) : cap.Plugins && cap.Plugins[name])) return null;
+  return (cap.Plugins && cap.Plugins[name]) || (cap.registerPlugin && cap.registerPlugin(name)) || null;
+}
 const APK_URL = 'https://github.com/ellomehllo/test/releases/latest/download/vanarsathi.apk';
 const $ = (s, r = document) => r.querySelector(s);
 const $$ = (s, r = document) => [...r.querySelectorAll(s)];
@@ -993,7 +998,8 @@ const I18N = {
     setTimer: 'समय चुनें', setTimerSub: 'कितनी देर जप करना चाहते हैं?', minShort: 'मिनट', start: 'शुरू करें', or: 'या',
     noTimer: 'बिना समय के', noTimerSub: 'सिर्फ़ जप गिनें', mantra: 'मंत्र', selectMala: 'माला चुनें', eachMala: 'एक माला = 108 जप',
     shopBal: 'आपके टोकन', shopNote: 'जप से हर घंटे लगभग 18 टोकन मिलते हैं। टोकन कभी ख़त्म नहीं होते।', packPopular: 'सबसे पसंदीदा', packValue: 'सबसे किफ़ायती',
-    shopSoon: 'टोकन ख़रीदना जल्द शुरू होगा — तब तक जप से कमाएँ 🙏', shopThanks: '{n} टोकन जुड़ गए 🙏', shopFail: 'ख़रीद पूरी नहीं हुई — फिर कोशिश करें', getMore: 'टोकन लें · {n} और चाहिए',
+    shopSoon: 'टोकन ख़रीदना जल्द शुरू होगा — तब तक जप से कमाएँ 🙏', shopPending: 'मंज़ूरी का इंतज़ार है — मंज़ूर होते ही टोकन जुड़ जाएँगे', shopTest: 'टेस्ट ख़रीद — टोकन नहीं जुड़े',
+    tokensNoteShop: 'भक्ति टोकन साधना से मिलते हैं — या दुकान से। टोकन आपके खाते में ऑनलाइन सुरक्षित रहते हैं।', shopThanks: '{n} टोकन जुड़ गए 🙏', shopFail: 'ख़रीद पूरी नहीं हुई — फिर कोशिश करें', getMore: 'टोकन लें · {n} और चाहिए',
     bhaktN: 'भक्त #{n}', youTag: '(आप)', anonNote: 'सूची में आप केवल इसी नंबर से दिखते हैं — आपका नाम या फ़ोटो कभी नहीं।',
     privacyPolicy: 'गोपनीयता नीति', support: 'मदद और संपर्क', deleteData: 'मेरा सारा डेटा मिटाएँ', deleteSub: 'खाता, गिनती, साधना क्रम, टोकन और खुले आराध्य — फ़ोन से और हमारे सर्वर से',
     deleteQ: 'सब कुछ मिटा दें?', deleteMsg: 'आपका खाता, सारा जप, साधना क्रम, भक्ति टोकन और खुले आराध्य हमेशा के लिए मिट जाएँगे — इस फ़ोन से और हमारे सर्वर से। यह वापस नहीं हो सकता।',
@@ -1067,7 +1073,8 @@ const I18N = {
     setTimer: 'Set Timer', setTimerSub: 'Choose how long you want to practise', minShort: 'min', start: 'Start', or: 'or',
     noTimer: 'No Timer', noTimerSub: 'Just count repetitions', mantra: 'Mantra', selectMala: 'Select Mala Count', eachMala: 'Each mala = 108 repetitions',
     shopBal: 'Your tokens', shopNote: 'Chanting earns about 18 tokens an hour. Tokens never expire.', packPopular: 'Most popular', packValue: 'Best value',
-    shopSoon: 'Buying tokens opens soon — until then, earn them by chanting 🙏', shopThanks: '{n} tokens added 🙏', shopFail: "The purchase didn't complete — try again", getMore: 'Get tokens · {n} more needed',
+    shopSoon: 'Buying tokens opens soon — until then, earn them by chanting 🙏', shopPending: 'Waiting for approval — the tokens arrive once it is approved', shopTest: 'Test purchase — no tokens added',
+    tokensNoteShop: 'Bhakti tokens come from practice — or from the shop. They are kept online with your account.', shopThanks: '{n} tokens added 🙏', shopFail: "The purchase didn't complete — try again", getMore: 'Get tokens · {n} more needed',
     bhaktN: 'Bhakt #{n}', youTag: '(you)', anonNote: 'On the list you appear only as this number — never your name or photo.',
     privacyPolicy: 'Privacy policy', support: 'Help & contact', deleteData: 'Delete my data', deleteSub: 'Account, counts, streaks, tokens and unlocked Aaradhya — from this phone and our server',
     deleteQ: 'Delete everything?', deleteMsg: 'Your account, all your jaap, streaks, Bhakti tokens and unlocked Aaradhya will be deleted for good — from this phone and from our server. This cannot be undone.',
@@ -1582,6 +1589,16 @@ const Cloud = (() => {
     if (error) throw error;
     return data.signedUrl;
   }
+  // the apple-purchase function checks an App Store transaction with Apple's certificates and credits the tokens
+  async function applePurchase(jws) {
+    await init();
+    if (!api.ready) throw new Error('offline');
+    const { data, error } = await sb.functions.invoke('apple-purchase', { body: { jws } });
+    if (!error) return data;
+    let msg = error.message;
+    try { msg = (await error.context.json()).error || msg; } catch (_) {}
+    return { error: msg };
+  }
   async function flush() {
     if (!api.ready) return;
     const q = readQ(); if (!q.length) return;
@@ -1640,7 +1657,7 @@ const Cloud = (() => {
   const resume = () => { if (!api.ready) init().then(() => { onRecordsChanged(); Community.renderAccount(); }); else flush().then(refreshStats); };
   addEventListener('online', resume);
   document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') resume(); });
-  Object.assign(api, { init, record, refreshStats, unlock, fileUrl, pending: readQ, myCode, deleteAccount, saveProfile, leaderboard, myRank, totalsAll, linkEmail, signOut, loadProfile });
+  Object.assign(api, { init, record, refreshStats, unlock, fileUrl, pending: readQ, myCode, deleteAccount, applePurchase, saveProfile, leaderboard, myRank, totalsAll, linkEmail, signOut, loadProfile });
   return api;
 })();
 
@@ -2201,8 +2218,7 @@ onEnter.complete = () => renderTokens();
  * a live guess is often revised), and each utterance's final transcript settles the rest. A pace cap (5 words a second)
  * stops a misheard burst from racing ahead. Tap counting always stays on.                                            */
 const Voice = (() => {
-  const cap = IS_APP && window.Capacitor;
-  const NV = cap ? (cap.Plugins && cap.Plugins.VanarVoice) || (cap.registerPlugin && cap.registerPlugin('VanarVoice')) : null;
+  const NV = nativePlugin('VanarVoice');            // Android app
   const SR = NV ? null : window.SpeechRecognition || window.webkitSpeechRecognition;
   const api = { supported: !!(NV || SR), offline: !!NV, state: 'off' };
   let want = false, pausedFlag = false, occ = 0, seen = 0, stamps = [];
@@ -2330,8 +2346,7 @@ $('#voice-chip').addEventListener('click', () => Voice.toggle());
  * break. Scheduled on the phone (Capacitor LocalNotifications; nothing goes through a server) for the days ahead and
  * planned again whenever the records change or the app comes back, so a day you've already chanted gets no reminder. */
 const Reminders = (() => {
-  const cap = IS_APP && window.Capacitor;
-  const LN = cap ? (cap.Plugins && cap.Plugins.LocalNotifications) || (cap.registerPlugin && cap.registerPlugin('LocalNotifications')) : null;
+  const LN = nativePlugin('LocalNotifications');
   const DAILY = 100, NUDGE = 200, AHEAD = 14, NUDGE_HOUR = 20;   // ids 100–113 daily, 200–201 nudges
   let running = false, again = false, timer = 0;
   function plan() {
@@ -2499,6 +2514,7 @@ function renderAaradhya() {
       <span class="ai"><h3>${aName(a)}</h3><span class="am">${mText(a.mantras[0])}</span><span class="ast">${status}</span>${prog}</span></button>`;
   }).join('');
   $$('#a-grid .a-card').forEach(b => b.addEventListener('click', () => openASheet(aById(b.dataset.a))));
+  $('#tokens-note').textContent = t(Shop.visible() ? 'tokensNoteShop' : 'tokensNote');
   renderTokens();
 }
 function openASheet(a) {
@@ -2567,22 +2583,75 @@ const TOKEN_PACKS = [
   { id: 'tokens_350', tokens: 350, inr: 99, hi: 'माला', en: 'Mala', tag: 'packPopular' },
   { id: 'tokens_800', tokens: 800, inr: 199, hi: 'कलश', en: 'Kalash', tag: 'packValue' }
 ];
-// store billing plugs in here (Google Play Billing / StoreKit); buy() resolves once the server has credited the tokens
-const Billing = { available: false, async buy() { throw new Error('unavailable'); } };
+/* Billing. iOS app: StoreKit 2 through the VanarStore plugin. Each signed purchase goes to the apple-purchase function,
+ * which checks it with Apple's certificates and credits the tokens; only then is the StoreKit transaction finished, so
+ * a purchase cut off half-way is credited on the next launch. Google Play billing isn't connected yet.        */
+const Billing = (() => {
+  const VS = nativePlugin('VanarStore');
+  const api = { available: false, prices: {} };
+  const settled = r => r && (r.status === 'credited' || r.status === 'test');
+  async function credit(tx) {
+    const r = await Cloud.applePurchase(tx.jws);
+    if (settled(r)) await VS.finish({ transactionId: tx.transactionId });
+    return r;
+  }
+  function announce(r) {
+    if (r && r.status === 'credited' && r.tokens) { Cloud.refreshStats(); toast(t('shopThanks', { n: fmtNum(r.tokens) })); }
+  }
+  async function retryUnfinished() {
+    try {
+      const { transactions = [] } = await VS.unfinished();
+      for (const tx of transactions) announce(await credit(tx).catch(() => null));
+    } catch (_) { /* tried again next launch */ }
+  }
+  api.init = async () => {
+    if (!VS) return;
+    VS.addListener('transaction', tx => credit(tx).then(announce).catch(() => {}));   // Ask to Buy approvals and the like
+    try {
+      const { products = [] } = await VS.products({ ids: TOKEN_PACKS.map(k => k.id) });
+      products.forEach(p => { api.prices[p.id] = p.displayPrice; });
+      api.available = products.length > 0;
+    } catch (e) { console.warn('[billing]', e && e.message); }
+    await Cloud.init();
+    if (Cloud.ready) retryUnfinished();
+  };
+  // resolves with the server's answer once the tokens are credited; cancelled / pending purchases reject with a flag
+  api.buy = async k => {
+    await Cloud.init();
+    if (!Cloud.ready || !Cloud.user) throw new Error('offline');
+    let tx;
+    try { tx = await VS.purchase({ id: k.id, accountToken: Cloud.user.id }); }
+    catch (e) {
+      const code = e && e.code;
+      throw Object.assign(new Error(code || 'failed'), { cancelled: code === 'CANCELLED', pending: code === 'PENDING' });
+    }
+    const r = await credit(tx);
+    if (!settled(r)) throw new Error((r && r.error) || 'not credited');
+    return r;
+  };
+  return api;
+})();
 const Shop = (() => {
   const visible = () => Billing.available || SHOP_PREVIEW;
   function render() {
     $('#shop-bal').textContent = fmtNum(tokenBalance());
     $('#shop-packs').innerHTML = TOKEN_PACKS.map(k => `<button class="card pack" data-id="${k.id}" aria-label="${fmtNum(k.tokens)} ${t('bhaktiTokens')} — ₹${k.inr}">
       ${k.tag ? `<span class="pack-tag">${t(k.tag)}</span>` : ''}<span class="coin" aria-hidden="true"></span>
-      <b class="num">${fmtNum(k.tokens)}</b><small>${settings.lang === 'en' ? k.en : k.hi}</small><span class="pack-price">₹${k.inr}</span></button>`).join('');
+      <b class="num">${fmtNum(k.tokens)}</b><small>${settings.lang === 'en' ? k.en : k.hi}</small><span class="pack-price">${Billing.prices[k.id] || `₹${k.inr}`}</span></button>`).join('');
     $$('#shop-packs .pack').forEach(b => b.addEventListener('click', () => buy(TOKEN_PACKS.find(k => k.id === b.dataset.id))));
   }
   const sheet = makeSheet($('#shop-sheet'), render);
   async function buy(k) {
     if (!Billing.available) { toast(t('shopSoon')); return; }
-    try { await Billing.buy(k); await Cloud.refreshStats(); toast(t('shopThanks', { n: fmtNum(k.tokens) })); render(); renderTokens(); }
-    catch (e) { if (!(e && e.cancelled)) toast(t('shopFail')); }
+    $$('#shop-packs .pack').forEach(b => { b.disabled = true; });
+    try {
+      const r = await Billing.buy(k);
+      await Cloud.refreshStats();
+      toast(r.status === 'test' ? t('shopTest') : t('shopThanks', { n: fmtNum(r.tokens || k.tokens) }));
+    } catch (e) {
+      if (e && e.pending) toast(t('shopPending')); else if (!(e && e.cancelled)) toast(t('shopFail'));
+    }
+    render(); renderTokens();
   }
   return { visible, open: sheet.open };
 })();
@@ -2906,7 +2975,7 @@ if (session) {
   toast(t('tRestored'));
 }
 // connect as soon as the (deferred) Supabase library has run
-const startCloud = () => Cloud.init().then(onRecordsChanged);
+const startCloud = () => { Cloud.init().then(onRecordsChanged); Billing.init(); };
 if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', startCloud); else startCloud();
 if (FAST) setTimeout(() => toast(t('tFast')), 400);
 </script>
