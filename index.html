@@ -280,6 +280,12 @@
     background: radial-gradient(circle, rgba(10,24,28,.95) 60%, rgba(10,24,28,.7)); border: 2.5px solid var(--gold);
     box-shadow: 0 0 26px rgba(217,168,78,.35), inset 0 0 18px rgba(217,168,78,.15); }
   .pause-btn:active { transform: scale(.95); }
+  .confirm-card { text-align: center; padding-bottom: calc(var(--safe-b) + 22px); }
+  .confirm-card h2 { font-size: 21px; font-weight: 600; margin-top: 4px; }
+  .confirm-card .lead { margin: 6px 0 18px; }
+  .confirm-ico { color: var(--gold-2); }
+  .confirm-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .confirm-actions .btn-line, .confirm-actions .btn-gold { min-height: 52px; font-size: 16.5px; }
   .hold-cap { --p: 0; touch-action: none; }
   .hold-cap .ctl-ico { border: none; padding: 2.5px; background: conic-gradient(var(--gold-2) calc(var(--p) * 1turn), rgba(246,235,211,.22) 0); }
   .hold-cap .ctl-ico > span { width: 100%; height: 100%; border-radius: 50%; display: grid; place-items: center; background: #0B1A20; }
@@ -399,6 +405,32 @@
   .tag-soon { font-size: 12px; padding: 3px 9px; border-radius: 999px; border: 1px solid var(--line-2); color: var(--ivory-3); white-space: nowrap; }
   .link-btn { color: var(--gold-2); font-weight: 600; font-size: 15px; min-height: 44px; min-width: 44px; padding: 0 6px; }
 
+  /* ---------- Profile ---------- */
+  .avatar-btn { padding: 0; overflow: hidden; }
+  .avatar-sm { width: 100%; height: 100%; display: grid; place-items: center; border-radius: 50%; overflow: hidden; }
+  .avatar-sm img, .avatar-lg img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .avatar-sm img.aar, .avatar-lg img.aar { object-fit: cover; object-position: 50% 8%; transform: scale(1.9); transform-origin: 50% 12%; }
+  .prof-top { display: flex; flex-direction: column; align-items: center; gap: 6px; margin: 4px 0 10px; }
+  .avatar-lg { width: 112px; height: 112px; border-radius: 50%; overflow: hidden; display: grid; place-items: center; color: var(--gold-2);
+    background: radial-gradient(circle at 50% 35%, rgba(255,220,150,.35), rgba(8,20,26,.9) 70%); border: 2px solid var(--gold-2); box-shadow: 0 0 30px rgba(242,211,135,.3); }
+  .name-row { display: grid; grid-template-columns: 1fr auto; gap: 8px; width: 100%; margin-top: 6px; }
+  .name-row .btn-gold { min-height: 48px; width: auto; padding: 0 18px; font-size: 16px; }
+  .prof-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+  .prof-stats b { font-size: 20px; }
+  .ach-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+  .ach { display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 12px 6px; text-align: center; border-radius: 16px; border: 1px solid var(--line-2); background: rgba(8,20,26,.55); }
+  .ach .badge { width: 48px; height: 48px; border-radius: 50%; display: grid; place-items: center; color: var(--ivory-3); border: 1px dashed var(--line-2); }
+  .ach b { font-size: 13px; font-weight: 600; line-height: 1.2; color: var(--ivory-2); }
+  .ach small { font-size: 11.5px; color: var(--ivory-3); }
+  .ach.got { border-color: var(--line); background: var(--card); }
+  .ach.got .badge { color: #1F150A; border: 0; background: radial-gradient(circle at 35% 30%, #FBE7AE, #D9A84E 60%, #A87A31); box-shadow: 0 0 16px rgba(242,211,135,.35); }
+  .ach.got b { color: var(--ivory); }
+  .photo-pick { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+  .photo-pick button { aspect-ratio: 1; border-radius: 50%; overflow: hidden; border: 2px solid var(--line); background: rgba(8,20,26,.7); }
+  .photo-pick button[aria-pressed="true"] { border-color: var(--gold-2); box-shadow: 0 0 16px rgba(242,211,135,.35); }
+  .photo-pick button:disabled { opacity: .35; }
+  .photo-pick img { width: 100%; height: 100%; object-fit: cover; object-position: 50% 8%; transform: scale(1.9); transform-origin: 50% 12%; }
+
   /* ---------- Toast ---------- */
   #toast { position: fixed; left: 50%; top: calc(var(--safe-t) + 12px); z-index: 90; width: max-content; max-width: min(92vw, 420px);
     transform: translate(-50%, -16px); opacity: 0; pointer-events: none; padding: 10px 18px; border-radius: 18px; font-size: 15px; text-align: center; line-height: 1.35;
@@ -455,7 +487,7 @@
 <!-- ═══════════════ HOME (Jaap tab) ═══════════════ -->
 <section id="s-home" class="screen tabbed is-on" aria-labelledby="home-brand">
   <header class="topbar">
-    <button class="icon-btn" data-go="community" data-t-aria="profile" aria-label="प्रोफ़ाइल"><svg width="20" height="20"><use href="#i-user"/></svg></button>
+    <button class="icon-btn avatar-btn" data-go="profile" data-t-aria="profile" aria-label="प्रोफ़ाइल"><span class="avatar-sm" id="top-avatar"><svg width="20" height="20"><use href="#i-user"/></svg></span></button>
     <h1 id="home-brand" class="brand"><svg width="22" height="22"><use href="#i-lotus"/></svg><span data-t="appName">वानर साथी</span></h1>
     <button class="token-pill" data-go="aaradhya" data-t-aria="tokensAria" aria-label="भक्ति टोकन"><span class="coin" aria-hidden="true"></span><span class="tok-n num">0</span></button>
     <button class="icon-btn" data-go="settings" data-t-aria="settings" aria-label="सेटिंग्स"><svg width="20" height="20"><use href="#i-gear"/></svg></button>
@@ -542,7 +574,7 @@
   <div class="p-controls">
     <button id="p-undo" class="ctl-btn"><span class="ctl-ico"><svg width="22" height="22" aria-hidden="true"><use href="#i-undo"/></svg></span><span data-t="undo">वापस लें</span></button>
     <button id="p-pause" class="pause-btn" data-t-aria="pause" aria-label="रोकें"><svg width="30" height="30" aria-hidden="true"><use id="p-pause-ico" href="#i-pause"/></svg></button>
-    <button id="p-finish" class="ctl-btn hold-cap"><span class="ctl-ico"><span><svg width="20" height="20" aria-hidden="true"><use href="#i-stop"/></svg></span></span><span id="p-finish-lbl" data-t="finish">पूर्ण करें</span></button>
+    <button id="p-finish" class="ctl-btn"><span class="ctl-ico"><svg width="20" height="20" aria-hidden="true"><use href="#i-stop"/></svg></span><span id="p-finish-lbl" data-t="finish">पूर्ण करें</span></button>
   </div>
   <p id="sr-live" class="sr-only" aria-live="polite"></p>
 
@@ -560,7 +592,7 @@
     </div>
     <div class="paused-actions">
       <button id="paused-resume" class="btn-gold"><svg width="20" height="20" aria-hidden="true"><use href="#i-play"/></svg><span data-t="resume">फिर शुरू करें</span></button>
-      <button id="paused-finish" class="btn-line hold-line"><span class="hf" aria-hidden="true"></span><span id="paused-finish-lbl" data-t="finish">पूर्ण करें</span></button>
+      <button id="paused-finish" class="btn-line"><span id="paused-finish-lbl" data-t="finish">पूर्ण करें</span></button>
     </div>
   </div>
 </section>
@@ -663,23 +695,53 @@
     <div class="card join-card" id="join-card">
       <div class="row-between"><h3 style="font-size:17px;font-weight:600" data-t="joinTitle">सत्संग से जुड़ें</h3><svg width="22" height="22" style="color:var(--gold-2)" aria-hidden="true"><use href="#i-people"/></svg></div>
       <p class="note" data-t="joinSub">अपना नाम लिखें और चाहें तो भक्त सूची में दिखें। आपकी गिनती आपके फ़ोन से ही आती है।</p>
-      <label for="my-name" class="k" data-t="myName">आपका नाम</label>
-      <input id="my-name" class="text-in" maxlength="40" autocomplete="nickname" data-t-ph="namePh" placeholder="जैसे: राम भक्त सुनील">
+      <div class="row-between"><span id="com-name" style="font-size:16px;font-weight:600"></span><button class="link-btn" data-go="profile" data-t="editInProfile">प्रोफ़ाइल में बदलें</button></div>
       <div class="row-between"><span style="font-size:15px" data-t="showMe">सूची में मेरा नाम दिखाएँ</span><button id="show-me" class="switch" role="switch" aria-checked="false" data-t-aria="showMe" aria-label="सूची में मेरा नाम दिखाएँ"></button></div>
       <button id="save-me" class="btn-gold" style="min-height:50px;font-size:17px" data-t="save">सहेजें</button>
-    </div>
-    <div class="card join-card" id="acct-box">
-      <h3 style="font-size:17px;font-weight:600" data-t="saveTitle">अपना जप सुरक्षित रखें</h3>
-      <p class="note" data-t="saveSub">ईमेल जोड़ें — फ़ोन बदलने पर भी आपकी गिनती मिलेगी।</p>
-      <div id="acct-anon" style="display:grid;gap:10px">
-        <input id="my-email" class="text-in" type="email" inputmode="email" autocomplete="email" data-t-ph="emailPh" placeholder="आपका ईमेल">
-        <button id="send-link" class="btn-line" data-t="sendLink">ईमेल पर लिंक भेजें</button>
-      </div>
-      <div id="acct-user" hidden style="display:grid;gap:10px"><p id="acct-email" style="font-size:15px"></p><button id="sign-out" class="btn-line" data-t="logout">लॉग आउट</button></div>
     </div>
     <p class="note" id="com-offline" style="margin-top:12px" hidden></p>
   </div>
 </section>
+
+<!-- ═══════════════ PROFILE ═══════════════ -->
+<section id="s-profile" class="screen" aria-labelledby="prof-h">
+  <header class="subbar"><button class="icon-btn" data-back data-t-aria="back" aria-label="वापस"><svg width="20" height="20"><use href="#i-back"/></svg></button><h1 id="prof-h" class="h-title" data-t="profileT">मेरी प्रोफ़ाइल</h1><span></span></header>
+  <div class="page-body scroll">
+    <div class="prof-top">
+      <div class="avatar-lg" id="prof-avatar"></div>
+      <button id="photo-btn" class="link-btn" aria-haspopup="dialog" data-t="changePhoto">फ़ोटो बदलें</button>
+      <input id="photo-file" type="file" accept="image/*" hidden>
+      <div class="name-row">
+        <input id="prof-name" class="text-in" maxlength="40" autocomplete="nickname" data-t-ph="namePh" placeholder="जैसे: राम भक्त सुनील" data-t-aria="myName" aria-label="आपका नाम">
+        <button id="prof-name-save" class="btn-gold" data-t="save">सहेजें</button>
+      </div>
+    </div>
+    <div class="prof-stats">
+      <div class="card tot"><span class="k" data-t="totReps">कुल जप</span><b id="pf-reps" class="num">0</b></div>
+      <div class="card tot"><span class="k" data-t="totMalas">पूर्ण माला</span><b id="pf-malas" class="num">0</b></div>
+      <div class="card tot"><span class="k" data-t="totTime">कुल साधना समय</span><b id="pf-time" class="num">0</b></div>
+      <div class="card tot"><span class="k" data-t="curStreak">वर्तमान क्रम</span><b id="pf-streak">0</b></div>
+      <div class="card tot"><span class="k" data-t="sessionsK">साधनाएँ</span><b id="pf-sessions" class="num">0</b></div>
+      <div class="card tot"><span class="k" data-t="tokensK">भक्ति टोकन</span><b id="pf-tokens" class="num">0</b></div>
+    </div>
+    <h3 class="sec-t" data-t="achievements">उपलब्धियाँ</h3>
+    <div class="ach-grid" id="ach-grid"></div>
+    <p class="note" data-t="idNote" style="margin-top:14px"></p>
+  </div>
+</section>
+
+<!-- Profile photo choices -->
+<div id="photo-sheet" class="sheet-modal" role="dialog" aria-modal="true" aria-labelledby="photo-h" hidden>
+  <div class="bd" data-close></div>
+  <div class="sheet-card">
+    <div class="grip" aria-hidden="true"></div>
+    <div class="sheet-head"><h2 id="photo-h" data-t="changePhoto">फ़ोटो बदलें</h2><button class="icon-btn" data-close data-t-aria="close" aria-label="बंद करें"><svg width="18" height="18"><use href="#i-close"/></svg></button></div>
+    <button id="photo-upload" class="btn-gold" data-t="photoUpload">फ़ोन से फ़ोटो चुनें</button>
+    <h3 class="sec-t" data-t="photoAaradhya">आराध्य का चित्र लगाएँ</h3>
+    <div class="photo-pick" id="photo-pick"></div>
+    <button id="photo-remove" class="btn-line" style="width:100%;margin-top:14px" data-t="photoRemove">फ़ोटो हटाएँ</button>
+  </div>
+</div>
 
 <!-- ═══════════════ SETTINGS ═══════════════ -->
 <section id="s-settings" class="screen" aria-labelledby="set-h">
@@ -689,13 +751,10 @@
       <div class="card set-list">
         <div class="set-item"><span data-t="dailyGoal">दैनिक लक्ष्य</span><div class="seg" data-group="goal"><button data-value="108">108</button><button data-value="216">216</button><button data-value="540">540</button><button data-value="1080">1080</button></div></div>
         <div class="set-item"><span data-t="language">भाषा · Language</span><div class="seg" id="lang-seg"><button data-lang="hi">हिंदी</button><button data-lang="en">English</button></div></div>
-        <div class="set-item"><div class="row-between"><span data-t="whichSound">जप के साथ ध्वनि</span><span class="k" data-t="tapToHear">छूकर सुनें</span></div>
-          <div class="chip-row" data-group="sound"><button class="s-chip" data-value="ram" data-t="sRam">राम नाम</button><button class="s-chip" data-value="bead" data-t="sBead">माला</button><button class="s-chip" data-value="drone" data-t="sDrone">ॐ गूँज</button><button class="s-chip" data-value="chalisa" data-t="sChalisa">चालीसा</button><button class="s-chip" data-value="mute" data-t="sMute">शांत</button></div></div>
         <div class="set-item"><div class="row-between"><span data-t="vibTitle">कंपन</span><button id="vib-test" class="link-btn" data-t="vibTest">जाँचें</button></div>
           <div class="seg" data-group="vib"><button data-value="off" data-t="vibOff">बंद</button><button data-value="gentle" data-t="vibGentle">हल्का</button><button data-value="medium" data-t="vibMedium">मध्यम</button><button data-value="strong" data-t="vibStrong">तेज़</button></div>
           <p class="sub" id="vib-note"></p></div>
         <div class="set-item"><div class="row-between"><span data-t="breathSet">समय पूरा होने पर प्राणायाम</span><button id="sw-breath" class="switch" role="switch" aria-checked="true" data-t-aria="breathSet" aria-label="प्राणायाम"></button></div><p class="sub" data-t="breathSetSub">समय वाले जप के बाद 5 मिनट साँस का अभ्यास</p></div>
-        <div class="set-item"><div class="row-between"><span data-t="holdSet">पूर्ण करने के लिए दबाकर रखें</span><button id="sw-hold" class="switch" role="switch" aria-checked="true" data-t-aria="holdSet" aria-label="दबाकर रखें"></button></div><p class="sub" data-t="holdSetSub">जप के समय गलती से छूने पर साधना बंद न हो</p></div>
       </div>
     </div>
     <div class="set-group"><h3 data-t="gVoice">आवाज़ से गिनती</h3>
@@ -717,7 +776,7 @@
     </div>
     <div class="set-group"><h3 data-t="gPrivacy">गोपनीयता और खाता</h3>
       <div class="card set-list">
-        <div class="set-item"><div class="row-between"><span data-t="myName">आपका नाम</span><button class="link-btn" data-go="community" id="set-name"></button></div></div>
+        <div class="set-item"><div class="row-between"><span data-t="myName">आपका नाम</span><button class="link-btn" data-go="profile" id="set-name"></button></div></div>
         <div class="set-item"><div class="row-between"><span data-t="showMe">सूची में मेरा नाम दिखाएँ</span><span class="k" id="set-visible"></span></div><p class="sub" data-t="privacySub">आपका जप अपने-आप किसी को नहीं दिखता। नाम केवल तब दिखता है जब आप सत्संग में यह चालू करें।</p></div>
       </div>
     </div>
@@ -736,6 +795,21 @@
   <button class="tab" data-tab="streaks"><svg width="22" height="22" aria-hidden="true"><use href="#i-flame"/></svg><span data-t="tabStreaks">क्रम</span></button>
   <button class="tab" data-tab="community"><svg width="22" height="22" aria-hidden="true"><use href="#i-people"/></svg><span data-t="community">सत्संग</span></button>
 </nav>
+
+<!-- Finish confirmation -->
+<div id="finish-sheet" class="sheet-modal" role="alertdialog" aria-modal="true" aria-labelledby="finish-h" aria-describedby="finish-msg" hidden>
+  <div class="bd" data-close></div>
+  <div class="sheet-card confirm-card">
+    <div class="grip" aria-hidden="true"></div>
+    <svg class="confirm-ico" width="44" height="44" aria-hidden="true"><use href="#i-lotus"/></svg>
+    <h2 id="finish-h" data-t="finishQ">साधना अभी पूरी नहीं हुई</h2>
+    <p id="finish-msg" class="lead"></p>
+    <div class="confirm-actions">
+      <button id="finish-no" class="btn-line" data-close data-t="finishNo">नहीं, जारी रखें</button>
+      <button id="finish-yes" class="btn-gold" data-t="finishYes">हाँ, पूर्ण करें</button>
+    </div>
+  </div>
+</div>
 
 <!-- Aaradhya detail sheet -->
 <div id="a-sheet" class="sheet-modal" role="dialog" aria-modal="true" aria-labelledby="a-sheet-h" hidden>
@@ -804,10 +878,11 @@ const saved = Store.read();
 const settings = Object.assign({
   minutes: 25, sound: 'ram', vib: 'medium', lang: 'hi',
   goal: 108, aaradhya: 'hanuman', mantra: {}, malas: 1, bg: 'forest', homeMode: 'jaap',
-  breath: true, holdFinish: saved.settings && saved.settings.lockout === false ? false : true,
+  breath: true,
   voice: false, reduceMotion: false
 }, saved.settings);
-delete settings.lockout;
+delete settings.lockout; delete settings.holdFinish;   // hold-to-finish was removed: finishing is one tap + a yes/no question
+settings.sound = 'mute';                 // silent practice: AudioEngine.bell/chime also stay quiet
 // v1 only allowed 20–60 minutes in steps of 1; the new wheel uses fixed stops
 const MINUTE_STOPS = [1, 2, 3, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 75, 90, 120];
 settings.minutes = MINUTE_STOPS.reduce((a, b) => Math.abs(b - settings.minutes) < Math.abs(a - settings.minutes) ? b : a, 25);
@@ -827,6 +902,14 @@ const I18N = {
     resumeTxt: 'चल रही साधना · {n} जप', mala: 'माला', malaSub: '108 मनकों का एक चक्र', jaap: 'जप', jaapSub: 'समय चुनें या खुला जप',
     setTimer: 'समय चुनें', setTimerSub: 'कितनी देर जप करना चाहते हैं?', minShort: 'मिनट', start: 'शुरू करें', or: 'या',
     noTimer: 'बिना समय के', noTimerSub: 'सिर्फ़ जप गिनें', mantra: 'मंत्र', selectMala: 'माला चुनें', eachMala: 'एक माला = 108 जप',
+    finishQ: 'साधना अभी पूरी नहीं हुई', finishSoFar: 'अब तक {n} जप · {time}।', finishLeftMala: 'लक्ष्य में {n} जप बाकी हैं।', finishLeftTime: 'समय में {m} बाकी है।',
+    finishSaved: 'क्या आप अभी साधना पूर्ण करना चाहते हैं? आपका जप सहेज लिया जाएगा।', finishYes: 'हाँ, पूर्ण करें', finishNo: 'नहीं, जारी रखें',
+    profileT: 'मेरी प्रोफ़ाइल', changePhoto: 'फ़ोटो बदलें', photoUpload: 'फ़ोन से फ़ोटो चुनें', photoAaradhya: 'आराध्य का चित्र लगाएँ', photoRemove: 'फ़ोटो हटाएँ',
+    nameSaved: 'नाम सहेज लिया 🙏', achievements: 'उपलब्धियाँ', earned: 'मिल गई', locked: 'बाकी', sessionsK: 'साधनाएँ', tokensK: 'भक्ति टोकन', aaradhyaK: 'खुले आराध्य',
+    idNote: 'आपकी पहचान इसी फ़ोन से जुड़ी है — कोई ईमेल या फ़ोन नंबर नहीं चाहिए। ऐप हटाने या ब्राउज़र का डेटा मिटाने पर यह पहचान चली जाती है।',
+    achFirst: 'पहला जप', achMala1: 'पहली माला', achMala10: '10 माला', achMala108: '108 माला', achJaap1008: '1,008 जप', achJaap10008: '10,008 जप',
+    achStreak3: '3 दिन लगातार', achStreak7: '7 दिन लगातार', achStreak30: '30 दिन लगातार', achHour: '1 घंटा साधना', achAaradhya: 'नया आराध्य', achAll: 'सभी आराध्य',
+    editInProfile: 'प्रोफ़ाइल में बदलें', nameNotSet: 'नाम अभी नहीं लिखा',
     nMala: '{n} माला', startMala: 'माला शुरू करें', startJaap: 'जप शुरू करें', practiceType: 'साधना का प्रकार', pauseBack: 'रोककर वापस जाएँ', tapAria: 'एक जप गिनें',
     malaProgress: 'माला प्रगति', undo: 'वापस लें', pause: 'रोकें', resume: 'फिर शुरू करें', finish: 'पूर्ण करें', holdFinish: 'दबाकर रखें',
     paused: 'रुका हुआ', reps: 'जप', activeTime: 'सक्रिय समय', timeLeft: 'बाकी समय', elapsed: 'बीता समय', totalMalas: 'कुल माला', target: 'लक्ष्य',
@@ -878,6 +961,14 @@ const I18N = {
     resumeTxt: 'Session in progress · {n} Naam', mala: 'Mala', malaSub: '108 beads per round', jaap: 'Jaap', jaapSub: 'Set a timer or count freely',
     setTimer: 'Set Timer', setTimerSub: 'Choose how long you want to practise', minShort: 'min', start: 'Start', or: 'or',
     noTimer: 'No Timer', noTimerSub: 'Just count repetitions', mantra: 'Mantra', selectMala: 'Select Mala Count', eachMala: 'Each mala = 108 repetitions',
+    finishQ: 'Your session isn’t finished yet', finishSoFar: 'So far: {n} repetitions · {time}.', finishLeftMala: '{n} left to reach your target.', finishLeftTime: '{m} left on the timer.',
+    finishSaved: 'Do you want to finish now? Your jaap will be saved.', finishYes: 'Yes, finish', finishNo: 'No, continue',
+    profileT: 'My profile', changePhoto: 'Change photo', photoUpload: 'Choose a photo', photoAaradhya: 'Use an Aaradhya picture', photoRemove: 'Remove photo',
+    nameSaved: 'Name saved 🙏', achievements: 'Achievements', earned: 'Earned', locked: 'To go', sessionsK: 'Sessions', tokensK: 'Bhakti tokens', aaradhyaK: 'Aaradhya unlocked',
+    idNote: 'Your identity is tied to this phone — no email or phone number needed. Uninstalling the app or clearing browser data removes it.',
+    achFirst: 'First jaap', achMala1: 'First mala', achMala10: '10 malas', achMala108: '108 malas', achJaap1008: '1,008 jaap', achJaap10008: '10,008 jaap',
+    achStreak3: '3-day streak', achStreak7: '7-day streak', achStreak30: '30-day streak', achHour: '1 hour of practice', achAaradhya: 'New Aaradhya', achAll: 'All Aaradhya',
+    editInProfile: 'Edit in profile', nameNotSet: 'No name yet',
     nMala: '{n} mala', startMala: 'Start Mala', startJaap: 'Start Jaap', practiceType: 'Practice type', pauseBack: 'Pause and go back', tapAria: 'Count one repetition',
     malaProgress: 'Mala progress', undo: 'Undo', pause: 'Pause', resume: 'Resume', finish: 'Finish', holdFinish: 'Hold',
     paused: 'Paused', reps: 'Repetitions', activeTime: 'Active time', timeLeft: 'Time left', elapsed: 'Time elapsed', totalMalas: 'Total malas', target: 'Target',
@@ -1386,7 +1477,7 @@ function show(name) {
   });
   document.body.dataset.screen = name;
   document.body.classList.toggle('tab-on', TABS.includes(name));
-  document.body.classList.toggle('tab-page', TABS.includes(name) && name !== 'home' || name === 'settings');
+  document.body.classList.toggle('tab-page', TABS.includes(name) && name !== 'home' || name === 'settings' || name === 'profile');
   $$('#tabbar .tab').forEach(b => b.setAttribute('aria-current', b.dataset.tab === name ? 'page' : 'false'));
   // only the visible screen's videos keep decoding
   $$('video').forEach(v => { if (v.id === 'bg-video') return; const vis = !!v.closest('.screen.is-on, .sheet-modal:not([hidden])'); if (vis) v.play().catch(() => {}); else v.pause(); });
@@ -1421,29 +1512,6 @@ const Wake = {
   async on() { try { if (NATIVE) NATIVE.keepAwake({ on: true }).catch(() => {}); } catch (_) {} try { if ('wakeLock' in navigator && !this.lock) { this.lock = await navigator.wakeLock.request('screen'); this.lock.addEventListener('release', () => { this.lock = null; }); } } catch (_) {} },
   async off() { try { if (NATIVE) NATIVE.keepAwake({ on: false }).catch(() => {}); } catch (_) {} try { if (this.lock) await this.lock.release(); } catch (_) {} this.lock = null; }
 };
-
-/* Press-and-hold control (when "hold to finish" is on); a plain tap otherwise. Progress drawn via --p */
-function holdOrTap(btn, onDone) {
-  let raf = 0, t0 = 0, justDone = false;
-  const set = p => btn.style.setProperty('--p', p.toFixed(3));
-  const stop = () => { cancelAnimationFrame(raf); raf = 0; set(0); };
-  const step = n => {
-    const p = Math.min(1, (n - t0) / 1100); set(p);
-    if (p >= 1) { stop(); justDone = true; Haptics.fire([60, 40, 60]); onDone(); } else raf = requestAnimationFrame(step);
-  };
-  const start = e => { if (!settings.holdFinish || raf) return; if (e.cancelable) e.preventDefault(); t0 = performance.now(); Haptics.tick(); raf = requestAnimationFrame(step); };
-  btn.addEventListener('pointerdown', e => { if (e.button > 0) return; start(e); if (settings.holdFinish) try { btn.setPointerCapture(e.pointerId); } catch (_) {} });
-  ['pointerup', 'pointercancel', 'lostpointercapture', 'blur'].forEach(ev => btn.addEventListener(ev, stop));
-  btn.addEventListener('keydown', e => { if ((e.key === ' ' || e.key === 'Enter') && settings.holdFinish) { e.preventDefault(); if (!e.repeat) start(e); } });
-  btn.addEventListener('keyup', e => { if (e.key === ' ' || e.key === 'Enter') stop(); });
-  btn.addEventListener('contextmenu', e => e.preventDefault());
-  btn.addEventListener('click', e => {
-    e.preventDefault();
-    if (!settings.holdFinish) { onDone(); return; }
-    if (justDone) { justDone = false; return; }
-    if (!raf) toast(t('tHold'));
-  });
-}
 
 /* Bottom sheets: open/close with focus return and Escape */
 function makeSheet(el, onOpen) {
@@ -1682,7 +1750,10 @@ function tickSession() {
 }
 
 /* Sounds: the recorded chants are muted while the microphone listens, or they would be counted */
+// Practice is silent for now: no chant recordings, drones, beads or bells (the audio engine stays for later)
+const SILENT = true;
 function startSound(resume) {
+  if (SILENT) return;
   let snd = settings.sound;
   if (Voice.active() && (snd === 'ram' || snd === 'chalisa')) { snd = 'mute'; if (!resume) setTimeout(() => toast(t('vMuted')), 1200); }
   AudioEngine.startProfile(snd, resume);
@@ -1749,9 +1820,6 @@ function renderPractice(fresh) {
   $('#p-pause-ico').setAttribute('href', paused ? '#i-play' : '#i-pause');
   $('#p-pause').setAttribute('aria-label', t(paused ? 'resume' : 'pause'));
   $('#p-tap').setAttribute('aria-disabled', String(paused));
-  $('#p-finish-lbl').textContent = settings.holdFinish ? `${t('finish')}` : t('finish');
-  $('#p-finish').setAttribute('aria-label', settings.holdFinish ? `${t('finish')} — ${t('tHold')}` : t('finish'));
-  $('#paused-finish').setAttribute('aria-label', settings.holdFinish ? `${t('finish')} — ${t('tHold')}` : t('finish'));
   const pp = $('#p-paused');
   if (paused) {
     pp.hidden = false;
@@ -1807,8 +1875,19 @@ tapBtn.addEventListener('contextmenu', e => e.preventDefault());
 $('#p-undo').addEventListener('click', undoOne);
 $('#p-pause').addEventListener('click', () => (session && session.paused ? resumeSession() : pauseSession()));
 $('#paused-resume').addEventListener('click', resumeSession);
-holdOrTap($('#p-finish'), () => finishSession(false));
-holdOrTap($('#paused-finish'), () => finishSession(false));
+/* Finish: one tap, then a clear yes/no — an unfinished session is never ended by accident */
+const FinishSheet = makeSheet($('#finish-sheet'));
+function askFinish() {
+  if (!session || session.finished) return;
+  const left = session.mode === 'mala' ? t('finishLeftMala', { n: fmtNum(Math.max(0, session.target - session.count)) })
+    : session.timerMin ? t('finishLeftTime', { m: fmtClock(Math.max(0, session.timerMin * MINUTE_MS - activeMs())) }) : '';
+  $('#finish-msg').textContent = `${t('finishSoFar', { n: fmtNum(session.count), time: fmtClock(activeMs()) })}${left ? ' ' + left : ''} ${t('finishSaved')}`;
+  FinishSheet.open();
+  setTimeout(() => $('#finish-no').focus(), 40);
+}
+$('#p-finish').addEventListener('click', askFinish);
+$('#paused-finish').addEventListener('click', askFinish);
+$('#finish-yes').addEventListener('click', () => { FinishSheet.close(); finishSession(false); });
 $('#p-back').addEventListener('click', () => { pauseSession(); go('home'); });
 $('#paused-back').addEventListener('click', () => go('home'));
 onEnter.practice = () => { if (!session) { go('home'); return; } renderPractice(true); };
@@ -2115,14 +2194,14 @@ $('#cal-prev').addEventListener('click', () => { calMonth = new Date(calMonth.ge
 $('#cal-next').addEventListener('click', () => { calMonth = new Date(calMonth.getFullYear(), calMonth.getMonth() + 1, 1); renderStreaks(); });
 onEnter.streaks = renderStreaks;
 
-/* Community page: leaderboard + community goal (real data only) + name + email */
+/* Community page: leaderboard + community goal (real data only) + leaderboard visibility */
 const Community = (() => {
   let period = 'week', tab = 'board';
   const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
   const note = msg => { $('#board-list').innerHTML = `<li class="empty">${esc(msg)}</li>`; };
   async function load() {
     const ok = Cloud.ready;
-    $('#join-card').hidden = !ok; $('#acct-box').hidden = !ok || IS_APP;
+    $('#join-card').hidden = !ok;
     $('#com-offline').hidden = true; $('#board-period').hidden = !ok;
     if (!ok) { note(t('cloudOff')); $('#goal-total').textContent = '—'; $('#goal-next').textContent = ''; $('#goal-devotees').textContent = ''; $('#goal-fill').style.width = '0'; return; }
     renderAccount();
@@ -2143,11 +2222,8 @@ const Community = (() => {
   function renderAccount() {
     if (!Cloud.ready) return;
     const p = Cloud.profile || {};
-    if (document.activeElement !== $('#my-name')) $('#my-name').value = p.display_name || '';
+    $('#com-name').textContent = Profile.name() || t('nameNotSet');
     $('#show-me').setAttribute('aria-checked', String(!!p.show_on_leaderboard));
-    const email = Cloud.user && !Cloud.user.is_anonymous ? Cloud.user.email : '';
-    $('#acct-anon').hidden = !!email; $('#acct-user').hidden = !email;
-    $('#acct-email').textContent = email ? t('linked', { e: email }) : '';
   }
   $$('#com-seg button').forEach(b => b.addEventListener('click', () => {
     tab = b.dataset.tab; $$('#com-seg button').forEach(x => x.setAttribute('aria-pressed', String(x === b)));
@@ -2158,19 +2234,80 @@ const Community = (() => {
   }));
   $('#show-me').addEventListener('click', e => { const sw = e.currentTarget; sw.setAttribute('aria-checked', String(sw.getAttribute('aria-checked') !== 'true')); });
   $('#save-me').addEventListener('click', async () => {
-    const name = $('#my-name').value.trim(), showMe = $('#show-me').getAttribute('aria-checked') === 'true';
-    if (showMe && !name) { toast(t('needName')); $('#my-name').focus(); return; }
+    const name = Profile.name(), showMe = $('#show-me').getAttribute('aria-checked') === 'true';
+    if (showMe && !name) { toast(t('needName')); go('profile'); return; }
     try { await Cloud.saveProfile(name, showMe); toast(t('savedOk')); load(); } catch (_) { toast(t('cloudErr')); }
   });
-  $('#send-link').addEventListener('click', async () => {
-    const email = $('#my-email').value.trim();
-    if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) { toast(t('badEmail')); $('#my-email').focus(); return; }
-    try { await Cloud.linkEmail(email); toast(t('linkSent')); } catch (_) { toast(t('cloudErr')); }
-  });
-  $('#sign-out').addEventListener('click', async () => { try { await Cloud.signOut(); renderAccount(); } catch (_) { toast(t('cloudErr')); } });
   return { load, renderAccount };
 })();
 onEnter.community = () => { if (!Cloud.ready) Cloud.init().then(Community.load); Community.load(); };
+
+/* Profile: photo (phone photo or an Aaradhya picture, kept on this phone), name, achievements */
+const Profile = (() => {
+  records.profile = Object.assign({ name: '', photo: '', aaradhyaPhoto: '' }, records.profile);
+  const pr = records.profile;
+  const name = () => pr.name || (Cloud.profile && Cloud.profile.display_name) || '';
+  function avatarHTML() {
+    if (pr.photo) return `<img src="${pr.photo}" alt="">`;
+    if (pr.aaradhyaPhoto) return `<img class="aar" src="assets/av-${pr.aaradhyaPhoto}-idle.webp?v=${AV}" alt="">`;
+    return '<svg width="44%" height="44%" viewBox="0 0 24 24"><use href="#i-user"/></svg>';
+  }
+  function renderAvatars() {
+    $('#prof-avatar').innerHTML = avatarHTML();
+    $('#top-avatar').innerHTML = pr.photo || pr.aaradhyaPhoto ? avatarHTML() : '<svg width="20" height="20"><use href="#i-user"/></svg>';
+  }
+  function achievements() {
+    const tot = totals(), st = streaks(), unlockedN = AARADHYA.filter(isUnlocked).length;
+    return [
+      ['achFirst', tot.reps >= 1, tot.reps, 1], ['achMala1', tot.malas >= 1, tot.malas, 1], ['achMala10', tot.malas >= 10, tot.malas, 10],
+      ['achMala108', tot.malas >= 108, tot.malas, 108], ['achJaap1008', tot.reps >= 1008, tot.reps, 1008], ['achJaap10008', tot.reps >= 10008, tot.reps, 10008],
+      ['achStreak3', st.best >= 3, st.best, 3], ['achStreak7', st.best >= 7, st.best, 7], ['achStreak30', st.best >= 30, st.best, 30],
+      ['achHour', tot.minutes >= 60, tot.minutes, 60], ['achAaradhya', unlockedN >= 2, unlockedN - 1, 1], ['achAll', unlockedN >= AARADHYA.length, unlockedN, AARADHYA.length]
+    ];
+  }
+  function render() {
+    renderAvatars();
+    if (document.activeElement !== $('#prof-name')) $('#prof-name').value = name();
+    const tot = totals(), st = streaks();
+    $('#pf-reps').textContent = fmtNum(tot.reps); $('#pf-malas').textContent = fmtNum(tot.malas); $('#pf-time').textContent = fmtDur(tot.minutes * 60000);
+    $('#pf-streak').textContent = daysLabel(st.cur); $('#pf-sessions').textContent = fmtNum(Math.max(lifetime.sessions, records.history.length)); $('#pf-tokens').textContent = fmtNum(records.tokens);
+    $('#ach-grid').innerHTML = achievements().map(([k, got, have, need]) =>
+      `<div class="ach${got ? ' got' : ''}"><span class="badge"><svg width="24" height="24" aria-hidden="true"><use href="#${got ? 'i-lotus' : 'i-lock'}"/></svg></span><b>${t(k)}</b><small>${got ? t('earned') : `${fmtNum(Math.min(have, need))} / ${fmtNum(need)}`}</small></div>`).join('');
+  }
+  async function saveName() {
+    const v = $('#prof-name').value.trim().slice(0, 40);
+    pr.name = v; persist(); toast(t('nameSaved'));
+    try { if (Cloud.ready) await Cloud.saveProfile(v, !!(Cloud.profile && Cloud.profile.show_on_leaderboard) && !!v); } catch (_) { /* saved on the phone; synced next time */ }
+  }
+  // a phone photo is cropped square and shrunk to 256 px so it fits comfortably in local storage
+  function usePhoto(file) {
+    if (!file || !/^image\//.test(file.type)) return;
+    const img = new Image(), url = URL.createObjectURL(file);
+    img.onload = () => {
+      const S = 256, c = document.createElement('canvas'); c.width = c.height = S;
+      const m = Math.min(img.width, img.height), g = c.getContext('2d');
+      g.drawImage(img, (img.width - m) / 2, (img.height - m) / 2, m, m, 0, 0, S, S);
+      URL.revokeObjectURL(url);
+      pr.photo = c.toDataURL('image/jpeg', 0.85); pr.aaradhyaPhoto = ''; persist(); render(); PhotoSheet.close();
+    };
+    img.onerror = () => { URL.revokeObjectURL(url); toast(t('cloudErr')); };
+    img.src = url;
+  }
+  const PhotoSheet = makeSheet($('#photo-sheet'), () => {
+    $('#photo-pick').innerHTML = AARADHYA.map(a => `<button data-a="${a.id}" aria-pressed="${pr.aaradhyaPhoto === a.id && !pr.photo}" ${isUnlocked(a) ? '' : 'disabled'} aria-label="${aName(a)}"><img src="assets/av-${a.id}-idle.webp?v=${AV}" alt=""></button>`).join('');
+    $$('#photo-pick button').forEach(b => b.addEventListener('click', () => { pr.aaradhyaPhoto = b.dataset.a; pr.photo = ''; persist(); render(); PhotoSheet.close(); }));
+    $('#photo-remove').disabled = !pr.photo && !pr.aaradhyaPhoto;
+  });
+  $('#photo-btn').addEventListener('click', PhotoSheet.open);
+  $('#prof-avatar').addEventListener('click', PhotoSheet.open);
+  $('#photo-upload').addEventListener('click', () => $('#photo-file').click());
+  $('#photo-file').addEventListener('change', e => { usePhoto(e.target.files[0]); e.target.value = ''; });
+  $('#photo-remove').addEventListener('click', () => { pr.photo = ''; pr.aaradhyaPhoto = ''; persist(); render(); PhotoSheet.close(); });
+  $('#prof-name-save').addEventListener('click', saveName);
+  $('#prof-name').addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); saveName(); } });
+  return { name, render, renderAvatars };
+})();
+onEnter.profile = Profile.render;
 
 /* Settings */
 function bindGroup(name, key, onPick) {
@@ -2184,7 +2321,6 @@ function bindGroup(name, key, onPick) {
 }
 const syncers = [
   bindGroup('goal', 'goal'),
-  bindGroup('sound', 'sound', v => AudioEngine.preview(v)),
   bindGroup('vib', 'vib', v => { if (v !== 'off') Haptics.fire([160]); }),
   bindGroup('bg', 'bg', () => Backdrop.apply())
 ];
@@ -2198,19 +2334,18 @@ function renderVoiceNote(extra) {
 function renderSettings() {
   syncers.forEach(f => f());
   $$('#lang-seg button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.lang === settings.lang)));
-  setSwitch('#sw-breath', settings.breath); setSwitch('#sw-hold', settings.holdFinish);
+  setSwitch('#sw-breath', settings.breath);
   setSwitch('#sw-voice', settings.voice && Voice.supported); setSwitch('#sw-motion', reduceMotion());
   $('#sw-motion').disabled = SYS_REDUCED;
   $('#vib-note').textContent = Haptics.supported ? t('vibNote') : t('vibNone');
   renderVoiceNote(Voice.state === 'denied' ? t('voiceDenied') : '');
   const p = Cloud.profile || {};
-  $('#set-name').textContent = p.display_name || t('notSet');
+  $('#set-name').textContent = Profile.name() || t('notSet');
   $('#set-visible').textContent = p.show_on_leaderboard ? t('visOn') : t('visOff');
 }
 onEnter.settings = renderSettings;
 $$('#lang-seg button').forEach(b => b.addEventListener('click', () => { settings.lang = b.dataset.lang; persist(); applyLang(); }));
 $('#sw-breath').addEventListener('click', () => { settings.breath = !settings.breath; persist(); renderSettings(); });
-$('#sw-hold').addEventListener('click', () => { settings.holdFinish = !settings.holdFinish; persist(); renderSettings(); });
 $('#sw-motion').addEventListener('click', () => { settings.reduceMotion = !settings.reduceMotion; persist(); applyMotion(); renderSettings(); });
 $('#sw-voice').addEventListener('click', async () => {
   if (!Voice.supported) return;
@@ -2262,6 +2397,7 @@ addEventListener('pagehide', () => { if (session) saveSession(); });
 try { history.replaceState({ s: 'home' }, ''); } catch (_) {}
 applyMotion();
 applyLang();
+Profile.renderAvatars();
 show('home');
 session = loadSession();
 if (session) {
