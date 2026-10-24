@@ -413,6 +413,7 @@
   .s-chip { min-height: 46px; border-radius: 14px; font-size: 13px; line-height: 1.15; padding: 4px 2px; background: rgba(8,20,26,.6); border: 1px solid var(--line-2); color: var(--ivory-2); }
   .s-chip[aria-pressed="true"] { border-color: var(--gold); background: rgba(217,168,78,.16); color: var(--ivory); font-weight: 600; }
   .tag-soon { font-size: 12px; padding: 3px 9px; border-radius: 999px; border: 1px solid var(--line-2); color: var(--ivory-3); white-space: nowrap; }
+  .set-list .sub:empty { display: none; }
   .set-link { display: block; width: 100%; text-align: left; color: inherit; text-decoration: none; }
   .set-danger span { color: #f2a08f; }
   .btn-gold.btn-danger { background: linear-gradient(180deg, #e08a76, #b9533f); color: #fff; }
@@ -785,19 +786,18 @@
         <div class="set-item"><div class="row-between"><span data-t="vibTitle">कंपन</span><button id="vib-test" class="link-btn" data-t="vibTest">जाँचें</button></div>
           <div class="seg" data-group="vib"><button data-value="off" data-t="vibOff">बंद</button><button data-value="gentle" data-t="vibGentle">हल्का</button><button data-value="medium" data-t="vibMedium">मध्यम</button><button data-value="strong" data-t="vibStrong">तेज़</button></div>
           <p class="sub" id="vib-note"></p></div>
-        <div class="set-item"><div class="row-between"><span data-t="breathSet">समय पूरा होने पर प्राणायाम</span><button id="sw-breath" class="switch" role="switch" aria-checked="true" data-t-aria="breathSet" aria-label="प्राणायाम"></button></div><p class="sub" data-t="breathSetSub">समय वाले जप के बाद 5 मिनट साँस का अभ्यास</p></div>
+        <div class="set-item"><div class="row-between"><span data-t="breathSet">समय पूरा होने पर प्राणायाम</span><button id="sw-breath" class="switch" role="switch" aria-checked="true" data-t-aria="breathSet" aria-label="प्राणायाम"></button></div></div>
       </div>
     </div>
     <div class="set-group"><h3 data-t="gVoice">आवाज़ से गिनती</h3>
       <div class="card set-list">
-        <div class="set-item"><div class="row-between"><span data-t="voiceSet">बोलकर जप गिनें (प्रयोग)</span><button id="sw-voice" class="switch" role="switch" aria-checked="false" data-t-aria="voiceSet" aria-label="बोलकर जप गिनें"></button></div>
+        <div class="set-item"><div class="row-between"><span data-t="voiceSet">बोलकर जप गिनें</span><button id="sw-voice" class="switch" role="switch" aria-checked="false" data-t-aria="voiceSet" aria-label="बोलकर जप गिनें"></button></div>
           <p class="sub" id="voice-note"></p></div>
       </div>
     </div>
     <div class="set-group"><h3 data-t="gLook">रूप</h3>
       <div class="card set-list">
         <div class="set-item"><span data-t="bgSet">पृष्ठभूमि</span><div class="seg" data-group="bg"><button data-value="grove" data-t="bgGrove">उपवन</button><button data-value="forest" data-t="bgForest">वन</button><button data-value="clouds" data-t="bgClouds">बादल</button><button data-value="kailash" data-t="bgKailash">कैलाश</button></div></div>
-        <div class="set-item"><div class="row-between"><span data-t="motionSet">कम हलचल</span><button id="sw-motion" class="switch" role="switch" aria-checked="false" data-t-aria="motionSet" aria-label="कम हलचल"></button></div><p class="sub" data-t="motionSetSub">चलती तस्वीरों की जगह स्थिर चित्र — बैटरी और डेटा भी बचता है</p></div>
       </div>
     </div>
     <div class="set-group"><h3 data-t="gNotify">सूचनाएँ</h3>
@@ -805,21 +805,21 @@
         <div class="set-item"><div class="row-between"><span data-t="reminder">रोज़ जप की याद</span><button id="sw-remind" class="switch" role="switch" aria-checked="false" data-t-aria="reminder" aria-label="रोज़ जप की याद"></button></div>
           <div class="row-between" id="remind-time-row" style="margin-top:10px" hidden><label for="remind-time" data-t="remindAt">समय</label><input id="remind-time" class="text-in time-in" type="time" value="07:00"></div>
           <p class="sub" id="remind-note"></p></div>
-        <div class="set-item" id="nudge-item"><div class="row-between"><span data-t="nudge">साधना क्रम बचाने की याद</span><button id="sw-nudge" class="switch" role="switch" aria-checked="false" data-t-aria="nudge" aria-label="साधना क्रम बचाने की याद"></button></div><p class="sub" data-t="nudgeSub"></p></div>
+        <div class="set-item" id="nudge-item"><div class="row-between"><span data-t="nudge">शाम 8 बजे साधना क्रम की याद</span><button id="sw-nudge" class="switch" role="switch" aria-checked="false" data-t-aria="nudge" aria-label="साधना क्रम बचाने की याद"></button></div></div>
       </div>
     </div>
     <div class="set-group"><h3 data-t="gPrivacy">गोपनीयता और खाता</h3>
       <div class="card set-list">
         <div class="set-item"><div class="row-between"><span data-t="myName">आपका नाम</span><button class="link-btn" data-go="profile" id="set-name"></button></div></div>
-        <div class="set-item"><div class="row-between"><span data-t="showMe">सूची में मुझे दिखाएँ</span><span class="k" id="set-visible"></span></div><p class="sub" data-t="privacySub">आपका नाम और फ़ोटो इसी फ़ोन पर रहते हैं।</p></div>
+        <div class="set-item"><div class="row-between"><span data-t="showMe">सूची में मुझे दिखाएँ</span><span class="k" id="set-visible"></span></div></div>
       </div>
     </div>
     <div class="set-group">
       <div class="card set-list">
         <a class="set-item set-link" href="https://vanarsathi.online/privacy.html" target="_blank" rel="noopener"><div class="row-between"><span data-t="privacyPolicy">गोपनीयता नीति</span><span class="k" aria-hidden="true">↗</span></div></a>
         <a class="set-item set-link" href="https://vanarsathi.online/support.html" target="_blank" rel="noopener"><div class="row-between"><span data-t="support">मदद और संपर्क</span><span class="k" aria-hidden="true">↗</span></div></a>
-        <button class="set-item set-link set-danger" id="set-delete"><div class="row-between"><span data-t="deleteData">मेरा सारा डेटा मिटाएँ</span></div><p class="sub" data-t="deleteSub">खाता, गिनती, साधना क्रम, टोकन और खुले आराध्य — फ़ोन से और हमारे सर्वर से</p></button>
-        <div class="set-item"><div class="row-between"><span data-t="about">आराध्य के बारे में</span><span class="k">v2.1.0</span></div></div>
+        <button class="set-item set-link set-danger" id="set-delete"><div class="row-between"><span data-t="deleteData">मेरा सारा डेटा मिटाएँ</span></div></button>
+        <button class="set-item set-link" id="set-about"><div class="row-between"><span data-t="about">आराध्य के बारे में</span><span class="k">v2.2.0</span></div></button>
       </div>
     </div>
   </div>
@@ -836,6 +836,17 @@
 </nav>
 
 <!-- Finish confirmation -->
+<div id="about-sheet" class="sheet-modal" role="dialog" aria-modal="true" aria-labelledby="about-h" hidden>
+  <div class="bd" data-close></div>
+  <div class="sheet-card confirm-card">
+    <div class="grip" aria-hidden="true"></div>
+    <svg class="confirm-ico" width="44" height="44" aria-hidden="true"><use href="#i-lotus"/></svg>
+    <h2 id="about-h" data-t="aboutTitle">आराध्य</h2>
+    <p class="lead" data-t="aboutText"></p>
+    <p class="pill-note" style="margin:6px 0 14px">v2.2.0 · vanarsathi.online</p>
+    <div class="confirm-actions" style="grid-template-columns:1fr"><button class="btn-gold" data-close data-t="aboutOk">ठीक है</button></div>
+  </div>
+</div>
 <div id="delete-sheet" class="sheet-modal" role="alertdialog" aria-modal="true" aria-labelledby="delete-h" aria-describedby="delete-msg" hidden>
   <div class="bd" data-close></div>
   <div class="sheet-card confirm-card">
@@ -934,10 +945,11 @@ const settings = Object.assign({
   minutes: 25, sound: 'ram', vib: 'medium', lang: 'hi',
   goal: 108, aaradhya: 'hanuman', mantra: {}, malas: 1, bg: 'grove', homeMode: 'jaap',
   breath: true,
-  voice: false, reduceMotion: false,
-  remind: false, remindTime: '07:00', nudge: false
+  voice: true,
+  remind: true, remindTime: '07:00', nudge: false
 }, saved.settings);
-delete settings.lockout; delete settings.holdFinish;   // hold-to-finish was removed: finishing is one tap + a yes/no question
+delete settings.lockout; delete settings.holdFinish; delete settings.reduceMotion;
+if (!settings.voiceV2) { settings.voice = true; settings.voiceV2 = 1; }   // voice counting became solid (offline in the app) and on by default   // hold-to-finish was removed: finishing is one tap + a yes/no question
 settings.sound = 'mute';
 // Grove became the default background: move everyone still on the old default (forest) over, once
 if (!settings.bgV2) { if (settings.bg === 'forest') settings.bg = 'grove'; settings.bgV2 = 1; }                 // silent practice: AudioEngine.bell/chime also stay quiet
@@ -950,7 +962,7 @@ const records = Object.assign({ history: [], tokens: 0, unlocked: ['hanuman'], r
 // v1 only kept its latest practice day; keep it for the streak calendar before new sessions overwrite it
 if (!records.migrated) { records.legacyDays = lifetime.day && lifetime.dayJaap > 0 ? [lifetime.day] : []; records.migrated = 1; }
 const persist = () => Store.write({ settings, lifetime, records });
-const reduceMotion = () => SYS_REDUCED || settings.reduceMotion;
+const reduceMotion = () => SYS_REDUCED;
 
 /* ── Words on screen: Hindi first, plain English as the alternative ── */
 const I18N = {
@@ -1007,7 +1019,7 @@ const I18N = {
     vibTitle: 'कंपन', vibTest: 'जाँचें', vibOff: 'बंद', vibGentle: 'हल्का', vibMedium: 'मध्यम', vibStrong: 'तेज़',
     vibNote: 'हर जप पर हल्का कंपन · हर माला पर दो बार · अंत में घंटी जैसा कंपन', vibNone: 'इस फ़ोन या ब्राउज़र में कंपन नहीं चलता (जैसे iPhone)।',
     breathSet: 'समय पूरा होने पर प्राणायाम', breathSetSub: 'समय वाले जप के बाद 5 मिनट साँस का अभ्यास', holdSet: 'पूर्ण करने के लिए दबाकर रखें', holdSetSub: 'जप के समय गलती से छूने पर साधना बंद न हो',
-    gVoice: 'आवाज़ से गिनती', voiceSet: 'बोलकर जप गिनें (प्रयोग)',
+    gVoice: 'आवाज़ से गिनती', voiceSet: 'बोलकर जप गिनें',
     voiceAbout: 'माइक से आपका जप सुनकर गिनती बढ़ती है। यह प्रयोग है — शोर, धीमी आवाज़ या तेज़ जप में गिनती छूट सकती है, इसलिए छूकर गिनना हमेशा चालू रहता है। Chrome आवाज़ पहचानने के लिए Google को और Safari Apple को आवाज़ भेजता है; आराध्य ऐप कोई आवाज़ रिकॉर्ड या सेव नहीं करता।',
     voiceUnsupported: 'इस ब्राउज़र/ऐप में आवाज़ पहचान उपलब्ध नहीं है — छूकर गिनें। (Chrome या Safari में खोलें)', voiceDenied: 'माइक की अनुमति नहीं मिली। ब्राउज़र की सेटिंग में माइक चालू करें, या छूकर गिनें।',
     voiceAsk: 'अनुमति माँगी जा रही है…', voiceReady: 'माइक की अनुमति मिल गई। साधना शुरू होने पर सुनना शुरू होगा।',
@@ -1015,7 +1027,7 @@ const I18N = {
     vMuted: 'आवाज़ से गिनती चालू है, इसलिए रिकॉर्ड किया जप नहीं बजेगा (वरना वही गिना जाता)', vNet: 'आवाज़ पहचान के लिए इंटरनेट चाहिए',
     gLook: 'रूप', bgSet: 'पृष्ठभूमि', bgForest: 'वन', bgClouds: 'बादल', bgKailash: 'कैलाश', bgGrove: 'उपवन', motionSet: 'कम हलचल', motionSetSub: 'चलती तस्वीरों की जगह स्थिर चित्र — बैटरी और डेटा भी बचता है',
     gNotify: 'सूचनाएँ', reminder: 'रोज़ जप की याद', remindAt: 'समय', remindSub: 'चुने हुए समय पर याद — जिस दिन जप हो चुका हो, उस दिन नहीं।', remindAppOnly: 'याद दिलाने की सुविधा Android ऐप में मिलती है।',
-    nudge: 'साधना क्रम बचाने की याद', nudgeSub: 'शाम 8 बजे — केवल तब, जब आपका क्रम चल रहा हो और उस दिन जप न हुआ हो।',
+    nudge: 'शाम 8 बजे साधना क्रम की याद', aboutTitle: 'आराध्य', aboutText: 'नाम जप और माला साधना का साथी — हर दिन थोड़ी भक्ति, थोड़ा ध्यान। 🙏', aboutOk: 'ठीक है', nudgeSub: 'शाम 8 बजे — केवल तब, जब आपका क्रम चल रहा हो और उस दिन जप न हुआ हो।',
     nDenied: 'सूचनाओं की अनुमति नहीं मिली — फ़ोन की सेटिंग्स में आराध्य के लिए सूचनाएँ चालू करें।',
     nDailyT: '🙏 जप का समय', nDailyB: '{name} आपकी प्रतीक्षा में हैं — एक माला भी काफ़ी है।', nNudgeT: '🔥 आपका {n} दिन का साधना क्रम', nNudgeB: 'आज रात 12 बजे टूट जाएगा — एक माला से इसे बचा लें।',
     gPrivacy: 'गोपनीयता और खाता', privacySub: 'आपका नाम और फ़ोटो इसी फ़ोन पर रहते हैं। भक्त सूची में आप केवल एक नंबर वाले भक्त के रूप में दिखते हैं — और वह भी तभी जब आप चालू करें।', about: 'आराध्य के बारे में',
@@ -1079,7 +1091,7 @@ const I18N = {
     vibTitle: 'Vibration', vibTest: 'Test', vibOff: 'Off', vibGentle: 'Light', vibMedium: 'Medium', vibStrong: 'Strong',
     vibNote: 'A light tick for each count · two at each mala · a bell-like buzz at the end', vibNone: 'This phone or browser can’t vibrate (e.g. iPhone).',
     breathSet: 'Pranayama when the timer ends', breathSetSub: '5 minutes of breathing after a timed jaap', holdSet: 'Hold to finish', holdSetSub: 'A stray touch can’t end your session',
-    gVoice: 'Voice counting', voiceSet: 'Count by voice (experimental)',
+    gVoice: 'Voice counting', voiceSet: 'Count by voice',
     voiceAbout: 'Listens through the microphone and counts each chant it recognises. It is experimental — noise, a soft voice or very fast chanting can be missed, so tap counting always stays on. Chrome sends audio to Google and Safari to Apple for recognition; Aradhya never records or stores audio.',
     voiceUnsupported: 'Speech recognition isn’t available in this browser or app — tap to count. (Try Chrome or Safari.)', voiceDenied: 'Microphone permission was denied. Allow the microphone in your browser settings, or tap to count.',
     voiceAsk: 'Asking for permission…', voiceReady: 'Microphone allowed. Listening starts when a session begins.',
@@ -1087,7 +1099,7 @@ const I18N = {
     vMuted: 'Voice counting is on, so the recorded chant won’t play (it would be counted)', vNet: 'Speech recognition needs an internet connection',
     gLook: 'Appearance', bgSet: 'Background', bgForest: 'Forest', bgClouds: 'Clouds', bgKailash: 'Kailash', bgGrove: 'Grove', motionSet: 'Reduced motion', motionSetSub: 'Still pictures instead of animation — also saves battery and data',
     gNotify: 'Notifications', reminder: 'Daily jaap reminder', remindAt: 'Time', remindSub: "A reminder at your chosen time — skipped on days you've already chanted.", remindAppOnly: 'Reminders are available in the Android app.',
-    nudge: 'Streak reminder', nudgeSub: "At 8 pm — only when you have a streak going and haven't chanted that day.",
+    nudge: 'Streak reminder at 8 pm', aboutTitle: 'Aradhya', aboutText: 'A companion for naam jaap and mala practice — a little devotion every day. 🙏', aboutOk: 'OK', nudgeSub: "At 8 pm — only when you have a streak going and haven't chanted that day.",
     nDenied: 'Notifications are off — allow them for Aradhya in your phone settings.',
     nDailyT: '🙏 Time for jaap', nDailyB: '{name} is waiting for you — even one mala is enough.', nNudgeT: '🔥 Your {n}-day streak', nNudgeB: 'It ends at midnight — one mala keeps it going.',
     gPrivacy: 'Privacy & account', privacySub: 'Your name and photo stay on this phone. On the leaderboard you appear only as a numbered Bhakt, and only if you turn it on.', about: 'About Aradhya',
@@ -1359,11 +1371,12 @@ const AudioEngine = (() => {
  * except Mahadev Shiv, who exists only as still pictures. `re` finds one spoken repetition-word
  * for voice counting; `per` words make one repetition.                                        */
 const MANTRAS = {
-  ram:     { hi: 'राम राम राम', en: 'Ram Ram Ram', re: /राम|\bra+m+a?\b/gi, per: 1 },
-  shriram: { hi: 'श्री राम जय राम जय जय राम', en: 'Shri Ram Jai Ram Jai Jai Ram', re: /राम|\bra+m+a?\b/gi, per: 3 },
-  hanuman: { hi: 'ॐ हं हनुमते नमः', en: 'Om Ham Hanumate Namah', re: /हनुमते|हनुमत|hanumat[ae]?/gi, per: 1 },
-  narayan: { hi: 'नारायण नारायण', en: 'Narayan Narayan', re: /नारायण|narayana?/gi, per: 1 },
-  shiv:    { hi: 'ॐ नमः शिवाय', en: 'Om Namah Shivaya', re: /शिवाय|शिवा|shivaa?ya?/gi, per: 1 }
+  // words = what the offline recogniser listens for (Hindi model vocabulary; ॐ is "ओम" there), key = the word counted
+  ram:     { hi: 'राम राम राम', en: 'Ram Ram Ram', re: /राम|\bra+m+a?\b/gi, per: 1, words: ['राम'], key: 'राम' },
+  shriram: { hi: 'श्री राम जय राम जय जय राम', en: 'Shri Ram Jai Ram Jai Jai Ram', re: /राम|\bra+m+a?\b/gi, per: 3, words: ['श्री', 'राम', 'जय'], key: 'राम' },
+  hanuman: { hi: 'ॐ हं हनुमते नमः', en: 'Om Ham Hanumate Namah', re: /हनुमते|हनुमत|hanumat[ae]?/gi, per: 1, words: ['ओम', 'हं', 'हनुमते', 'नमः'], key: 'हनुमते' },
+  narayan: { hi: 'नारायण नारायण', en: 'Narayan Narayan', re: /नारायण|narayana?/gi, per: 1, words: ['नारायण'], key: 'नारायण' },
+  shiv:    { hi: 'ॐ नमः शिवाय', en: 'Om Namah Shivaya', re: /शिवाय|शिवा|shivaa?ya?/gi, per: 1, words: ['ओम', 'नमः', 'शिवाय'], key: 'शिवाय' }
 };
 const AARADHYA = [
   { id: 'hanuman', hi: 'श्री हनुमान', en: 'Shri Hanuman', video: true, mantras: ['ram', 'hanuman'], unlockMin: 0, cost: 0 },
@@ -2150,67 +2163,135 @@ function showComplete(s, result, pushed) {
   $('#c-tokens').textContent = fmtNum(result.tokens);
   $('#c-earn-note').textContent = result.completed ? t('earnFull') : result.tokens ? t('earnPart') : t('earnNone');
   if (pushed) show('complete'); else go('complete', true);
+  setTimeout(() => Reminders.askOnce(), 1500);
   setTimeout(() => $('#c-continue').focus({ preventScroll: true }), 80);
 }
 $('#c-continue').addEventListener('click', () => go('home'));
 onEnter.complete = () => renderTokens();
 
-/* ───────────────────────── 11 · VOICE COUNTING (experimental) ─────────────────────────
- * Web Speech API in single-utterance mode, restarted after every result: each final transcript is
- * read once (avoids the duplicated transcripts continuous mode produces on Android Chrome). Only the
- * mantra's own word counts; anything else — noise, silence, other speech — adds nothing. A pace cap
- * (4 words per second of speech) stops a misheard burst from racing ahead. Tap counting stays on.   */
+/* ───────────────────────── 11 · VOICE COUNTING ─────────────────────────
+ * In the Android app: offline recognition on the phone (VanarVoice plugin → Vosk with the bundled Hindi model), limited
+ * to the chosen mantra's words plus "unknown", so it hears every repetition of राम and lets other speech pass; audio never
+ * leaves the phone. On the website: the browser's speech recognition, one utterance at a time.
+ * Both feed one counter: a word counts as soon as another word has followed it in the live transcript (the last word of
+ * a live guess is often revised), and each utterance's final transcript settles the rest. A pace cap (5 words a second)
+ * stops a misheard burst from racing ahead. Tap counting always stays on.                                            */
 const Voice = (() => {
-  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-  const api = { supported: !!SR, state: 'off' };
-  let rec = null, want = false, pausedFlag = false, occ = 0, segStart = 0, retry = 0, restartT = 0;
+  const cap = IS_APP && window.Capacitor;
+  const NV = cap ? (cap.Plugins && cap.Plugins.VanarVoice) || (cap.registerPlugin && cap.registerPlugin('VanarVoice')) : null;
+  const SR = NV ? null : window.SpeechRecognition || window.webkitSpeechRecognition;
+  const api = { supported: !!(NV || SR), offline: !!NV, state: 'off' };
+  let want = false, pausedFlag = false, occ = 0, seen = 0, stamps = [];
+  let rec = null, retry = 0, restartT = 0, running = false, hooked = null;
   const set = st => { api.state = st; api.render(); };
   api.active = () => settings.voice && api.supported && api.state !== 'denied';
-  function handle(text) {
-    if (!session || session.paused || session.finished) return;
-    const m = MANTRAS[session.mantra] || MANTRAS.ram;
-    const words = (text.match(new RegExp(m.re.source, 'gi')) || []).length;
-    const maxWords = Math.ceil(Math.max(800, performance.now() - segStart) / 250);
-    occ += Math.min(words, maxWords);
-    while (occ >= m.per) { occ -= m.per; countOne('voice'); }
+  const mantra = () => MANTRAS[session && session.mantra] || MANTRAS.ram;
+  // the offline recogniser answers in Devanagari with exactly the grammar's words; the browser may write either script
+  const hits = text => (NV ? text.split(/\s+/).filter(w => w === mantra().key).length
+    : (text.match(new RegExp(mantra().re.source, 'gi')) || []).length);
+  function add(n) {
+    if (!session || session.paused || session.finished || n <= 0) return;
+    const now = performance.now(), m = mantra();
+    stamps = stamps.filter(x => now - x < 1000);
+    for (let i = 0; i < n && stamps.length < 5; i++) {
+      stamps.push(now);
+      if (++occ >= m.per) { occ -= m.per; countOne('voice'); }
+    }
   }
-  function launch() {
-    clearTimeout(restartT);
-    const Ctor = window.SpeechRecognition || window.webkitSpeechRecognition || SR;
-    if (!want || pausedFlag || !Ctor) return;
+  function partial(text) {
+    const n = hits(text.trim().split(/\s+/).slice(0, -1).join(' '));
+    if (n > seen) { add(n - seen); seen = n; }
+  }
+  function final(text) { add(hits(text) - seen); seen = 0; }
+
+  // ── app: offline engine
+  async function nativeStart() {
+    set('starting');
     try {
-      rec = new Ctor();
+      if (!hooked) hooked = Promise.all([
+        NV.addListener('partial', e => partial((e && e.text) || '')),
+        NV.addListener('result', e => final((e && e.text) || '')),
+        NV.addListener('error', () => { if (want) set('error'); })
+      ]);
+      await hooked;
+      seen = 0;
+      await NV.start({ words: mantra().words });     // the first start loads the model (a few seconds)
+      running = true;
+      if (!want) { nativeHalt(); return; }
+      if (pausedFlag) { NV.pause().catch(() => {}); set('paused'); return; }
+      set('listening');
+    } catch (e) {
+      const denied = !!e && (e.code === 'DENIED' || /denied/i.test(e.message || ''));
+      if (denied) want = false;
+      set(denied ? 'denied' : 'error');
+    }
+  }
+  function nativeHalt() { running = false; NV.stop().catch(() => {}); }
+
+  // ── website: browser speech recognition, restarted after every utterance
+  function webLaunch() {
+    clearTimeout(restartT);
+    if (!want || pausedFlag || !SR) return;
+    try {
+      rec = new SR();
       rec.lang = settings.lang === 'en' ? 'en-IN' : 'hi-IN';
-      rec.continuous = false; rec.interimResults = false; rec.maxAlternatives = 1;
-      rec.onstart = () => { segStart = performance.now(); set('listening'); };
-      rec.onspeechstart = () => { segStart = performance.now(); };
-      rec.onresult = e => { for (let i = e.resultIndex; i < e.results.length; i++) if (e.results[i].isFinal) handle(e.results[i][0].transcript || ''); retry = 0; };
+      rec.continuous = false; rec.interimResults = true; rec.maxAlternatives = 1;
+      rec.onstart = () => { seen = 0; set('listening'); };
+      rec.onresult = e => {
+        for (let i = e.resultIndex; i < e.results.length; i++) {
+          const tx = e.results[i][0].transcript || '';
+          if (e.results[i].isFinal) final(tx); else partial(tx);
+        }
+        retry = 0;
+      };
       rec.onerror = e => {
         if (e.error === 'not-allowed' || e.error === 'service-not-allowed') { want = false; set('denied'); }
         else if (e.error === 'audio-capture') { want = false; set('error'); }
         else if (e.error === 'network') { retry++; set('error'); toast(t('vNet')); }
         // 'no-speech' and 'aborted' are normal between chants
       };
-      rec.onend = () => { rec = null; if (want && !pausedFlag) restartT = setTimeout(launch, retry ? Math.min(8000, 600 * retry) : 120); else if (api.state === 'listening') set(pausedFlag ? 'paused' : 'off'); };
+      rec.onend = () => { rec = null; seen = 0; if (want && !pausedFlag) restartT = setTimeout(webLaunch, retry ? Math.min(8000, 600 * retry) : 120); else if (api.state === 'listening') set(pausedFlag ? 'paused' : 'off'); };
       set('starting');
       rec.start();
     } catch (_) { set('error'); }
   }
-  function halt() { clearTimeout(restartT); if (rec) { try { rec.abort(); } catch (_) {} rec = null; } }
-  api.sessionStart = () => { occ = 0; retry = 0; pausedFlag = false; if (!settings.voice || !SR) { set('off'); return; } want = true; launch(); };
-  api.pause = () => { pausedFlag = true; halt(); if (want) set('paused'); };
-  api.resume = () => { pausedFlag = false; if (want) launch(); };
+
+  function launch() { if (!want || pausedFlag) return; if (NV) nativeStart(); else webLaunch(); }
+  function halt() {
+    clearTimeout(restartT);
+    if (NV) { if (running || api.state === 'starting') nativeHalt(); }
+    else if (rec) { try { rec.abort(); } catch (_) {} rec = null; }
+  }
+  api.sessionStart = () => { occ = 0; seen = 0; retry = 0; pausedFlag = false; if (!settings.voice || !api.supported) { set('off'); return; } want = true; launch(); };
+  api.pause = () => {
+    pausedFlag = true;
+    if (NV) { if (running) NV.pause().catch(() => {}); } else halt();
+    if (want) set('paused');
+  };
+  api.resume = () => {
+    pausedFlag = false;
+    if (!want) return;
+    if (NV && running) { NV.resume().catch(() => {}); set('listening'); } else launch();
+  };
   api.stop = () => { want = false; pausedFlag = false; halt(); set('off'); };
-  api.toggle = () => { if (!settings.voice) return; if (want) { want = false; halt(); set('off'); AudioEngine.stopProfile(.3); startSound(true); } else if (api.state !== 'denied') { want = true; retry = 0; AudioEngine.stopProfile(.3); startSound(true); launch(); } };
-  // a quick microphone request from Settings, so the permission prompt appears at a calm moment
+  api.toggle = () => {
+    if (!settings.voice) return;
+    if (want) { want = false; halt(); set('off'); AudioEngine.stopProfile(.3); startSound(true); }
+    else if (api.state !== 'denied') { want = true; retry = 0; AudioEngine.stopProfile(.3); startSound(true); launch(); }
+  };
+  // a microphone request from Settings, so the permission prompt appears at a calm moment
   api.requestPermission = async () => {
+    if (NV) {
+      try { const r = await NV.requestPermissions(); return r.microphone === 'granted' ? 'granted' : 'denied'; }
+      catch (_) { return 'error'; }
+    }
     if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) return SR ? 'granted' : 'unsupported';
     try { const st = await navigator.mediaDevices.getUserMedia({ audio: true }); st.getTracks().forEach(tr => tr.stop()); return 'granted'; }
     catch (e) { return e && (e.name === 'NotAllowedError' || e.name === 'SecurityError') ? 'denied' : 'error'; }
   };
   api.render = () => {
     const chip = $('#voice-chip');
-    chip.hidden = !settings.voice || !SR || !session;
+    chip.hidden = !settings.voice || !api.supported || !session;
     chip.dataset.state = api.state;
     const key = { listening: 'vListening', denied: 'vDenied', error: 'vError', starting: 'vStarting', paused: 'vPaused' }[api.state] || 'vOff';
     $('#voice-txt').textContent = t(key);
@@ -2271,8 +2352,14 @@ const Reminders = (() => {
     return ok;
   }
   const soon = () => { clearTimeout(timer); timer = setTimeout(() => sync(), 600); };
+  // reminders are on by default, so the permission is asked once, at a calm moment: after the first finished session
+  async function askOnce() {
+    if (!LN || settings.notifAsked || !(settings.remind || settings.nudge)) return;
+    settings.notifAsked = 1; persist();
+    if (!(await sync(true))) { settings.remind = settings.nudge = false; persist(); }
+  }
   if (LN) document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') soon(); });
-  return { supported: !!LN, sync, soon, plan };
+  return { supported: !!LN, sync, soon, plan, askOnce };
 })();
 
 function renderTokens() { $$('.tok-n').forEach(el => { el.textContent = fmtNum(tokenBalance()); }); }
@@ -2665,10 +2752,9 @@ const syncers = [
   bindGroup('bg', 'bg', () => Backdrop.apply())
 ];
 function setSwitch(id, on) { $(id).setAttribute('aria-checked', String(!!on)); }
+// only a status line (permission, no support); nothing when all is well
 function renderVoiceNote(extra) {
-  let txt = Voice.supported ? t('voiceAbout') : t('voiceUnsupported');
-  if (extra) txt = `${extra} ${txt}`;
-  $('#voice-note').textContent = txt;
+  $('#voice-note').textContent = Voice.supported ? (extra || '') : t('voiceUnsupported');
   $('#sw-voice').disabled = !Voice.supported;
 }
 function renderSettings() {
@@ -2679,10 +2765,9 @@ function renderSettings() {
   $('#sw-remind').disabled = !Reminders.supported; $('#nudge-item').hidden = !Reminders.supported;
   $('#remind-time-row').hidden = !(settings.remind && Reminders.supported);
   if (document.activeElement !== $('#remind-time')) $('#remind-time').value = settings.remindTime;
-  $('#remind-note').textContent = Reminders.supported ? t('remindSub') : t('remindAppOnly');
-  setSwitch('#sw-voice', settings.voice && Voice.supported); setSwitch('#sw-motion', reduceMotion());
-  $('#sw-motion').disabled = SYS_REDUCED;
-  $('#vib-note').textContent = Haptics.supported ? t('vibNote') : t('vibNone');
+  $('#remind-note').textContent = Reminders.supported ? '' : t('remindAppOnly');
+  setSwitch('#sw-voice', settings.voice && Voice.supported);
+  $('#vib-note').textContent = Haptics.supported ? '' : t('vibNone');
   renderVoiceNote(Voice.state === 'denied' ? t('voiceDenied') : '');
   const p = Cloud.profile || {};
   $('#set-name').textContent = Profile.name() || t('notSet');
@@ -2698,7 +2783,8 @@ async function toggleReminder(key) {
 $('#sw-remind').addEventListener('click', () => toggleReminder('remind'));
 $('#sw-nudge').addEventListener('click', () => toggleReminder('nudge'));
 $('#remind-time').addEventListener('change', e => { if (/^\d\d:\d\d$/.test(e.target.value)) { settings.remindTime = e.target.value; persist(); Reminders.sync(); } });
-$('#sw-motion').addEventListener('click', () => { settings.reduceMotion = !settings.reduceMotion; persist(); applyMotion(); renderSettings(); });
+const AboutSheet = makeSheet($('#about-sheet'));
+$('#set-about').addEventListener('click', AboutSheet.open);
 $('#sw-voice').addEventListener('click', async () => {
   if (!Voice.supported) return;
   if (settings.voice) { settings.voice = false; persist(); Voice.stop(); renderSettings(); return; }
@@ -2706,7 +2792,7 @@ $('#sw-voice').addEventListener('click', async () => {
   const r = await Voice.requestPermission();
   if (r === 'denied') { Voice.state = 'denied'; settings.voice = false; persist(); renderSettings(); return; }
   if (r === 'unsupported') { settings.voice = false; persist(); renderSettings(); return; }
-  Voice.state = 'off'; settings.voice = true; persist(); renderSettings(); renderVoiceNote(t('voiceReady'));
+  Voice.state = 'off'; settings.voice = true; persist(); renderSettings();
 });
 $('#vib-test').addEventListener('click', () => {
   if (!Haptics.supported) toast(t('tNoVib')); else if (settings.vib === 'off') toast(t('tVibOff'));
