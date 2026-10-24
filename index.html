@@ -691,7 +691,7 @@
   <div class="page-body scroll">
     <p class="note" data-t="aarIntro" style="margin-bottom:10px">जिनका ध्यान करते हुए जप करना चाहें, उन्हें चुनें। साधना के समय से नए आराध्य खुलते हैं।</p>
     <div class="a-grid" id="a-grid"></div>
-    <p class="note" data-t="tokensNote" style="margin-top:12px">भक्ति टोकन केवल साधना से मिलते हैं — इन्हें खरीदा नहीं जा सकता। टोकन इसी फ़ोन पर रहते हैं।</p>
+    <p class="note" data-t="tokensNote" style="margin-top:12px">भक्ति टोकन केवल साधना से मिलते हैं — इन्हें खरीदा नहीं जा सकता। टोकन आपके खाते में ऑनलाइन सुरक्षित रहते हैं।</p>
   </div>
 </section>
 
@@ -954,9 +954,11 @@ const I18N = {
     doneTitle: 'जप पूर्ण', doneTitleMala: 'माला पूर्ण', doneEarly: 'साधना सहेजी गई', doneSub: 'उठने से पहले एक पल शांत बैठें।', time: 'समय', malas: 'माला',
     youEarned: 'आपने कमाए', bhaktiTokens: 'भक्ति टोकन', earnFull: 'लक्ष्य पूरा करने पर 3 + हर पूरी माला पर 2', earnPart: 'हर पूरी माला पर 1 टोकन', earnNone: 'पूरी माला होने पर टोकन मिलते हैं',
     aaradhya: 'आराध्य', aarIntro: 'जिनका ध्यान करते हुए जप करना चाहें, उन्हें चुनें। साधना के समय से नए आराध्य खुलते हैं।',
-    tokensNote: 'भक्ति टोकन केवल साधना से मिलते हैं — इन्हें खरीदा नहीं जा सकता। टोकन इसी फ़ोन पर रहते हैं।',
+    tokensNote: 'भक्ति टोकन केवल साधना से मिलते हैं — इन्हें खरीदा नहीं जा सकता। टोकन आपके खाते में ऑनलाइन सुरक्षित रहते हैं।',
     selected: 'चुने हुए', unlocked: 'खुला', practiceOf: '{a} / {b} साधना', choose: 'चुनें', chosen: 'चुने गए ✓', unlockFor: '{n} टोकन से खोलें',
     lockedHow: '{h} की साधना पूरी होने पर अपने-आप खुलेगा — या {n} भक्ति टोकन से।', needTokens: 'अभी {n} टोकन और चाहिए', unlockedNow: '{name} अब खुल गए 🙏',
+    unlocking: 'खुल रहा है…', needOnline: 'खोलने के लिए इंटरनेट से जुड़ें', getChar: '{name} डाउनलोड करें', getCharNote: 'एक बार डाउनलोड ({mb} MB) — फिर बिना इंटरनेट के चलेगा',
+    downloading: 'डाउनलोड हो रहा है… {p}%', downloadFail: 'डाउनलोड नहीं हो पाया — इंटरनेट जाँचें',
     startWith: 'इनके साथ जप करें', isSelected: 'अभी आप इनके साथ जप कर रहे हैं',
     streaks: 'साधना क्रम', tabStreaks: 'क्रम', tabJaap: 'जप', curStreak: 'वर्तमान क्रम', longStreak: 'सबसे लंबा क्रम', prevMonth: 'पिछला महीना', nextMonth: 'अगला महीना',
     totTime: 'कुल साधना समय', totReps: 'कुल जप', totMalas: 'पूर्ण माला', milestones: 'आने वाले पड़ाव', msDone: 'पूर्ण', msDays: '{n} दिन',
@@ -1017,9 +1019,11 @@ const I18N = {
     doneTitle: 'Jaap Complete', doneTitleMala: 'Mala Complete', doneEarly: 'Session saved', doneSub: 'Sit quietly for a moment before you get up.', time: 'Time', malas: 'Mala',
     youEarned: 'You earned', bhaktiTokens: 'Bhakti Tokens', earnFull: 'Goal reached: 3 + 2 for each full mala', earnPart: '1 token for each full mala', earnNone: 'Tokens come with each full mala',
     aaradhya: 'Aaradhya', aarIntro: 'Choose whom you wish to meditate on while you chant. More Aaradhya open with your practice time.',
-    tokensNote: 'Bhakti tokens come only from practice — they can never be bought. Tokens stay on this phone.',
+    tokensNote: 'Bhakti tokens come only from practice — they can never be bought. Tokens are kept online with your account.',
     selected: 'Selected', unlocked: 'Unlocked', practiceOf: '{a} / {b} practice', choose: 'Choose', chosen: 'Chosen ✓', unlockFor: 'Unlock with {n} tokens',
     lockedHow: 'Opens by itself after {h} of practice — or with {n} Bhakti tokens.', needTokens: '{n} more tokens needed', unlockedNow: '{name} is now unlocked 🙏',
+    unlocking: 'Unlocking…', needOnline: 'Connect to the internet to unlock', getChar: 'Download {name}', getCharNote: 'One-time download ({mb} MB) — then it works offline',
+    downloading: 'Downloading… {p}%', downloadFail: "Couldn't download — check your connection",
     startWith: 'Chant with this Aaradhya', isSelected: 'You are chanting with this Aaradhya',
     streaks: 'Streaks', tabStreaks: 'Streaks', tabJaap: 'Jaap', curStreak: 'Current streak', longStreak: 'Longest streak', prevMonth: 'Previous month', nextMonth: 'Next month',
     totTime: 'Total practice', totReps: 'Total repetitions', totMalas: 'Completed malas', milestones: 'Upcoming milestones', msDone: 'Done', msDays: '{n} days',
@@ -1331,10 +1335,33 @@ const mText = id => { const m = MANTRAS[id] || MANTRAS.ram; return settings.lang
 const mantraFor = a => (a.mantras.includes(settings.mantra[a.id]) ? settings.mantra[a.id] : a.mantras[0]);
 
 /* ───────────────────────── 5 · RECORDS — history, streaks, tokens ───────────────────────── */
+// Unlocks and Bhakti tokens belong to the account on the server (my_aaradhya / unlock_aaradhya in supabase/migrations):
+// the server works the balance out from the uploaded sessions and unlocks by practice itself. records.server keeps its
+// last answer for offline use; sessions still waiting in the upload queue are added on top. ?nocloud (testing) keeps the
+// older on-phone rules.
+const SERVER_UNLOCKS = !NO_CLOUD;
+const sessionTokens = (count, completed) => (completed ? 3 + 2 * Math.floor(count / MALA) : Math.floor(count / MALA));
+const pendingJaap = () => { try { return Cloud.pending().filter(r => r.kind === 'jaap'); } catch (_) { return []; } };
+function tokenBalance() {
+  if (!SERVER_UNLOCKS) return records.tokens;
+  return (records.server ? records.server.tokens : 0) + pendingJaap().reduce((n, r) => n + sessionTokens(r.jaap_count, r.completed), 0);
+}
 const cloudMinutes = () => { try { return Cloud.stats ? +Cloud.stats.minutes : 0; } catch (_) { return 0; } };
-const practiceMin = () => Math.max(lifetime.minutes, cloudMinutes());
-const isUnlocked = a => records.unlocked.includes(a.id) || practiceMin() >= a.unlockMin;
+const practiceMin = () => (SERVER_UNLOCKS && records.server
+  ? records.server.minutes + pendingJaap().reduce((n, r) => n + r.minutes, 0)
+  : Math.max(lifetime.minutes, cloudMinutes()));
+const isUnlocked = a => !a.unlockMin || (SERVER_UNLOCKS
+  ? !!records.server && records.server.unlocked.includes(a.id)
+  : records.unlocked.includes(a.id) || practiceMin() >= a.unlockMin);
+// the server's answer from my_aaradhya() / unlock_aaradhya()
+function applyServerState(r) {
+  records.server = { tokens: +r.tokens || 0, minutes: +r.practice_minutes || 0, unlocked: r.unlocked || [] };
+  (r.new_unlocks || []).forEach(id => { toast(t('unlockedNow', { name: aName(aById(id)) })); Assets.fetchChar(id).catch(() => {}); });
+  if (!isUnlocked(aById(settings.aaradhya))) settings.aaradhya = 'hanuman';
+  persist();
+}
 function syncUnlocks(announce) {
+  if (SERVER_UNLOCKS) return;
   AARADHYA.forEach(a => {
     if (!records.unlocked.includes(a.id) && practiceMin() >= a.unlockMin) {
       records.unlocked.push(a.id);
@@ -1342,7 +1369,7 @@ function syncUnlocks(announce) {
     }
   });
 }
-if (!isUnlocked(aById(settings.aaradhya))) settings.aaradhya = 'hanuman';
+if ((!SERVER_UNLOCKS || records.server) && !isUnlocked(aById(settings.aaradhya))) settings.aaradhya = 'hanuman';
 
 function todayCount() {
   const tk = todayKey();
@@ -1382,8 +1409,8 @@ function recordSession(s, completed) {
   const fullMalas = Math.floor(s.count / MALA);
   let tokens = 0;
   if (!records.rewarded.includes(s.id)) {
-    tokens = completed ? 3 + 2 * fullMalas : fullMalas;
-    records.tokens += tokens;
+    tokens = sessionTokens(s.count, completed);
+    if (!SERVER_UNLOCKS) records.tokens += tokens;        // otherwise the server adds them once the session is uploaded
     records.rewarded = [...records.rewarded, s.id].slice(-200);
     records.history.push({ id: s.id, mode: s.mode, aaradhya: s.aaradhya, mantra: s.mantra, count: s.count, ms, day: todayKey(), at: Date.now(),
       done: !!completed, target: s.target, timer: s.timerMin });
@@ -1448,10 +1475,33 @@ const Cloud = (() => {
     if (!api.ready) return;
     const { data, error } = await sb.rpc('my_stats', { p_today: todayKey() });
     if (!error && data && data[0]) api.stats = data[0];
+    await refreshAaradhya();
     // practice days for the streak calendar (own rows only — row level security)
     const h = await sb.from('jaap_sessions').select('client_day').order('client_day', { ascending: false }).limit(1000);
     if (!h.error && h.data) api.days = [...new Set(h.data.map(r => r.client_day))];
     onRecordsChanged();
+  }
+  // tokens, practice minutes and unlocks; also where the server unlocks Aaradhya earned by practice
+  async function refreshAaradhya() {
+    const { data, error } = await sb.rpc('my_aaradhya');
+    if (!error && data && data[0]) applyServerState(data[0]);
+  }
+  // spend tokens on an Aaradhya (throws when offline or short of tokens)
+  async function unlock(id) {
+    await init();
+    if (!api.ready) throw new Error('offline');
+    await flush();                                     // sessions waiting in the queue count towards the balance
+    const { data, error } = await sb.rpc('unlock_aaradhya', { p_id: id });
+    if (error) throw error;
+    applyServerState(data[0]);
+  }
+  // a short-lived link to a locked Aaradhya's file; storage only signs it for accounts that unlocked them
+  async function fileUrl(path) {
+    await init();
+    if (!api.ready) throw new Error('offline');
+    const { data, error } = await sb.storage.from('aaradhya').createSignedUrl(path, 600);
+    if (error) throw error;
+    return data.signedUrl;
   }
   async function flush() {
     if (!api.ready) return;
@@ -1492,14 +1542,15 @@ const Cloud = (() => {
   }
   async function signOut() {
     await sb.auth.signOut();
-    api.stats = null; api.profile = null; api.days = [];
+    api.stats = null; api.profile = null; api.days = []; records.server = null; persist();
     const r = await sb.auth.signInAnonymously(); if (!r.error) api.user = r.data.user;
+    await refreshAaradhya();
     onRecordsChanged();
   }
   const resume = () => { if (!api.ready) init().then(() => { onRecordsChanged(); Community.renderAccount(); }); else flush().then(refreshStats); };
   addEventListener('online', resume);
   document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') resume(); });
-  Object.assign(api, { init, record, refreshStats, saveProfile, leaderboard, myRank, totalsAll, linkEmail, signOut, loadProfile });
+  Object.assign(api, { init, record, refreshStats, unlock, fileUrl, pending: readQ, saveProfile, leaderboard, myRank, totalsAll, linkEmail, signOut, loadProfile });
   return api;
 })();
 
@@ -1569,17 +1620,75 @@ function makeSheet(el, onOpen) {
 const AV = 2;
 const UA = navigator.userAgent;
 const VEXT = /AppleWebKit/.test(UA) && !/Chrome|Chromium|Edg|OPR|Android/.test(UA) ? 'mov' : 'webm';
+/* In the Android/iOS app only Hanuman's animations ship inside the app (plus every Aaradhya's small idle picture for the
+ * cards). The others are downloaded once, from the private 'aaradhya' storage bucket, after the server has unlocked them,
+ * and kept in the app's Cache Storage; on the website every file is simply under assets/. */
+const Assets = (() => {
+  const CACHE = `aaradhya-v${AV}`, SHIPPED = ['hanuman'];
+  const urls = {}, busy = {};
+  const TYPE = { webm: 'video/webm', mov: 'video/quicktime', webp: 'image/webp' };
+  const files = id => (aById(id).video ? [`av-${id}-idle.${VEXT}`, `av-${id}-meditate.${VEXT}`] : []).concat(`av-${id}-meditate.webp`);
+  const shipped = name => !IS_APP || name.endsWith('-idle.webp') || SHIPPED.some(id => name.startsWith(`av-${id}-`));
+  const src = name => (shipped(name) ? `assets/${name}?v=${AV}` : urls[name] || null);
+  const has = id => files(id).every(f => !!src(f));
+  // approximate one-time download, in MB
+  const MB = { webm: { ram: 10, narad: 7, shiv: 0.2 }, mov: { ram: 11, narad: 8, shiv: 0.2 } };
+  const size = id => (MB[VEXT] || MB.webm)[id] || 0;
+  // what an earlier download left in the cache
+  const ready = (async () => {
+    if (!IS_APP || !window.caches) return;
+    try {
+      const c = await caches.open(CACHE);
+      for (const a of AARADHYA) for (const f of files(a.id)) {
+        if (shipped(f)) continue;
+        const r = await c.match(f); if (r) urls[f] = URL.createObjectURL(await r.blob());
+      }
+      if (navigator.storage && navigator.storage.persist) navigator.storage.persist().catch(() => {});
+    } catch (e) { console.warn('[assets]', e && e.message); }
+    refreshFigures();
+  })();
+  async function fetchChar(id, onProgress) {
+    await ready;
+    if (has(id)) return;
+    if (busy[id]) return busy[id];
+    busy[id] = (async () => {
+      const need = files(id).filter(f => !src(f)), c = await caches.open(CACHE);
+      const total = need.length; let done = 0;
+      for (const f of need) {
+        const res = await fetch(await Cloud.fileUrl(`${id}/${f}`));
+        if (!res.ok) throw new Error(`download ${res.status}`);
+        const len = +res.headers.get('Content-Length') || 0, rd = res.body.getReader(), parts = []; let got = 0;
+        for (;;) {
+          const { done: end, value } = await rd.read(); if (end) break;
+          parts.push(value); got += value.length;
+          if (onProgress) onProgress(Math.min(99, Math.round(((done + (len ? got / len : 0)) / total) * 100)));
+        }
+        const blob = new Blob(parts, { type: TYPE[f.split('.').pop()] });
+        await c.put(f, new Response(blob, { headers: { 'Content-Type': blob.type } }));
+        urls[f] = URL.createObjectURL(blob); done++;
+      }
+      refreshFigures();
+    })().finally(() => { delete busy[id]; });
+    return busy[id];
+  }
+  return { src, has, size, fetchChar, ready };
+})();
+function refreshFigures() {
+  ['#home-fig', '#p-fig', '#a-sheet-fig', '#b-fig'].forEach(s => { const el = $(s); if (el && el.dataset.key) { const [aid, kind] = el.dataset.key.split('-'); el.dataset.key = ''; setFigure(el, aid, kind, el.dataset.want !== 'false'); } });
+}
 function setFigure(el, aid, kind, animate = true) {
-  const a = aById(aid), key = `${aid}-${kind}`, anim = animate && a.video && !reduceMotion();
+  const a = aById(aid), key = `${aid}-${kind}`, clip = Assets.src(`av-${key}.${VEXT}`);
+  const anim = animate && a.video && !reduceMotion() && !!clip;
   if (el.dataset.key === key && el.dataset.anim === String(anim)) { const v = $('video', el); if (v && el.closest('.is-on')) v.play().catch(() => {}); return; }
-  el.dataset.key = key; el.dataset.anim = String(anim);
+  el.dataset.key = key; el.dataset.anim = String(anim); el.dataset.want = String(animate);
   el.classList.toggle('still', !a.video && !reduceMotion());
-  const poster = `assets/av-${key}.webp?v=${AV}`;
+  // not downloaded yet (app): the idle picture that ships with the app stands in
+  const poster = Assets.src(`av-${key}.webp`) || Assets.src(`av-${aid}-idle.webp`);
   if (!anim) { el.innerHTML = `<img src="${poster}" alt="" decoding="async">`; return; }
   el.innerHTML = `<video muted playsinline loop autoplay preload="auto" poster="${poster}"></video>`;
   const v = $('video', el);
   v.muted = true; v.defaultMuted = true;
-  v.src = `assets/av-${key}.${VEXT}?v=${AV}`;
+  v.src = clip;
   v.addEventListener('error', () => { el.innerHTML = `<img src="${poster}" alt="">`; el.dataset.anim = 'false'; }, { once: true });
   if (el.closest('.is-on, .sheet-modal:not([hidden])')) v.play().catch(() => {});
 }
@@ -2059,7 +2168,7 @@ const Voice = (() => {
 $('#voice-chip').addEventListener('click', () => Voice.toggle());
 
 /* ───────────────────────── 12 · SCREENS: home, setup, tabs, settings ───────────────────────── */
-function renderTokens() { $$('.tok-n').forEach(el => { el.textContent = fmtNum(records.tokens); }); }
+function renderTokens() { $$('.tok-n').forEach(el => { el.textContent = fmtNum(tokenBalance()); }); }
 function onRecordsChanged() {
   syncUnlocks(false); renderTokens();
   if (current === 'home') renderHome();
@@ -2181,25 +2290,46 @@ function openASheet(a) {
   $('#a-sheet-mantra').textContent = a.mantras.map(mText).join(' · ');
   ASheet.open();
   setFigure($('#a-sheet-fig'), a.id, 'idle', un);
-  const go1 = $('#a-sheet-go'), alt = $('#a-sheet-alt');
+  const go1 = $('#a-sheet-go'), alt = $('#a-sheet-alt'), bal = tokenBalance();
   alt.hidden = true; go1.disabled = false;
-  if (un) {
+  if (un && !Assets.has(a.id)) {
+    const mb = Assets.size(a.id);
+    $('#a-sheet-status').textContent = t('getCharNote', { mb: mb < 1 ? '<1' : Math.round(mb) });
+    go1.textContent = t('getChar', { name: aName(a) });
+  } else if (un) {
     $('#a-sheet-status').textContent = sel ? t('isSelected') : '';
     go1.textContent = sel ? t('chosen') : t('startWith');
   } else {
     $('#a-sheet-status').textContent = t('lockedHow', { h: fmtDur(a.unlockMin * 60000), n: a.cost });
     go1.textContent = t('unlockFor', { n: a.cost });
-    if (records.tokens < a.cost) { go1.disabled = true; alt.hidden = false; alt.textContent = t('needTokens', { n: a.cost - records.tokens }); alt.disabled = true; }
+    if (bal < a.cost) { go1.disabled = true; alt.hidden = false; alt.textContent = t('needTokens', { n: a.cost - bal }); alt.disabled = true; }
   }
 }
-$('#a-sheet-go').addEventListener('click', () => {
+async function downloadChar(a) {
+  const go1 = $('#a-sheet-go');
+  go1.disabled = true; go1.textContent = t('downloading', { p: 0 });
+  try { await Assets.fetchChar(a.id, p => { if (sheetA === a) go1.textContent = t('downloading', { p }); }); }
+  catch (e) { console.warn('[assets]', e && e.message); toast(t('downloadFail')); }
+  if (sheetA === a && !$('#a-sheet').hidden) openASheet(a);
+}
+$('#a-sheet-go').addEventListener('click', async () => {
   const a = sheetA; if (!a) return;
   if (!isUnlocked(a)) {
-    if (records.tokens < a.cost) return;
-    records.tokens -= a.cost; records.unlocked.push(a.id); persist();
-    toast(t('unlockedNow', { name: aName(a) }));
-    openASheet(a); renderAaradhya(); return;
+    if (tokenBalance() < a.cost) return;
+    if (!SERVER_UNLOCKS) {
+      records.tokens -= a.cost; records.unlocked.push(a.id); persist();
+      toast(t('unlockedNow', { name: aName(a) }));
+      openASheet(a); renderAaradhya(); return;
+    }
+    const go1 = $('#a-sheet-go');
+    go1.disabled = true; go1.textContent = t('unlocking');
+    try { await Cloud.unlock(a.id); }
+    catch (e) { toast(/not enough/.test((e && e.message) || '') ? t('needTokens', { n: a.cost - tokenBalance() }) : t('needOnline')); }
+    renderAaradhya(); renderTokens();
+    if (isUnlocked(a) && !Assets.has(a.id)) return downloadChar(a);   // applyServerState already announced it
+    openASheet(a); return;
   }
+  if (!Assets.has(a.id)) return downloadChar(a);
   settings.aaradhya = a.id; persist();
   ASheet.close(); renderAaradhya(); go('home');
 });
@@ -2358,7 +2488,7 @@ const Profile = (() => {
     const tc = todayCount();
     $('#goal-today').textContent = `${fmtNum(tc)}/${fmtNum(settings.goal)}`;
     $('#goal-today-bar').style.width = `${Math.min(100, tc / settings.goal * 100)}%`;
-    syncers.forEach(f => f()); $('#pf-sessions').textContent = fmtNum(Math.max(lifetime.sessions, records.history.length)); $('#pf-tokens').textContent = fmtNum(records.tokens);
+    syncers.forEach(f => f()); $('#pf-sessions').textContent = fmtNum(Math.max(lifetime.sessions, records.history.length)); $('#pf-tokens').textContent = fmtNum(tokenBalance());
   }
   async function saveName() {
     const v = $('#prof-name').value.trim().slice(0, 40);
@@ -2449,7 +2579,7 @@ $('#vib-test').addEventListener('click', () => {
 function applyMotion() {
   document.body.classList.toggle('reduce-motion', reduceMotion());
   Backdrop.apply();
-  ['#home-fig', '#p-fig', '#a-sheet-fig', '#b-fig'].forEach(s => { const el = $(s); if (el.dataset.key) { const [aid, kind] = el.dataset.key.split('-'); el.dataset.key = ''; setFigure(el, aid, kind); } });
+  refreshFigures();
   setupMala.start();
 }
 
