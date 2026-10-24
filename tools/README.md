@@ -6,7 +6,14 @@ The originals are only read. Open `tools/asset-preview.html` through the local s
 
 ## Background removal + loop — `matte3.swift` (current)
 
-Hybrid method, built after v2 showed blocky edge flicker and patches on bodies:
+Hybrid method, built after v2 showed blocky edge flicker and patches on bodies. Two passes: background
+decisions (halo, pockets) are made per frame, then voted across neighbouring frames wherever the picture
+hasn't changed (full-colour comparison), so nothing on a steady area can flicker in and out. A painted ring
+crossing a limb is bridged, and a limb washed out by a painted glow (Hanuman's tail behind the halo) is
+repainted from the surrounding figure. `--diag heat.png` maps "unjustified" flicker (matte changes where the
+picture didn't), `--dumpframe N dir` writes one frame's intermediate maps, `--legacy` reproduces v3.
+
+Original v3 summary:
 Vision's neural mask stabilised by a motion-adaptive temporal filter → halos removed only when they
 connect to the real background → enclosed background pockets removed → a solid core (nothing inside
 the body can turn transparent) → colour key against a per-frame clean plate, only on the uncertain rim →

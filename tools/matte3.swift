@@ -134,18 +134,22 @@ func temporal(_ maps: [[Float]], radius: Int, sigma: Float) -> [[Float]] {
   let gw: [Float] = (0...radius).map { exp(-Float($0 * $0) / Float(radius * radius + 1)) }
   var out = maps
   for t in 0..<maps.count {
-    var o = [Float](repeating: 0, count: P)
-    for k in 0..<P {
-      var s: Float = 0, ws: Float = 0
-      for j in -radius...radius {
-        let u = t + j; if u < 0 || u >= maps.count { continue }
-        let dl = (luma[u][k] - luma[t][k]) / sigma
-        let w = gw[abs(j)] * exp(-dl * dl)
-        s += maps[u][k] * w; ws += w
+    var s = [Float](repeating: 0, count: P), ws = [Float](repeating: 0, count: P)
+    let b = frames[t].px
+    for j in -radius...radius {
+      let u = t + j; if u < 0 || u >= maps.count { continue }
+      // full colour difference, not just brightness: a tan tail over a cream glow is a big change
+      let a = frames[u].px, mu = maps[u], g = gw[abs(j)], inv = 1 / sigma
+      for k in 0..<P {
+        let q = k * 4
+        let dr = Float(a[q]) - Float(b[q]), dg = Float(a[q + 1]) - Float(b[q + 1]), db = Float(a[q + 2]) - Float(b[q + 2])
+        let dc = (0.3 * dr * dr + 0.59 * dg * dg + 0.11 * db * db + 0.5 * (dr - db) * (dr - db)).squareRoot() * inv
+        let w = g * exp(-dc * dc)
+        s[k] += mu[k] * w; ws[k] += w
       }
-      o[k] = s / ws
     }
-    out[t] = o
+    for k in 0..<P { s[k] /= ws[k] }
+    out[t] = s
   }
   return out
 }
@@ -181,17 +185,18 @@ do {
   W = nw; H = nh; P = W * H
   log("cropped to \(W)x\(H)")
 }
-masks = temporal(masks, radius: 2, sigma: 10)
+masks = temporal(masks, radius: 3, sigma: 12)
 log("masks done")
 
-// ───────── 2–6. per-frame matte ─────────
+// ───────── 2. background decisions, made per frame (pass 1) ─────────
+// Halo/glow connected to the outside and enclosed background pockets are decided here for every frame,
+// then voted across neighbouring frames so a region on a threshold can't flicker in and out.
 let band = Float(opt("--band", 14) * scale / 0.5)
-var alphas: [[Float]] = [], plates: [[UInt8]] = []
+let r3 = max(3, Int(3 * scale / 0.5)), r6 = max(6, Int(6 * scale / 0.5))
+var remRaw: [[Float]] = [], plates: [[UInt8]] = [], dists: [[UInt8]] = [], lstds: [[UInt8]] = []
 for t in 0..<N {
-  let f = frames[t], L = luma[t]
-  var m = masks[t]
+  let f = frames[t], L = luma[t], m = masks[t]
   let lum01 = L.map { $0 / 255 }
-  let r3 = max(3, Int(3 * scale / 0.5)), r6 = max(6, Int(6 * scale / 0.5))
   let mean = boxMean(lum01, r3), mean2 = boxMean(lum01.map { $0 * $0 }, r3)
   let lstd = (0..<P).map { k in max(0, mean2[k] - mean[k] * mean[k]).squareRoot() * 255 }
   // plate: the frame with the figure (mask + margin) inpainted away
@@ -202,13 +207,12 @@ for t in 0..<N {
   var bgMean: (Float, Float, Float) = (0, 0, 0); var bn: Float = 0
   for k in stride(from: 0, to: P, by: 5) where wt[k] > 0 { bgMean.0 += plate[k * 3]; bgMean.1 += plate[k * 3 + 1]; bgMean.2 += plate[k * 3 + 2]; bn += 1 }
   if bn > 0 { bgMean = (bgMean.0 / bn, bgMean.1 / bn, bgMean.2 / bn) }
-  // colour distance to the plate (luma + warmth), and the colour key from it
   var dist = [Float](repeating: 0, count: P)
   for k in 0..<P {
     let dr = Float(f.px[k * 4]) - plate[k * 3], dg = Float(f.px[k * 4 + 1]) - plate[k * 3 + 1], db = Float(f.px[k * 4 + 2]) - plate[k * 3 + 2]
     dist[k] = (0.3 * dr * dr + 0.59 * dg * dg + 0.11 * db * db).squareRoot() + abs(dr - db) * 0.3
   }
-  // 2. halo/glow: smooth + (bright warm, or background-coloured), connected to the outside → not figure
+  // halo/glow: smooth + (bright warm, or background-coloured), connected to the outside → not figure
   var glowy = [Bool](repeating: false, count: P)
   for k in 0..<P where m[k] > 0.05 {
     let r = Float(f.px[k * 4]), g = Float(f.px[k * 4 + 1]), b = Float(f.px[k * 4 + 2])
@@ -220,6 +224,7 @@ for t in 0..<N {
     let whiteGlow = L[k] > 226 && sat < 45 && lstd[k] < 14   // a halo at its brightest is near-white (its painted ring adds texture)
     glowy[k] = (smooth && (bgCol || warmBright)) || whiteGlow
   }
+  var rem = [Float](repeating: 0, count: P)
   var reach = [Bool](repeating: false, count: P); var q: [Int] = []
   for k in 0..<P where m[k] <= 0.05 { reach[k] = true; q.append(k) }
   var qi = 0
@@ -227,12 +232,9 @@ for t in 0..<N {
     for (dx, dy) in [(1, 0), (-1, 0), (0, 1), (0, -1)] { let xx = x + dx, yy = y + dy
       if xx < 0 || yy < 0 || xx >= W || yy >= H { continue }; let n = yy * W + xx
       if !reach[n] && glowy[n] { reach[n] = true; q.append(n) } } }
-  var removedBg = [Bool](repeating: false, count: P)
-  for k in 0..<P where reach[k] && m[k] > 0.05 { m[k] = 0; removedBg[k] = true }
-  // enclosed background pockets (between arm and body, behind a bow): smooth and background-coloured or
-  // near-white with little saturation, and big enough not to be a highlight
+  for k in 0..<P where reach[k] && m[k] > 0.05 { rem[k] = 1 }
+  // enclosed background pockets (between arm and body, behind a bow), big enough not to be a highlight
   var pocket = [Bool](repeating: false, count: P)
-  // wide-window texture: backlight glow is a perfectly smooth gradient, painted skin never is
   let wmean = boxMean(lum01, r6), wmean2 = boxMean(lum01.map { $0 * $0 }, r6)
   let wstd = (0..<P).map { k in max(0, wmean2[k] - wmean[k] * wmean[k]).squareRoot() * 255 }
   for k in 0..<P where m[k] > 0.05 && m[k] < 0.85 && lstd[k] < 4 {   // Vision-confident skin is never a pocket
@@ -242,15 +244,6 @@ for t in 0..<N {
     let warmGlow = L[k] > 196 && r >= g && g >= b && sat < 80 && wstd[k] < 3.2 && lstd[k] < 1.6
     pocket[k] = (dr * dr + dg * dg + db * db).squareRoot() < 18 || (L[k] > 236 && sat < 32) || warmGlow
   }
-  if t == 0, let pi = args.firstIndex(of: "--probe") {   // debug: values the pocket test sees around (x,y)
-    let px0 = Int(args[pi + 1])!, py0 = Int(args[pi + 2])!
-    for dy in stride(from: -20, through: 20, by: 10) { var line = ""
-      for dx in stride(from: -20, through: 20, by: 10) { let k = (py0 + dy) * W + px0 + dx
-        let r = Int(f.px[k * 4]), g = Int(f.px[k * 4 + 1]), b = Int(f.px[k * 4 + 2])
-        line += String(format: "[m%.2f L%3.0f rgb%d,%d,%d s%.1f w%.1f %@] ", m[k], L[k], r, g, b, lstd[k], wstd[k], pocket[k] ? "P" : "-") }
-      log(line) }
-    log("bg \(bgMean)")
-  }
   let minPocket = Int(Float(P) * 0.0004)
   var plab = [Int32](repeating: -1, count: P); var pid: Int32 = 0
   for k0 in 0..<P where pocket[k0] && plab[k0] < 0 {
@@ -259,9 +252,38 @@ for t in 0..<N {
       for (dx, dy) in [(1, 0), (-1, 0), (0, 1), (0, -1)] { let xx = x + dx, yy = y + dy
         if xx < 0 || yy < 0 || xx >= W || yy >= H { continue }; let n = yy * W + xx
         if pocket[n] && plab[n] < 0 { plab[n] = pid; qq.append(n) } } }
-    if qq.count >= minPocket { for k in qq { m[k] = 0; removedBg[k] = true } }
+    if qq.count >= minPocket { for k in qq { rem[k] = 1 } }
     pid += 1
   }
+  if let pi = args.firstIndex(of: "--probe"), Int(args[pi + 3]) == t {   // debug: what the decisions see around (x,y)
+    let px0 = Int(args[pi + 1])!, py0 = Int(args[pi + 2])!
+    for dy in stride(from: -30, through: 30, by: 15) { var line = ""
+      for dx in stride(from: -30, through: 30, by: 15) { let k = (py0 + dy) * W + px0 + dx
+        let r = Int(f.px[k * 4]), g = Int(f.px[k * 4 + 1]), b = Int(f.px[k * 4 + 2])
+        line += String(format: "[m%.2f d%3.0f L%3.0f %d,%d,%d s%.1f %@] ", m[k], dist[k], L[k], r, g, b, lstd[k], rem[k] > 0 ? (pocket[k] ? "P" : "G") : "-") }
+      log(line) }
+    log("bg \(bgMean)")
+  }
+  remRaw.append(rem)
+  plates.append(plate.map { UInt8(min(255, max(0, $0))) })
+  dists.append(dist.map { UInt8(min(255, max(0, $0))) })
+  lstds.append(lstd.map { UInt8(min(255, max(0, $0 * 4))) })   // ×4 for precision at low values
+  if t % 20 == 0 { log("pass 1 frame \(t)") }
+}
+// vote: a pixel's background decision follows its neighbours wherever the picture hasn't changed
+let legacy = args.contains("--legacy")   // previous behaviour, for comparison
+let remVoted = (legacy ? remRaw : temporal(remRaw, radius: 4, sigma: 12)).map { $0.map { $0 > 0.5 } }
+remRaw = []
+
+// ───────── 3–6. the matte from steadied decisions (pass 2) ─────────
+var alphas: [[Float]] = []
+for t in 0..<N {
+  let f = frames[t], L = luma[t]
+  let lum01 = L.map { $0 / 255 }
+  var m = masks[t]
+  let removedBg = remVoted[t]
+  for k in 0..<P where removedBg[k] { m[k] = 0 }
+  let dist = dists[t].map { Float($0) }
   // 3. solid core / 4. keyed edge band
   let fig = m.map { $0 > 0.5 }
   let dIn = distanceTo(fig.map { !$0 }, borderIsSeed: true)
@@ -277,17 +299,68 @@ for t in 0..<N {
   // thin pale rings (a painted halo hugging the crown): thinner than ~8 px, light and desaturated → not figure
   let thinR = Float(4 * scale / 0.5)
   let nearCore = distanceTo(dIn.map { $0 >= thinR }, borderIsSeed: false)
-  // white backlight fringe: bright, desaturated, smooth pixels near the silhouette fade out
+  // white backlight fringe: bright, desaturated pixels near the silhouette fade out
+  var ring = [Bool](repeating: false, count: P)
   for k in 0..<P where a[k] > 0 {
     let r = Float(f.px[k * 4]), g = Float(f.px[k * 4 + 1]), b = Float(f.px[k * 4 + 2])
     let sat = max(r, g, b) - min(r, g, b)
-    if fig[k] && nearCore[k] > thinR + 1 && L[k] > 210 && sat < 50 { a[k] = 0; continue }
+    if fig[k] && nearCore[k] > thinR + 1 && L[k] > 210 && sat < 50 { a[k] = 0; ring[k] = true; continue }
     let white = smoothstep(198, 234, L[k]) * (1 - smoothstep(35, 75, sat))
     let rim = 1 - smoothstep(band * 0.35, band, dIn[k])
     a[k] *= 1 - white * rim
-    if choke > 0 {   // painted warm backlight right at the silhouette
+    if choke > 0 {   // painted warm backlight right at the silhouette (never where Vision is sure it's figure, e.g. a tail fading into light)
       let outer = 1 - smoothstep(band * 0.1, band * 0.4, dIn[k])
-      a[k] *= 1 - smoothstep(212, 238, L[k]) * outer
+      a[k] *= 1 - smoothstep(212, 238, L[k]) * outer * (1 - smoothstep(0.9, 0.99, masks[t][k]))
+    }
+  }
+  // a ring painted across a limb (the halo over the tail): where a removed ring pixel has figure on both sides,
+  // keep it and repaint it from the surrounding figure so the limb stays whole
+  // a limb washed out by a painted glow (the tail behind the halo): bright, desaturated figure pixels that connect
+  // to removed halo/ring pixels are repainted from the surrounding figure. A white tilak or garland is enclosed by
+  // skin and flowers, so it can never connect.
+  var washed = [Bool](repeating: false, count: P)
+  do {
+    var cand = [Bool](repeating: false, count: P)
+    for k in 0..<P where a[k] > 0.3 && !ring[k] && !removedBg[k] {
+      let r = Float(f.px[k * 4]), g = Float(f.px[k * 4 + 1]), b = Float(f.px[k * 4 + 2])
+      cand[k] = L[k] > 220 && max(r, g, b) - min(r, g, b) < 65
+    }
+    var q: [Int] = []
+    for k in 0..<P where cand[k] {
+      let x = k % W, y = k / W
+      outer: for dy in -2...2 { for dx in -2...2 { let xx = x + dx, yy = y + dy
+        if xx < 0 || yy < 0 || xx >= W || yy >= H { continue }; let n = yy * W + xx
+        if ring[n] || removedBg[n] { washed[k] = true; q.append(k); break outer } } }
+    }
+    var qi = 0
+    while qi < q.count { let k = q[qi]; qi += 1; let x = k % W, y = k / W
+      for (dx, dy) in [(1, 0), (-1, 0), (0, 1), (0, -1)] { let xx = x + dx, yy = y + dy
+        if xx < 0 || yy < 0 || xx >= W || yy >= H { continue }; let n = yy * W + xx
+        if cand[n] && !washed[n] { washed[n] = true; q.append(n) } } }
+  }
+  let solid = (0..<P).map { a[$0] > 0.4 && !ring[$0] && !washed[$0] }
+  var bridge = [Bool](repeating: false, count: P), anyBridge = false
+  let reachB = Int(7 * scale / 0.5)
+  for k in 0..<P where ring[k] {
+    let x = k % W, y = k / W
+    for (dx, dy) in [(1, 0), (0, 1), (1, 1), (1, -1)] {
+      var plus = false, minus = false
+      for r in 1...reachB {
+        let x1 = x + dx * r, y1 = y + dy * r, x2 = x - dx * r, y2 = y - dy * r
+        if !plus, x1 >= 0, y1 >= 0, x1 < W, y1 < H, solid[y1 * W + x1] { plus = true }
+        if !minus, x2 >= 0, y2 >= 0, x2 < W, y2 < H, solid[y2 * W + x2] { minus = true }
+      }
+      if plus && minus { bridge[k] = true; anyBridge = true; break }
+    }
+  }
+  if washed.contains(true) { anyBridge = true }
+  if anyBridge {
+    var col = [Float](repeating: 0, count: P * 3), wt = [Float](repeating: 0, count: P)
+    for k in 0..<P where solid[k] { for c in 0..<3 { col[k * 3 + c] = Float(f.px[k * 4 + c]) }; wt[k] = 1 }
+    let fill = pushPull(col, wt, W, H)
+    for k in 0..<P where bridge[k] || washed[k] {
+      if bridge[k] { a[k] = 1 }
+      for c in 0..<3 { frames[t].px[k * 4 + c] = UInt8(min(255, max(0, fill[k * 3 + c]))) }
     }
   }
   // 5. holes: enclosed transparent regions are filled unless they look like real background
@@ -309,14 +382,42 @@ for t in 0..<N {
   // 6. guided filter: edges follow the picture, soft and unstepped
   a = guided(lum01, a, max(2, Int(3 * scale / 0.5)), 0.0008).map { min(1, max(0, $0)) }
   for k in 0..<P where dIn[k] > band && fig[k] { a[k] = 1 }    // core stays solid after filtering
+  if let di = args.firstIndex(of: "--dumpframe"), Int(args[di + 1]) == t {   // debug: intermediate maps of one frame
+    func gray(_ v: [Float], _ name: String) {
+      var px = [UInt8](repeating: 0, count: P * 4)
+      for k in 0..<P { let g = UInt8(min(255, max(0, v[k] * 255))); px[k * 4] = g; px[k * 4 + 1] = g; px[k * 4 + 2] = g; px[k * 4 + 3] = 255 }
+      let prov = CGDataProvider(data: Data(bytes: &px, count: px.count) as CFData)!
+      let cg = CGImage(width: W, height: H, bitsPerComponent: 8, bitsPerPixel: 32, bytesPerRow: W * 4, space: sRGB, bitmapInfo: CGBitmapInfo(rawValue: CGImageAlphaInfo.last.rawValue), provider: prov, decode: nil, shouldInterpolate: true, intent: .defaultIntent)!
+      let d = CGImageDestinationCreateWithURL(URL(fileURLWithPath: "\(args[di + 2])/\(name).png") as CFURL, UTType.png.identifier as CFString, 1, nil)!
+      CGImageDestinationAddImage(d, cg, nil); CGImageDestinationFinalize(d)
+    }
+    gray(masks[t], "1-vision"); gray(removedBg.map { $0 ? 1 : 0 }, "2-removed"); gray(a, "3-alpha"); gray(L.map { $0 / 255 }, "0-luma")
+  }
   alphas.append(a)
-  var pl = [UInt8](repeating: 0, count: P * 3); for k in 0..<(P * 3) { pl[k] = UInt8(min(255, max(0, plate[k]))) }
-  plates.append(pl)
-  if t % 20 == 0 { log("frame \(t)") }
+  if t % 20 == 0 { log("pass 2 frame \(t)") }
 }
 
 // ───────── 7. temporal smoothing, specks, decontamination ─────────
-alphas = temporal(alphas, radius: 1, sigma: 8)
+// wider than before: where the picture is steady the matte must be steady too; moving parts keep their own frames
+alphas = legacy ? temporal(alphas, radius: 1, sigma: 8) : temporal(alphas, radius: 3, sigma: 11)
+// diagnostic: "unjustified" flicker = matte changes where the picture itself didn't change
+var unjust = 0.0, heat = [Float](repeating: 0, count: P)
+if N > 1 { for t in 1..<N { for k in 0..<P {
+  let dl = (luma[t][k] - luma[t - 1][k]) / 5, w = exp(-dl * dl), d = abs(alphas[t][k] - alphas[t - 1][k]) * w
+  unjust += Double(d); heat[k] += d } }; unjust /= Double((N - 1) * P) }
+log(String(format: "unjustified flicker %.6f", unjust))
+if let di = args.firstIndex(of: "--diag"), di + 1 < args.count {   // heat map of unjustified flicker over the source frame
+  let mx = max(1e-6, heat.max() ?? 1)
+  var px = [UInt8](repeating: 0, count: P * 4)
+  for k in 0..<P {
+    let v = min(1, heat[k] / (mx * 0.25)), g = UInt8(min(255, max(0, luma[N / 2][k] * 0.35)))
+    px[k * 4] = UInt8(min(255, Float(g) + v * 255)); px[k * 4 + 1] = UInt8(min(255, Float(g) + v * 60)); px[k * 4 + 2] = g; px[k * 4 + 3] = 255
+  }
+  let prov = CGDataProvider(data: Data(bytes: &px, count: px.count) as CFData)!
+  let cg = CGImage(width: W, height: H, bitsPerComponent: 8, bitsPerPixel: 32, bytesPerRow: W * 4, space: sRGB, bitmapInfo: CGBitmapInfo(rawValue: CGImageAlphaInfo.last.rawValue), provider: prov, decode: nil, shouldInterpolate: true, intent: .defaultIntent)!
+  let d = CGImageDestinationCreateWithURL(URL(fileURLWithPath: args[di + 1]) as CFURL, UTType.png.identifier as CFString, 1, nil)!
+  CGImageDestinationAddImage(d, cg, nil); CGImageDestinationFinalize(d)
+}
 var rgba: [[UInt8]] = []   // premultiplied RGBA8 (floats would need gigabytes at full resolution)
 for t in 0..<N {
   var a = alphas[t]
@@ -392,7 +493,7 @@ for (j, o) in outF.enumerated() {
   CGImageDestinationAddImage(d, outCG, nil); CGImageDestinationFinalize(d)
 }
 let rep: [String: Any] = ["frames_in": N, "frames_out": NO, "xfade": pingpong ? 0 : K, "pingpong": pingpong, "out": [tw, th],
-  "mean_consecutive_diff": meanConsec, "seam_diff_before": seamBefore, "seam_diff_after": seamAfter, "alpha_flicker": flick]
+  "mean_consecutive_diff": meanConsec, "seam_diff_before": seamBefore, "seam_diff_after": seamAfter, "alpha_flicker": flick, "unjustified_flicker": unjust]
 let js = try! JSONSerialization.data(withJSONObject: rep, options: [.prettyPrinted, .sortedKeys])
 try! js.write(to: URL(fileURLWithPath: "\(outDir)/report.json"))
 print(String(data: js, encoding: .utf8)!)
