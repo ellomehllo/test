@@ -386,6 +386,9 @@
   .board .rk { width: 28px; text-align: center; font-weight: 700; color: var(--gold-2); }
   .board .nm { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .board .tt { font-family: var(--serif); font-size: 19px; font-weight: 600; }
+  .board li.gap { justify-content: center; padding: 0; min-height: 0; border: 0; background: none; color: var(--ivory-3); letter-spacing: .3em; }
+  .board .nm small { font-size: 12px; color: var(--ivory-3); }
+  .board-more { width: 100%; margin-top: 8px; min-height: 46px; font-size: 15px; }
   .board li.empty { justify-content: center; text-align: center; color: var(--ivory-2); font-size: 14.5px; padding: 18px 14px; }
   .goal-card { padding: 14px; margin-top: 12px; }
   .goal-card .bar { height: 8px; border-radius: 9px; background: rgba(246,235,211,.1); overflow: hidden; margin: 10px 0 6px; }
@@ -709,6 +712,7 @@
     <div id="com-board">
       <div class="seg" id="board-period"><button data-p="week" aria-pressed="true" data-t="pWeek">इस हफ़्ते</button><button data-p="month" aria-pressed="false" data-t="pMonth">इस महीने</button><button data-p="all" aria-pressed="false" data-t="pAll">अब तक</button></div>
       <ol class="board" id="board-list" aria-live="polite"></ol>
+      <button id="board-more" class="btn-line board-more" hidden aria-controls="board-list"></button>
     </div>
     <div class="card join-card" id="join-card">
       <div class="row-between"><span id="com-name" style="font-size:16px;font-weight:600"></span><button class="link-btn" data-go="profile" data-t="editInProfile">प्रोफ़ाइल में बदलें</button></div>
@@ -922,6 +926,7 @@ const I18N = {
     resumeTxt: 'चल रही साधना · {n} जप', mala: 'माला', malaSub: '108 मनकों का एक चक्र', jaap: 'जप', jaapSub: 'समय चुनें या खुला जप',
     setTimer: 'समय चुनें', setTimerSub: 'कितनी देर जप करना चाहते हैं?', minShort: 'मिनट', start: 'शुरू करें', or: 'या',
     noTimer: 'बिना समय के', noTimerSub: 'सिर्फ़ जप गिनें', mantra: 'मंत्र', selectMala: 'माला चुनें', eachMala: 'एक माला = 108 जप',
+    you: 'आप', youHidden: '(सिर्फ़ आपको दिखता है)', showMore: 'सभी {n} देखें', showLess: 'कम दिखाएँ',
     tabProfile: 'प्रोफ़ाइल', thisWeek: 'इस हफ़्ते', goalToday: 'आज का लक्ष्य', dayStreak: 'दिन का क्रम', dayStreak1: 'दिन का क्रम',
     weekStreak: '{n} हफ़्ते लगातार साधना', weekStreak1: 'इस हफ़्ते की साधना शुरू — 1 हफ़्ता', weekStreak0: 'इस हफ़्ते साधना शुरू करें',
     achUnlocked: 'खुल गए', achFromStart: 'शुरू से साथ',
@@ -984,6 +989,7 @@ const I18N = {
     resumeTxt: 'Session in progress · {n} Naam', mala: 'Mala', malaSub: '108 beads per round', jaap: 'Jaap', jaapSub: 'Set a timer or count freely',
     setTimer: 'Set Timer', setTimerSub: 'Choose how long you want to practise', minShort: 'min', start: 'Start', or: 'or',
     noTimer: 'No Timer', noTimerSub: 'Just count repetitions', mantra: 'Mantra', selectMala: 'Select Mala Count', eachMala: 'Each mala = 108 repetitions',
+    you: 'You', youHidden: '(only you see this)', showMore: 'Show all {n}', showLess: 'Show less',
     tabProfile: 'Profile', thisWeek: 'This week', goalToday: 'Today’s goal', dayStreak: 'day streak', dayStreak1: 'day streak',
     weekStreak: '{n} weeks in a row', weekStreak1: '1 week so far — keep it going', weekStreak0: 'Practise this week to start a weekly streak',
     achUnlocked: 'Unlocked', achFromStart: 'With you from the start',
@@ -1464,6 +1470,8 @@ const Cloud = (() => {
     api.profile = { display_name: name, show_on_leaderboard: !!show };
   }
   const leaderboard = async period => { const { data, error } = await sb.rpc('leaderboard', { p_period: period, p_limit: 50 }); if (error) throw error; return data || []; };
+  // your own place even outside the top 50; null if the server doesn't have my_rank() yet or anything fails
+  const myRank = async period => { try { const { data, error } = await sb.rpc('my_rank', { p_period: period }); return !error && data && data[0] ? data[0] : null; } catch (_) { return null; } };
   const totalsAll = async () => { const { data, error } = await sb.rpc('global_totals'); if (error) throw error; return data && data[0]; };
   // Anonymous → permanent: attach the email to this account; if it already has an account, log in to it instead
   async function linkEmail(email) {
@@ -1485,7 +1493,7 @@ const Cloud = (() => {
   const resume = () => { if (!api.ready) init().then(() => { onRecordsChanged(); Community.renderAccount(); }); else flush().then(refreshStats); };
   addEventListener('online', resume);
   document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') resume(); });
-  Object.assign(api, { init, record, refreshStats, saveProfile, leaderboard, totalsAll, linkEmail, signOut, loadProfile });
+  Object.assign(api, { init, record, refreshStats, saveProfile, leaderboard, myRank, totalsAll, linkEmail, signOut, loadProfile });
   return api;
 })();
 
@@ -2252,20 +2260,43 @@ const DemoBoard = (() => {
     let rank = 0; rows.forEach((r, i) => { if (i === 0 || r.total !== rows[i - 1].total) rank = i + 1; r.rank = rank; });
     return rows.slice(0, 50);
   }
-  return { leaderboard };
+  function myRank(period) {
+    const me = bots.find(b => b.me), mine = me[period];
+    const listed = bots.filter(b => b[period] > 0);
+    return { rank: listed.filter(b => !b.me && b[period] > mine).length + 1, total: mine, devotees: listed.length };
+  }
+  return { leaderboard, myRank };
 })();
 
 /* Leaderboard on the Streaks page (real data only) + leaderboard visibility */
 const Community = (() => {
   let period = 'week';
   const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
-  const note = msg => { $('#board-list').innerHTML = `<li class="empty">${esc(msg)}</li>`; };
+  const note = msg => { $('#board-list').innerHTML = `<li class="empty">${esc(msg)}</li>`; $('#board-more').hidden = true; };
+  let expanded = false, lastRows = [], lastMine = null, lastListed = true;
+  const row = r => `<li class="${r.is_me ? 'me' : ''}"><span class="rk">${r.rank}</span><span class="nm">${esc(r.display_name)}</span><span class="tt">${fmtNum(+r.total)}</span></li>`;
+  // top 10 (or all on "show more"); your own row is pinned underneath whenever it isn't in view
+  function render(rows = lastRows, mine = lastMine, listed = lastListed) {
+    lastRows = rows; lastMine = mine; lastListed = listed;
+    const shown = expanded ? rows : rows.slice(0, 10);
+    let html = shown.map(row).join('');
+    if (mine && +mine.total > 0 && !shown.some(r => r.is_me)) {
+      const myName = (listed ? Profile.name() : '') || t('you');
+      html += `<li class="gap" aria-hidden="true">⋯</li><li class="me"><span class="rk">${mine.rank}</span><span class="nm">${esc(myName)}${listed ? '' : ` <small>${esc(t('youHidden'))}</small>`}</span><span class="tt">${fmtNum(+mine.total)}</span></li>`;
+    }
+    if (!rows.length && !html) { note(t('boardEmpty')); return; }
+    if (!rows.length) html = `<li class="empty">${esc(t('boardEmpty'))}</li>` + html;
+    $('#board-list').innerHTML = html;
+    const more = $('#board-more');
+    more.hidden = rows.length <= 10;
+    more.textContent = expanded ? t('showLess') : t('showMore', { n: rows.length });
+    more.setAttribute('aria-expanded', String(expanded));
+  }
   async function load() {
     if (DEMO_BOARD) {                                   // test data only: never shown without ?demoboard
       $('#join-card').hidden = true; $('#board-period').hidden = false;
       $('#com-offline').hidden = false; $('#com-offline').textContent = 'TEST DATA (?demoboard): 200 generated devotees on this device only — top 50 shown, as the server would return.';
-      const rows = DemoBoard.leaderboard(period);
-      $('#board-list').innerHTML = rows.map(r => `<li class="${r.is_me ? 'me' : ''}"><span class="rk">${r.rank}</span><span class="nm">${esc(r.display_name)}</span><span class="tt">${fmtNum(+r.total)}</span></li>`).join('');
+      render(DemoBoard.leaderboard(period), DemoBoard.myRank(period), true);
       return;
     }
     const ok = Cloud.ready;
@@ -2275,9 +2306,8 @@ const Community = (() => {
     renderAccount();
     note(t('boardLoading'));
     try {
-      const rows = await Cloud.leaderboard(period);
-      if (!rows.length) note(t('boardEmpty'));
-      else $('#board-list').innerHTML = rows.map(r => `<li class="${r.is_me ? 'me' : ''}"><span class="rk">${r.rank}</span><span class="nm">${esc(r.display_name)}</span><span class="tt">${fmtNum(+r.total)}</span></li>`).join('');
+      const [rows, mine] = await Promise.all([Cloud.leaderboard(period), Cloud.myRank(period)]);
+      render(rows, mine, !!(Cloud.profile && Cloud.profile.show_on_leaderboard));
     } catch (e) { note(t('cloudErr')); }
   }
   function renderAccount() {
@@ -2287,7 +2317,7 @@ const Community = (() => {
     $('#show-me').setAttribute('aria-checked', String(!!p.show_on_leaderboard));
   }
   $$('#board-period button').forEach(b => b.addEventListener('click', () => {
-    period = b.dataset.p; $$('#board-period button').forEach(x => x.setAttribute('aria-pressed', String(x === b))); load();
+    period = b.dataset.p; expanded = false; $$('#board-period button').forEach(x => x.setAttribute('aria-pressed', String(x === b))); load();
   }));
   $('#show-me').addEventListener('click', e => { const sw = e.currentTarget; sw.setAttribute('aria-checked', String(sw.getAttribute('aria-checked') !== 'true')); });
   $('#save-me').addEventListener('click', async () => {
@@ -2295,6 +2325,7 @@ const Community = (() => {
     if (showMe && !name) { toast(t('needName')); go('profile'); return; }
     try { await Cloud.saveProfile(name, showMe); toast(t('savedOk')); load(); } catch (_) { toast(t('cloudErr')); }
   });
+  $('#board-more').addEventListener('click', () => { expanded = !expanded; render(); if (!expanded) $('#board-list').scrollIntoView({ block: 'nearest' }); });
   return { load, renderAccount };
 })();
 
