@@ -1,0 +1,98 @@
+{
+ "hanuman-idle": {
+  "frames": 157,
+  "loop": "cross-faded loop (10 frames)",
+  "consec": 0.010972073736053403,
+  "seam_before": 0.02100562885716769,
+  "seam_after": 0.012306746603755674,
+  "border": 255,
+  "jump": 0.286,
+  "out": [
+   456,
+   720
+  ],
+  "size": "2027 KB webm",
+  "edge_note": "reached by the mace and tail (figure, not background)"
+ },
+ "hanuman-meditate": {
+  "frames": 84,
+  "loop": "ping-pong (forward then back)",
+  "consec": 0.005630420515613089,
+  "seam_before": 0.03650319690721215,
+  "seam_after": 0.007203113753935893,
+  "border": 0,
+  "jump": 0.574,
+  "out": [
+   956,
+   720
+  ],
+  "size": "1610 KB webm"
+ },
+ "ram-idle": {
+  "frames": 186,
+  "loop": "cross-faded loop (6 frames)",
+  "consec": 0.015648679130154768,
+  "seam_before": 0.015196917890405778,
+  "seam_after": 0.015196941666189458,
+  "border": 0,
+  "jump": 2.188,
+  "out": [
+   318,
+   720
+  ],
+  "size": "2224 KB webm"
+ },
+ "ram-meditate": {
+  "frames": 50,
+  "loop": "ping-pong (forward then back)",
+  "consec": 0.017366201258019593,
+  "seam_before": 0.07433477410377948,
+  "seam_after": 0.022753271444193802,
+  "border": 0,
+  "jump": 0.873,
+  "out": [
+   794,
+   720
+  ],
+  "size": "1366 KB webm"
+ },
+ "narad-idle": {
+  "frames": 98,
+  "loop": "ping-pong (forward then back)",
+  "consec": 0.006693686520976372,
+  "seam_before": 0.0485338045557225,
+  "seam_after": 0.005691374569490299,
+  "border": 0,
+  "jump": 0.906,
+  "out": [
+   462,
+   720
+  ],
+  "size": "1533 KB webm"
+ },
+ "narad-meditate": {
+  "frames": 80,
+  "loop": "ping-pong (forward then back)",
+  "consec": 0.012476995603013066,
+  "seam_before": 0.05756038790972006,
+  "seam_after": 0.011572152997358249,
+  "border": 0,
+  "jump": 1.14,
+  "out": [
+   718,
+   720
+  ],
+  "size": "2059 KB webm"
+ },
+ "notes": [
+  "<b>Crowns cut by the source frame.</b> Hanuman (meditating) and Narad's veena touch the top edge of the original video, so they end flat at the top of the clip.",
+  "<b>Thin halo ring.</b> A faint painted halo ring stays around Hanuman's crown in the meditating clip — it touches the crown and can't be separated cleanly.",
+  "<b>Halo remnants.</b> Narad (meditating) keeps small translucent bits of his glowing halo near the hair in a few frames.",
+  "<b>Ram idle edges.</b> Parts of the dhoti outline are slightly stepped in the alpha (soft at phone size), and one seam frame has a faint smudge by the lower-left of the dhoti.",
+  "<b>Ping-pong loops.</b> The meditating clips are only 1–2 s long and Narad idle had to stop before the clouds, so they play forward then backward; the tail, garland and cloth visibly reverse direction.",
+  "<b>Clouds background.</b> The clouds move a lot, so its 2 s dissolve seam shows a soft double image. The forest seam is hard to spot.",
+  "<b>Mahadev Shiv is a still.</b> There is no Shiv animation in the folder, so both Shiv pictures are background-removed stills with a gentle CSS float.",
+  "<b>The mala is drawn, not an asset.</b> No mala artwork exists in the folder; the 108-bead rudraksha mala is rendered live on a canvas.",
+  "<b>Generator watermark.</b> The background videos carry a tiny watermark in the bottom-right corner; it was left as is (mostly hidden behind the bottom bar)."
+ ]
+}

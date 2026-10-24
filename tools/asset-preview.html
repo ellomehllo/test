@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Asset Preview · Vanar Sathi</title>
+<style>
+  :root { --bg: #071210; --card: #0E1F22; --line: rgba(217,168,78,.3); --ivory: #F6EBD3; --dim: rgba(246,235,211,.65); --gold: #E9C77A; --bad: #E58B6A; --ok: #8FD9A8; }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ivory); font: 15px/1.45 system-ui, -apple-system, 'Segoe UI', sans-serif; }
+  main { max-width: 1180px; margin: 0 auto; padding: 24px 16px 60px; }
+  h1 { font: 600 28px/1.2 Georgia, serif; margin: 0 0 4px; color: var(--gold); }
+  h2 { font: 600 20px/1.2 Georgia, serif; margin: 34px 0 10px; color: var(--gold); }
+  p.lead { color: var(--dim); margin: 0 0 14px; max-width: 760px; }
+  .bar { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin: 14px 0; position: sticky; top: 0; z-index: 5; padding: 8px 0; background: var(--bg); }
+  .bar button { font: inherit; color: var(--ivory); background: var(--card); border: 1px solid var(--line); border-radius: 999px; padding: 7px 14px; cursor: pointer; }
+  .bar button[aria-pressed="true"] { background: var(--gold); color: #1d140a; font-weight: 600; }
+  table { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+  th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid rgba(246,235,211,.08); vertical-align: top; }
+  th { color: var(--gold); font-weight: 600; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 14px; }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: 16px; overflow: hidden; }
+  .pair { display: grid; grid-template-columns: 1fr 1fr; }
+  .pair figure { margin: 0; position: relative; aspect-ratio: 3 / 4; }
+  .pair figcaption { position: absolute; left: 8px; top: 6px; font-size: 11px; letter-spacing: .06em; text-transform: uppercase; background: rgba(0,0,0,.55); padding: 2px 7px; border-radius: 6px; z-index: 2; }
+  .pair img, .pair video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; }
+  .src { background: #1a1a1a; }
+  .stage { background-color: #0d2620; }
+  body[data-bgmode="checker"] .stage { background: repeating-conic-gradient(#3a3a3a 0 25%, #555 0 50%) 0 0 / 18px 18px; }
+  body[data-bgmode="forest"] .stage { background: #0d2620 url('../assets/bg-forest-poster.webp') center / cover; }
+  body[data-bgmode="white"] .stage { background: #fff; }
+  body[data-bgmode="magenta"] .stage { background: #ff00ff; }
+  .info { padding: 10px 12px 12px; font-size: 13px; color: var(--dim); }
+  .info b { color: var(--ivory); font-weight: 600; }
+  .info h3 { margin: 0 0 4px; font-size: 15px; color: var(--ivory); }
+  .tag { display: inline-block; font-size: 11.5px; padding: 1px 8px; border-radius: 999px; border: 1px solid currentColor; margin: 2px 4px 2px 0; }
+  .ok { color: var(--ok); } .warn { color: var(--gold); } .bad { color: var(--bad); }
+  .bgcard video { width: 100%; aspect-ratio: 9 / 16; object-fit: cover; display: block; max-height: 520px; }
+  ul.notes li { margin-bottom: 6px; color: var(--dim); } ul.notes b { color: var(--ivory); }
+  code { background: rgba(246,235,211,.08); padding: 1px 5px; border-radius: 5px; font-size: 12.5px; }
+</style>
+</head>
+<body data-bgmode="checker">
+<main>
+  <h1>Vanar Sathi — processed assets</h1>
+  <p class="lead">Every file in <code>~/Desktop/Meditation_Assets</code> (the folder the brief calls <code>meditating_assets</code>), what was made from it, and how each result measured. Originals were only read, never written. Clips play on a loop exactly as the app loads them — switch the backdrop to look for halos, holes or flicker.</p>
+
+  <div class="bar" role="group" aria-label="Backdrop">
+    <span style="color:var(--dim);font-size:13px">Backdrop:</span>
+    <button data-bg="checker" aria-pressed="true">Checkerboard</button>
+    <button data-bg="dark" aria-pressed="false">Dark green</button>
+    <button data-bg="forest" aria-pressed="false">App forest</button>
+    <button data-bg="white" aria-pressed="false">White</button>
+    <button data-bg="magenta" aria-pressed="false">Magenta (edge test)</button>
+  </div>
+
+  <h2>Inventory (20 files)</h2>
+  <table id="inv"><thead><tr><th>Source file</th><th>Format</th><th>Size</th><th>Used as</th></tr></thead><tbody></tbody></table>
+
+  <h2>Characters — background removed, loops repaired</h2>
+  <p class="lead">Left: original first frame. Right: processed clip (VP9-alpha WebM here; Safari/iOS get the matching HEVC-alpha <code>.mov</code>). “Seam” compares the last frame with the first, against normal frame-to-frame motion.</p>
+  <div class="grid" id="chars"></div>
+
+  <h2>Backgrounds — seamless loops</h2>
+  <div class="grid" id="bgs"></div>
+
+  <h2>Known imperfections</h2>
+  <ul class="notes" id="notes"></ul>
+</main>
+<script>
+const INV = [
+  ['Animated/Hanuman_Idle.mp4', 'H.264 1080×1920, 24 fps, 8 s (192 f)', '4.6 MB', 'Home + Aaradhya card: <b>av-hanuman-idle</b> (frames 19–185, cross-faded loop)'],
+  ['Animated/Hanuman_Meditatin.mp4', 'H.264 1920×1080, 24 fps, 1.8 s (43 f)', '1.6 MB', 'Jaap practice / paused / pranayama: <b>av-hanuman-meditate</b> (ping-pong loop)'],
+  ['Animated/Ram_Idle.mp4', 'H.264 1080×1920, 24 fps, 8 s (192 f)', '5.3 MB', '<b>av-ram-idle</b> (full clip, 6-frame cross-fade)'],
+  ['Animated/Ram_meditating.mp4', 'H.264 1920×1080, 24 fps, 1.1 s (26 f)', '1.0 MB', '<b>av-ram-meditate</b> (ping-pong loop)'],
+  ['Animated/NaradMuni_Idle.mp4', 'H.264 1920×1080, 24 fps, 8 s (192 f)', '3.7 MB', '<b>av-narad-idle</b> (frames 3–52, ping-pong loop — clouds drift into later frames)'],
+  ['Animated/NaradMuni_Meditating.mp4', 'H.264 1920×1080, 24 fps, 1.7 s (41 f)', '1.6 MB', '<b>av-narad-meditate</b> (ping-pong loop)'],
+  ['Animated/Divine_forest.mp4', 'H.264 1080×1920, 24 fps, 8 s', '8.4 MB', 'Default background: <b>bg-forest.mp4</b> 720×1280, 1.5 s dissolve seam (1.2 MB)'],
+  ['Animated/Divine_Clouds.mp4', 'H.264 1080×1920, 24 fps, 8 s', '2.3 MB', 'Optional background: <b>bg-clouds.mp4</b>, 2 s dissolve seam (0.3 MB)'],
+  ['MeditatingShiv.png', 'PNG 2048×1152', '3.7 MB', 'Mahadev Shiv while chanting: <b>av-shiv-meditate.webp</b> (still — no Shiv animation exists)'],
+  ['Selection:Default Shiv.png', 'PNG 2048×1152', '3.6 MB', 'Mahadev Shiv card / home: <b>av-shiv-idle.webp</b> (still, gentle CSS float)'],
+  ['Backgrounds/Divine Kailash.png', 'PNG 1152×2048', '3.2 MB', 'Optional still background: <b>bg-kailash.webp</b>'],
+  ['Backgrounds/Divine Forest.png', 'PNG 1152×2048', '4.4 MB', 'Not used — the animated forest replaces it (its first frame is the poster)'],
+  ['Backgrounds/Divine Clouds.png', 'PNG 1152×2048', '3.4 MB', 'Not used — the animated clouds replace it'],
+  ['Backgrounds/Divine BG.png', 'PNG 1152×2048 (ornamental frame)', '2.9 MB', 'Not used — a light card frame; clashes with the dark theme'],
+  ['Meditating Hanuman.png', 'PNG 2752×1536', '5.4 MB', 'Not used — same pose as the animated clip'],
+  ['Meditating Ram.png', 'PNG 2048×1152', '4.0 MB', 'Not used — the animated clip is used instead'],
+  ['Shri Ram.png', 'PNG 2048×1152', '3.6 MB', 'Not used — matches the animated meditating clip'],
+  ['Meditating NaradMuni.png', 'PNG 2048×1152', '3.8 MB', 'Not used — the animated clip is used instead'],
+  ['Selection:Default Hanuman.png', 'PNG 1536×2752', '5.6 MB', 'Not used — the idle clip is used instead'],
+  ['Selection:Default NaradMuni.png', 'PNG 2048×1152', '3.3 MB', 'Not used — the idle clip is used instead']
+];
+document.querySelector('#inv tbody').innerHTML = INV.map(r => `<tr><td>${r[0]}</td><td>${r[1]}</td><td>${r[2]}</td><td>${r[3]}</td></tr>`).join('');
+
+const CHARS = [
+  ['hanuman-idle', 'Hanuman_Idle'], ['hanuman-meditate', 'Hanuman_Meditatin'], ['ram-idle', 'Ram_Idle'], ['ram-meditate', 'Ram_meditating'],
+  ['narad-idle', 'NaradMuni_Idle'], ['narad-meditate', 'NaradMuni_Meditating'], ['shiv-idle', 'Selection_Default_Shiv'], ['shiv-meditate', 'MeditatingShiv']
+];
+fetch('preview/report.json').then(r => r.json()).catch(() => ({})).then(rep => {
+  document.getElementById('chars').innerHTML = CHARS.map(([key, src]) => {
+    const r = rep[key] || {}, still = key.startsWith('shiv');
+    const media = still ? `<img src="../assets/av-${key}.webp" alt="">` : `<video src="../assets/av-${key}.webm" poster="../assets/av-${key}.webp" muted playsinline autoplay loop></video>`;
+    const seamOk = r.seam_after != null && r.seam_after <= Math.max(r.consec * 2.2, 0.012);
+    const tags = still ? '<span class="tag ok">still image</span>' : [
+      `<span class="tag ${seamOk ? 'ok' : 'warn'}">seam ${r.seam_before?.toFixed(4)} → ${r.seam_after?.toFixed(4)} (motion ${r.consec?.toFixed(4)})</span>`,
+      `<span class="tag ${r.border === 0 ? 'ok' : r.edge_note ? 'warn' : 'bad'}">side edges ${r.border === 0 ? 'transparent' : r.edge_note || 'alpha ' + r.border}</span>`,
+      `<span class="tag ${r.jump < 1.2 ? 'ok' : 'warn'}">coverage jump ${r.jump?.toFixed(2)}</span>`
+    ].join('');
+    return `<div class="card"><div class="pair"><figure class="src"><figcaption>original</figcaption><img src="preview/src-${src}.jpg" alt=""></figure><figure class="stage"><figcaption>processed</figcaption>${media}</figure></div>
+      <div class="info"><h3>av-${key}</h3>${still ? '1 frame' : `${r.frames} frames · ${r.loop}`} · ${r.size || ''} ${r.out ? '· ' + r.out.join('×') : ''}<br>${tags}</div></div>`;
+  }).join('');
+  document.getElementById('bgs').innerHTML = [['bg-forest', 'Divine_forest', '6.5 s loop, last 1.5 s dissolved into the first 1.5 s'], ['bg-clouds', 'Divine_Clouds', '6 s loop, 2 s dissolve — the clouds move a lot, so a soft double image is visible during the dissolve']]
+    .map(([k, s, n]) => `<div class="card bgcard"><video src="../assets/${k}.mp4" muted playsinline autoplay loop></video><div class="info"><h3>${k}.mp4</h3>${n}</div></div>`).join('')
+    + `<div class="card bgcard"><img src="../assets/bg-kailash.webp" alt="" style="width:100%;aspect-ratio:9/16;object-fit:cover;display:block;max-height:520px"><div class="info"><h3>bg-kailash.webp</h3>Still (no animation in the source)</div></div>`;
+  document.getElementById('notes').innerHTML = (rep.notes || []).map(n => `<li>${n}</li>`).join('');
+});
+document.querySelectorAll('.bar button').forEach(b => b.addEventListener('click', () => {
+  document.body.dataset.bgmode = b.dataset.bg;
+  document.querySelectorAll('.bar button').forEach(x => x.setAttribute('aria-pressed', String(x === b)));
+}));
+</script>
+</body>
+</html>
