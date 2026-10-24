@@ -16,14 +16,14 @@
  "hanuman-meditate": {
   "frames": 84,
   "loop": "ping-pong (forward then back)",
-  "consec": 0.005967289117541643,
-  "seam_before": 0.04241235599747186,
-  "seam_after": 0.00703021057967582,
+  "consec": 0.005694903867066671,
+  "seam_before": 0.038386337205410286,
+  "seam_after": 0.006864873424588219,
   "out": [
-   1460,
+   1454,
    1080
   ],
-  "size": "2718 KB webm",
+  "size": "2630 KB webm",
   "flicker_v3": 0.5529,
   "flicker_v2": 0.6099
  },
@@ -44,14 +44,14 @@
  "ram-meditate": {
   "frames": 50,
   "loop": "ping-pong (forward then back)",
-  "consec": 0.02336927617478789,
-  "seam_before": 0.1061567971531431,
-  "seam_after": 0.031010047608135395,
+  "consec": 0.0233309254997166,
+  "seam_before": 0.10440796134115345,
+  "seam_after": 0.030588719622898844,
   "out": [
    1212,
    1080
   ],
-  "size": "2082 KB webm",
+  "size": "2063 KB webm",
   "flicker_v3": 1.2179,
   "flicker_v2": 1.5365
  },
@@ -72,20 +72,19 @@
  "narad-meditate": {
   "frames": 80,
   "loop": "ping-pong (forward then back)",
-  "consec": 0.021575936162596322,
-  "seam_before": 0.11167987067107289,
-  "seam_after": 0.021074756699814866,
+  "consec": 0.02123968229168723,
+  "seam_before": 0.1097681656586463,
+  "seam_after": 0.02085756840635018,
   "out": [
-   962,
+   960,
    956
   ],
-  "size": "3048 KB webm",
+  "size": "3106 KB webm",
   "flicker_v3": 0.7787,
   "flicker_v2": 1.1942
  },
  "notes": [
   "<b>Crowns cut by the source frame.</b> Hanuman (meditating) and Narad's veena touch the top edge of the original video, so they end flat at the top of the clip.",
-  "<b>Thin halo ring.</b> A faint painted halo ring stays around Hanuman's crown in the meditating clip — it touches the crown and can't be separated cleanly.",
   "<b>Backlight in the artwork.</b> Warm rim light painted on Hanuman's sash and glowing strands of Shiv's hair behind his arms are part of the pictures, so they stay.",
   "<b>Ping-pong loops.</b> The meditating clips are only 1–2 s long and Narad idle had to stop before the clouds, so they play forward then backward; the tail, garland and cloth visibly reverse direction.",
   "<b>Clouds background.</b> The clouds move a lot, so its 2 s dissolve seam shows a soft double image. The forest seam is hard to spot.",

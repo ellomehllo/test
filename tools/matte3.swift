@@ -26,7 +26,7 @@ func opt(_ k: String, _ d: Double) -> Double { if let i = args.firstIndex(of: k)
 let input = args[0], outDir = args[1]
 let scale = opt("--scale", 0.5), outH = Int(opt("--height", 720)), xfade = Int(opt("--xfade", 0))
 let startF = Int(opt("--start", 0)), endF = Int(opt("--end", -1)), pingpong = args.contains("--pingpong")
-let glowLo = Float(opt("--glow", 226))
+let glowLo = Float(opt("--glow", 226)), choke = Float(opt("--choke", 0))   // --choke 0.4: tighter, crisper rim (removes painted glow halos)
 try? FileManager.default.createDirectory(atPath: outDir, withIntermediateDirectories: true)
 let sRGB = CGColorSpace(name: CGColorSpace.sRGB)!
 let ciCtx = CIContext(options: [.workingColorSpace: sRGB])
@@ -216,7 +216,9 @@ for t in 0..<N {
     let dr = r - bgMean.0, dg = g - bgMean.1, db = b - bgMean.2
     let bgCol = (dr * dr + dg * dg + db * db).squareRoot() < 20
     let warmBright = L[k] > glowLo && r >= g - 4 && g >= b - 4 && dist[k] < 22   // glow is close to the plate; skin is warmer
-    glowy[k] = smooth && (bgCol || warmBright)
+    let sat = max(r, g, b) - min(r, g, b)
+    let whiteGlow = L[k] > 226 && sat < 45 && lstd[k] < 14   // a halo at its brightest is near-white (its painted ring adds texture)
+    glowy[k] = (smooth && (bgCol || warmBright)) || whiteGlow
   }
   var reach = [Bool](repeating: false, count: P); var q: [Int] = []
   for k in 0..<P where m[k] <= 0.05 { reach[k] = true; q.append(k) }
@@ -233,7 +235,7 @@ for t in 0..<N {
   // wide-window texture: backlight glow is a perfectly smooth gradient, painted skin never is
   let wmean = boxMean(lum01, r6), wmean2 = boxMean(lum01.map { $0 * $0 }, r6)
   let wstd = (0..<P).map { k in max(0, wmean2[k] - wmean[k] * wmean[k]).squareRoot() * 255 }
-  for k in 0..<P where m[k] > 0.05 && lstd[k] < 4 {
+  for k in 0..<P where m[k] > 0.05 && m[k] < 0.85 && lstd[k] < 4 {   // Vision-confident skin is never a pocket
     let r = Float(f.px[k * 4]), g = Float(f.px[k * 4 + 1]), b = Float(f.px[k * 4 + 2])
     let dr = r - bgMean.0, dg = g - bgMean.1, db = b - bgMean.2
     let sat = max(r, g, b) - min(r, g, b)
@@ -272,6 +274,22 @@ for t in 0..<N {
     a[k] = max(core * (fig[k] ? 1 : 0), shape * max(key, smoothstep(0.85, 0.99, m[k])))
     if !fig[k] && m[k] < 0.15 { a[k] = min(a[k], key * smoothstep(0.02, 0.15, m[k]) * 1.0) }
   }
+  // thin pale rings (a painted halo hugging the crown): thinner than ~8 px, light and desaturated → not figure
+  let thinR = Float(4 * scale / 0.5)
+  let nearCore = distanceTo(dIn.map { $0 >= thinR }, borderIsSeed: false)
+  // white backlight fringe: bright, desaturated, smooth pixels near the silhouette fade out
+  for k in 0..<P where a[k] > 0 {
+    let r = Float(f.px[k * 4]), g = Float(f.px[k * 4 + 1]), b = Float(f.px[k * 4 + 2])
+    let sat = max(r, g, b) - min(r, g, b)
+    if fig[k] && nearCore[k] > thinR + 1 && L[k] > 210 && sat < 50 { a[k] = 0; continue }
+    let white = smoothstep(198, 234, L[k]) * (1 - smoothstep(35, 75, sat))
+    let rim = 1 - smoothstep(band * 0.35, band, dIn[k])
+    a[k] *= 1 - white * rim
+    if choke > 0 {   // painted warm backlight right at the silhouette
+      let outer = 1 - smoothstep(band * 0.1, band * 0.4, dIn[k])
+      a[k] *= 1 - smoothstep(212, 238, L[k]) * outer
+    }
+  }
   // 5. holes: enclosed transparent regions are filled unless they look like real background
   var lab = [Int32](repeating: -1, count: P); var comps: [(touch: Bool, n: Int, bgScore: Float)] = []
   for k0 in 0..<P where lab[k0] < 0 && a[k0] < 0.5 {
@@ -302,7 +320,8 @@ alphas = temporal(alphas, radius: 1, sigma: 8)
 var rgba: [[UInt8]] = []   // premultiplied RGBA8 (floats would need gigabytes at full resolution)
 for t in 0..<N {
   var a = alphas[t]
-  for k in 0..<P { a[k] = smoothstep(0.04, 0.96, a[k]) }               // tiny choke: no faint fringe ring
+  let lo = choke > 0 ? choke : 0.04
+  for k in 0..<P { a[k] = smoothstep(lo, 0.96, a[k]) }                 // choke: no faint fringe ring
   // detached specks (< 3% of the largest part) go
   var lab = [Int32](repeating: -1, count: P); var areas: [Int] = []
   for k0 in 0..<P where lab[k0] < 0 && a[k0] > 0.05 {

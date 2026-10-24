@@ -17,13 +17,17 @@ final motion-adaptive temporal smoothing, speck removal, edge colour decontamina
 swiftc -O tools/matte3.swift -o /tmp/matte3
 A=~/Desktop/Meditation_Assets/Animated
 /tmp/matte3 $A/Hanuman_Idle.mp4         out/hanuman-idle     --scale 1.0 --height 2160 --start 19 --end 185 --xfade 10
-/tmp/matte3 $A/Hanuman_Meditatin.mp4    out/hanuman-meditate --scale 1.0 --height 2160 --pingpong
+/tmp/matte3 $A/Hanuman_Meditatin.mp4    out/hanuman-meditate --scale 1.0 --height 2160 --pingpong --choke 0.4
 /tmp/matte3 $A/Ram_Idle.mp4             out/ram-idle         --scale 1.0 --height 2160 --xfade 6
 /tmp/matte3 $A/Ram_meditating.mp4       out/ram-meditate     --scale 1.0 --height 2160 --pingpong
 /tmp/matte3 $A/NaradMuni_Idle.mp4       out/narad-idle       --scale 1.0 --height 2160 --start 3 --end 52 --pingpong
-/tmp/matte3 $A/NaradMuni_Meditating.mp4 out/narad-meditate   --scale 1.0 --height 2160 --pingpong
+/tmp/matte3 $A/NaradMuni_Meditating.mp4 out/narad-meditate   --scale 1.0 --height 2160 --pingpong --choke 0.3
 /tmp/matte3 ~/Desktop/Meditation_Assets/MeditatingShiv.png out/shiv-meditate --scale 1.0 --height 2160
 ```
+
+`--choke` tightens the rim and fades the painted backlight glow at the silhouette (meditating clips);
+leave it off for Ram, whose thin floating bead strings it would erase. Thin pale rings (a halo hugging
+the crown) and white backlight fringes are removed automatically.
 
 ## Older method — `matte.swift` (v2, kept for reference)
 
