@@ -1321,9 +1321,9 @@ const MANTRAS = {
 };
 const AARADHYA = [
   { id: 'hanuman', hi: 'श्री हनुमान', en: 'Shri Hanuman', video: true, mantras: ['ram', 'hanuman'], unlockMin: 0, cost: 0 },
-  { id: 'ram', hi: 'प्रभु श्री राम', en: 'Prabhu Shri Ram', video: true, mantras: ['shriram', 'ram'], unlockMin: 360, cost: 30 },
-  { id: 'narad', hi: 'देवर्षि नारद', en: 'Devarshi Narad', video: true, mantras: ['narayan'], unlockMin: 720, cost: 60 },
-  { id: 'shiv', hi: 'महादेव शिव', en: 'Mahadev Shiv', video: false, mantras: ['shiv'], unlockMin: 1440, cost: 90 }
+  { id: 'ram', hi: 'प्रभु श्री राम', en: 'Prabhu Shri Ram', video: true, mantras: ['shriram', 'ram'], unlockMin: 360, cost: 110 },
+  { id: 'narad', hi: 'देवर्षि नारद', en: 'Devarshi Narad', video: true, mantras: ['narayan'], unlockMin: 720, cost: 220 },
+  { id: 'shiv', hi: 'महादेव शिव', en: 'Mahadev Shiv', video: false, mantras: ['shiv'], unlockMin: 1440, cost: 430 }
 ];
 const aById = id => AARADHYA.find(a => a.id === id) || AARADHYA[0];
 const aName = a => (settings.lang === 'en' ? a.en : a.hi);
