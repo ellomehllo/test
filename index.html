@@ -1566,7 +1566,7 @@ function makeSheet(el, onOpen) {
 /* ───────────────────────── 8 · FIGURES — transparent animated Aaradhya ─────────────────────────
  * Safari and every iOS browser (WebKit) only render video transparency from HEVC; the rest use VP9 WebM.
  * Still WebP posters show instantly and stay when motion is reduced (Shiv is always a still).        */
-const AV = 1;
+const AV = 2;
 const UA = navigator.userAgent;
 const VEXT = /AppleWebKit/.test(UA) && !/Chrome|Chromium|Edg|OPR|Android/.test(UA) ? 'mov' : 'webm';
 function setFigure(el, aid, kind, animate = true) {
