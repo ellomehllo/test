@@ -1424,11 +1424,15 @@ const mantraFor = a => (a.mantras.includes(settings.mantra[a.id]) ? settings.man
 // last answer for offline use; sessions still waiting in the upload queue are added on top. ?nocloud (testing) keeps the
 // older on-phone rules.
 const SERVER_UNLOCKS = !NO_CLOUD;
-const sessionTokens = (count, completed) => (completed ? 3 + 2 * Math.floor(count / MALA) : Math.floor(count / MALA));
+// same rule as public.session_tokens() on the server: malas count at most one per minute of the session
+const sessionTokens = (count, completed, minutes) => {
+  const malas = Math.min(Math.floor(count / MALA), minutes || 0);
+  return completed ? 3 + 2 * malas : malas;
+};
 const pendingJaap = () => { try { return Cloud.pending().filter(r => r.kind === 'jaap'); } catch (_) { return []; } };
 function tokenBalance() {
   if (!SERVER_UNLOCKS) return records.tokens;
-  return (records.server ? records.server.tokens : 0) + pendingJaap().reduce((n, r) => n + sessionTokens(r.jaap_count, r.completed), 0);
+  return (records.server ? records.server.tokens : 0) + pendingJaap().reduce((n, r) => n + sessionTokens(r.jaap_count, r.completed, r.minutes), 0);
 }
 const cloudMinutes = () => { try { return Cloud.stats ? +Cloud.stats.minutes : 0; } catch (_) { return 0; } };
 const practiceMin = () => (SERVER_UNLOCKS && records.server
@@ -1493,7 +1497,7 @@ function recordSession(s, completed) {
   const fullMalas = Math.floor(s.count / MALA);
   let tokens = 0;
   if (!records.rewarded.includes(s.id)) {
-    tokens = sessionTokens(s.count, completed);
+    tokens = sessionTokens(s.count, completed, minutesUp);
     if (!SERVER_UNLOCKS) records.tokens += tokens;        // otherwise the server adds them once the session is uploaded
     records.rewarded = [...records.rewarded, s.id].slice(-200);
     records.history.push({ id: s.id, mode: s.mode, aaradhya: s.aaradhya, mantra: s.mantra, count: s.count, ms, day: todayKey(), at: Date.now(),
