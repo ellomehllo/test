@@ -164,7 +164,10 @@
   .pick[aria-checked="true"] .pick-ico { color: #1F150A; border-color: var(--gold-2);
     background: radial-gradient(circle at 35% 30%, #FBE7AE, #D9A84E 60%, #A87A31); box-shadow: 0 0 0 4px rgba(242,211,135,.18), 0 0 24px rgba(242,211,135,.4); }
   .home-start { margin-top: 10px; min-height: 60px; font-size: 20px; }
-  .home-name { margin: 0 -16px; padding: 26px 16px 2px; background: linear-gradient(180deg, transparent, rgba(4,12,14,.55) 55%, rgba(4,12,14,.7)); }
+  .home-name { margin: 0 -16px; padding: 26px 16px 2px; }
+  /* one continuous scrim from above the name down to the bottom of the screen: no visible edge */
+  .home-name::before { content: ''; position: absolute; z-index: -1; left: 0; right: 0; top: -36px; height: 100dvh; pointer-events: none;
+    background: linear-gradient(180deg, rgba(4,12,14,0) 0, rgba(4,12,14,.45) 70px, rgba(4,12,14,.66) 170px, rgba(4,12,14,.78) 320px, rgba(4,12,14,.82) 100%); }
   .home-name { text-align: center; margin-top: 2px; }
   .home-name h2 { font-family: var(--serif); font-size: 26px; font-weight: 600; line-height: 1.1; text-shadow: 0 2px 14px rgba(0,0,0,.6); }
   :lang(hi) .home-name h2 { font-family: var(--deva); font-weight: 400; font-size: 24px; }
