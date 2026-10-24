@@ -27,6 +27,7 @@ let input = args[0], outDir = args[1]
 let scale = opt("--scale", 0.5), outH = Int(opt("--height", 720)), xfade = Int(opt("--xfade", 0))
 let startF = Int(opt("--start", 0)), endF = Int(opt("--end", -1)), pingpong = args.contains("--pingpong")
 let glowLo = Float(opt("--glow", 226)), choke = Float(opt("--choke", 0))   // --choke 0.4: tighter, crisper rim (removes painted glow halos)
+let unmix = !args.contains("--no-unmix")   // colour unmixing on the rim and thin parts (step 6b); --no-unmix reproduces v5
 try? FileManager.default.createDirectory(atPath: outDir, withIntermediateDirectories: true)
 let sRGB = CGColorSpace(name: CGColorSpace.sRGB)!
 let ciCtx = CIContext(options: [.workingColorSpace: sRGB])
@@ -382,6 +383,42 @@ for t in 0..<N {
   // 6. guided filter: edges follow the picture, soft and unstepped
   a = guided(lum01, a, max(2, Int(3 * scale / 0.5)), 0.0008).map { min(1, max(0, $0)) }
   for k in 0..<P where dIn[k] > band && fig[k] { a[k] = 1 }    // core stays solid after filtering
+  // 6b. colour unmixing on the rim and thin parts. A rim pixel's colour lies between the figure's own colour just inside
+  //     (pushed outwards from solid pixels) and the clean plate behind it; where those two differ clearly, the position
+  //     between them says how much of each it is. Cream background kept at half opacity (a pale outline and pale patches
+  //     in gaps on dark backdrops) drops out, and a thin limb the neural mask was unsure about (the tail in shadow) turns
+  //     solid. Where figure and background look alike (a golden crown against the glow) the matte is left as it was.
+  if unmix {
+    let pl = plates[t]
+    var col = [Float](repeating: 0, count: P * 3), wt = [Float](repeating: 0, count: P)
+    for k in 0..<P where a[k] > 0.97 && dIn[k] > 2 { for c in 0..<3 { col[k * 3 + c] = Float(frames[t].px[k * 4 + c]) }; wt[k] = 1 }
+    let Fm = pushPull(col, wt, W, H)
+    for k in 0..<P where dIn[k] <= band && (a[k] > 0.01 || masks[t][k] > 0.3) {
+      var num: Float = 0, den: Float = 0
+      for c in 0..<3 {
+        let C = Float(frames[t].px[k * 4 + c]), B = Float(pl[k * 3 + c]), F = Fm[k * 3 + c]
+        num += (C - B) * (F - B); den += (F - B) * (F - B)
+      }
+      let conf = smoothstep(28, 60, sqrt(den / 3))   // how clearly figure and background colours differ here
+      if conf <= 0 { continue }
+      let au = min(1, max(0, num / den)), m = masks[t][k]
+      // mostly background colour → fade it, but never where the neural mask is sure it's figure (crown spikes);
+      // mostly figure colour → solid, where the mask at least half agrees (a tail in shadow); in between: unchanged
+      let bgLike = (1 - smoothstep(0.1, 0.45, au)) * conf * (1 - smoothstep(0.8, 0.95, m))
+      // (only firms up what is already partly figure: it never creates opacity in empty background)
+      let figLike = smoothstep(0.65, 0.9, au) * conf * smoothstep(0.2, 0.5, m) * smoothstep(0.1, 0.35, a[k])
+      a[k] = max(a[k] * (1 - bgLike), figLike)
+    }
+    // soft edge pixels take the figure's own colour from just inside, so a fading edge fades in skin or cloth colour,
+    // never in cream. The plate is set to the same colour, which makes step 7's decontamination keep it as it is.
+    for k in 0..<P where dIn[k] <= band && a[k] > 0.004 && a[k] < 0.98 {
+      let w = 1 - smoothstep(0.85, 0.98, a[k])
+      for c in 0..<3 {
+        let v = UInt8(min(255, max(0, Fm[k * 3 + c] * w + Float(frames[t].px[k * 4 + c]) * (1 - w))))
+        frames[t].px[k * 4 + c] = v; plates[t][k * 3 + c] = v
+      }
+    }
+  }
   if let di = args.firstIndex(of: "--dumpframe"), Int(args[di + 1]) == t {   // debug: intermediate maps of one frame
     func gray(_ v: [Float], _ name: String) {
       var px = [UInt8](repeating: 0, count: P * 4)
@@ -399,7 +436,8 @@ for t in 0..<N {
 
 // ───────── 7. temporal smoothing, specks, decontamination ─────────
 // wider than before: where the picture is steady the matte must be steady too; moving parts keep their own frames
-alphas = legacy ? temporal(alphas, radius: 1, sigma: 8) : temporal(alphas, radius: 3, sigma: 11)
+let steadyR = Int(opt("--steady", 3)), steadyS = Float(opt("--steady-sigma", 11))   // final temporal smoothing (motion-adaptive)
+alphas = legacy ? temporal(alphas, radius: 1, sigma: 8) : temporal(alphas, radius: steadyR, sigma: steadyS)
 // diagnostic: "unjustified" flicker = matte changes where the picture itself didn't change
 var unjust = 0.0, heat = [Float](repeating: 0, count: P)
 if N > 1 { for t in 1..<N { for k in 0..<P {
