@@ -50,6 +50,10 @@
 
   /* ---------- Backdrop: animated forest / clouds / Kailash, tinted deep green-blue for contrast ---------- */
   #backdrop { position: fixed; inset: 0; z-index: 0; background: var(--deep) center / cover no-repeat; }
+  /* still backgrounds drift very slowly so the scene feels alive */
+  body[data-bg="grove"] #backdrop, body[data-bg="kailash"] #backdrop { animation: bgDrift 48s ease-in-out infinite alternate; }
+  @keyframes bgDrift { from { transform: scale(1.02) translate(0, 0); } to { transform: scale(1.09) translate(-1.2%, -1.5%); } }
+  body.reduce-motion #backdrop { animation: none !important; }
   #bg-video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0; transition: opacity 1.2s ease; }
   #bg-video.on { opacity: 1; }
   .bg-tint { position: absolute; inset: 0; transition: background 1s ease;
@@ -788,7 +792,7 @@
     </div>
     <div class="set-group"><h3 data-t="gLook">रूप</h3>
       <div class="card set-list">
-        <div class="set-item"><span data-t="bgSet">पृष्ठभूमि</span><div class="seg" data-group="bg"><button data-value="forest" data-t="bgForest">वन</button><button data-value="clouds" data-t="bgClouds">बादल</button><button data-value="kailash" data-t="bgKailash">कैलाश</button></div></div>
+        <div class="set-item"><span data-t="bgSet">पृष्ठभूमि</span><div class="seg" data-group="bg"><button data-value="forest" data-t="bgForest">वन</button><button data-value="clouds" data-t="bgClouds">बादल</button><button data-value="kailash" data-t="bgKailash">कैलाश</button><button data-value="grove" data-t="bgGrove">उपवन</button></div></div>
         <div class="set-item"><div class="row-between"><span data-t="motionSet">कम हलचल</span><button id="sw-motion" class="switch" role="switch" aria-checked="false" data-t-aria="motionSet" aria-label="कम हलचल"></button></div><p class="sub" data-t="motionSetSub">चलती तस्वीरों की जगह स्थिर चित्र — बैटरी और डेटा भी बचता है</p></div>
       </div>
     </div>
@@ -973,7 +977,7 @@ const I18N = {
     voiceAsk: 'अनुमति माँगी जा रही है…', voiceReady: 'माइक की अनुमति मिल गई। साधना शुरू होने पर सुनना शुरू होगा।',
     vListening: 'सुन रहे हैं', vOff: 'आवाज़ बंद', vDenied: 'माइक बंद', vError: 'आवाज़ रुकी', vStarting: 'शुरू हो रहा…', vPaused: 'रुका',
     vMuted: 'आवाज़ से गिनती चालू है, इसलिए रिकॉर्ड किया जप नहीं बजेगा (वरना वही गिना जाता)', vNet: 'आवाज़ पहचान के लिए इंटरनेट चाहिए',
-    gLook: 'रूप', bgSet: 'पृष्ठभूमि', bgForest: 'वन', bgClouds: 'बादल', bgKailash: 'कैलाश', motionSet: 'कम हलचल', motionSetSub: 'चलती तस्वीरों की जगह स्थिर चित्र — बैटरी और डेटा भी बचता है',
+    gLook: 'रूप', bgSet: 'पृष्ठभूमि', bgForest: 'वन', bgClouds: 'बादल', bgKailash: 'कैलाश', bgGrove: 'उपवन', motionSet: 'कम हलचल', motionSetSub: 'चलती तस्वीरों की जगह स्थिर चित्र — बैटरी और डेटा भी बचता है',
     gNotify: 'सूचनाएँ', reminder: 'दैनिक याद', soon: 'जल्द आएगा', reminderSub: 'अभी उपलब्ध नहीं है — इसके लिए ऐप में सूचना की सुविधा चाहिए।',
     gPrivacy: 'गोपनीयता और खाता', privacySub: 'आपका जप अपने-आप किसी को नहीं दिखता। नाम केवल तब दिखता है जब आप सत्संग में यह चालू करें।', about: 'आराध्य के बारे में',
     getApp: 'ऐप डाउनलोड करें', appTitle: 'आराध्य ऐप', appWhy: 'बिना इंटरनेट के भी जप करें — सारे वीडियो, राम नाम मंत्र और चालीसा फ़ोन में रहेंगे। इंटरनेट आते ही आपकी गिनती अपने-आप जुड़ जाएगी।',
@@ -1036,7 +1040,7 @@ const I18N = {
     voiceAsk: 'Asking for permission…', voiceReady: 'Microphone allowed. Listening starts when a session begins.',
     vListening: 'Listening', vOff: 'Voice off', vDenied: 'Mic blocked', vError: 'Voice stopped', vStarting: 'Starting…', vPaused: 'Paused',
     vMuted: 'Voice counting is on, so the recorded chant won’t play (it would be counted)', vNet: 'Speech recognition needs an internet connection',
-    gLook: 'Appearance', bgSet: 'Background', bgForest: 'Forest', bgClouds: 'Clouds', bgKailash: 'Kailash', motionSet: 'Reduced motion', motionSetSub: 'Still pictures instead of animation — also saves battery and data',
+    gLook: 'Appearance', bgSet: 'Background', bgForest: 'Forest', bgClouds: 'Clouds', bgKailash: 'Kailash', bgGrove: 'Grove', motionSet: 'Reduced motion', motionSetSub: 'Still pictures instead of animation — also saves battery and data',
     gNotify: 'Notifications', reminder: 'Daily reminder', soon: 'Coming soon', reminderSub: 'Not available yet — it needs notifications in the app.',
     gPrivacy: 'Privacy & account', privacySub: 'Your jaap is never shown to anyone by default. Your name appears only if you turn it on in Community.', about: 'About Aradhya',
     getApp: 'Get the app', appTitle: 'Aradhya app', appWhy: 'Chant even without internet — all videos, the Ram Naam chant and the Chalisa stay on your phone. Your count syncs automatically when you are back online.',
@@ -1586,13 +1590,14 @@ const Backdrop = (() => {
   const v = $('#bg-video'), bd = $('#backdrop');
   const conn = navigator.connection || {};
   const slow = !!conn.saveData || /(^|-)(2g|3g)$/.test(conn.effectiveType || '');
-  const POSTER = { forest: 'bg-forest-poster.webp', clouds: 'bg-clouds-poster.webp', kailash: 'bg-kailash.webp' };
+  const POSTER = { forest: 'bg-forest-poster.webp', clouds: 'bg-clouds-poster.webp', kailash: 'bg-kailash.webp', grove: 'bg-grove.webp' };
+  const STILL = ['kailash', 'grove'];   // pictures, not videos (they drift slowly instead)
   function apply() {
     const bg = POSTER[settings.bg] ? settings.bg : 'forest';
     document.body.dataset.bg = bg;
     bd.style.backgroundImage = `url('assets/${POSTER[bg]}?v=${AV}')`;
     v.classList.remove('on');
-    if (bg === 'kailash' || reduceMotion() || (!IS_APP && slow)) { v.pause(); v.removeAttribute('src'); v.load(); return; }
+    if (STILL.includes(bg) || reduceMotion() || (!IS_APP && slow)) { v.pause(); v.removeAttribute('src'); v.load(); return; }
     v.muted = true; v.src = `assets/bg-${bg}.mp4?v=${AV}`; v.preload = 'auto';
     v.addEventListener('playing', () => v.classList.add('on'), { once: true });
     v.play().catch(() => {});
