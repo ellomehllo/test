@@ -116,6 +116,7 @@
   .coin { flex: none; width: 18px; height: 18px; border-radius: 50%; display: inline-grid; place-items: center;
     background: radial-gradient(circle at 35% 30%, #FFF0B8, #E7B550 45%, #A9742A 100%); box-shadow: inset 0 0 0 1.5px rgba(120,80,20,.5); }
   .coin::after { content: ''; width: 6px; height: 6px; border-radius: 50%; background: rgba(120,78,20,.55); }
+  .text-in.time-in { width: auto; min-width: 128px; text-align: center; }
   .text-in { width: 100%; min-height: 48px; padding: 0 14px; border-radius: 14px; font-size: 16px; color: var(--ivory);
     background: rgba(4,12,16,.6); border: 1px solid var(--line-2); -webkit-user-select: text; user-select: text; }
   .text-in:focus { border-color: var(--gold); outline: none; }
@@ -801,7 +802,10 @@
     </div>
     <div class="set-group"><h3 data-t="gNotify">सूचनाएँ</h3>
       <div class="card set-list">
-        <div class="set-item"><div class="row-between"><span data-t="reminder">दैनिक याद</span><span class="tag-soon" data-t="soon">जल्द आएगा</span></div><p class="sub" data-t="reminderSub">अभी उपलब्ध नहीं है — इसके लिए ऐप में सूचना की सुविधा चाहिए।</p></div>
+        <div class="set-item"><div class="row-between"><span data-t="reminder">रोज़ जप की याद</span><button id="sw-remind" class="switch" role="switch" aria-checked="false" data-t-aria="reminder" aria-label="रोज़ जप की याद"></button></div>
+          <div class="row-between" id="remind-time-row" style="margin-top:10px" hidden><label for="remind-time" data-t="remindAt">समय</label><input id="remind-time" class="text-in time-in" type="time" value="07:00"></div>
+          <p class="sub" id="remind-note"></p></div>
+        <div class="set-item" id="nudge-item"><div class="row-between"><span data-t="nudge">साधना क्रम बचाने की याद</span><button id="sw-nudge" class="switch" role="switch" aria-checked="false" data-t-aria="nudge" aria-label="साधना क्रम बचाने की याद"></button></div><p class="sub" data-t="nudgeSub"></p></div>
       </div>
     </div>
     <div class="set-group"><h3 data-t="gPrivacy">गोपनीयता और खाता</h3>
@@ -930,7 +934,8 @@ const settings = Object.assign({
   minutes: 25, sound: 'ram', vib: 'medium', lang: 'hi',
   goal: 108, aaradhya: 'hanuman', mantra: {}, malas: 1, bg: 'grove', homeMode: 'jaap',
   breath: true,
-  voice: false, reduceMotion: false
+  voice: false, reduceMotion: false,
+  remind: false, remindTime: '07:00', nudge: false
 }, saved.settings);
 delete settings.lockout; delete settings.holdFinish;   // hold-to-finish was removed: finishing is one tap + a yes/no question
 settings.sound = 'mute';
@@ -1009,7 +1014,10 @@ const I18N = {
     vListening: 'सुन रहे हैं', vOff: 'आवाज़ बंद', vDenied: 'माइक बंद', vError: 'आवाज़ रुकी', vStarting: 'शुरू हो रहा…', vPaused: 'रुका',
     vMuted: 'आवाज़ से गिनती चालू है, इसलिए रिकॉर्ड किया जप नहीं बजेगा (वरना वही गिना जाता)', vNet: 'आवाज़ पहचान के लिए इंटरनेट चाहिए',
     gLook: 'रूप', bgSet: 'पृष्ठभूमि', bgForest: 'वन', bgClouds: 'बादल', bgKailash: 'कैलाश', bgGrove: 'उपवन', motionSet: 'कम हलचल', motionSetSub: 'चलती तस्वीरों की जगह स्थिर चित्र — बैटरी और डेटा भी बचता है',
-    gNotify: 'सूचनाएँ', reminder: 'दैनिक याद', soon: 'जल्द आएगा', reminderSub: 'अभी उपलब्ध नहीं है — इसके लिए ऐप में सूचना की सुविधा चाहिए।',
+    gNotify: 'सूचनाएँ', reminder: 'रोज़ जप की याद', remindAt: 'समय', remindSub: 'चुने हुए समय पर याद — जिस दिन जप हो चुका हो, उस दिन नहीं।', remindAppOnly: 'याद दिलाने की सुविधा Android ऐप में मिलती है।',
+    nudge: 'साधना क्रम बचाने की याद', nudgeSub: 'शाम 8 बजे — केवल तब, जब आपका क्रम चल रहा हो और उस दिन जप न हुआ हो।',
+    nDenied: 'सूचनाओं की अनुमति नहीं मिली — फ़ोन की सेटिंग्स में आराध्य के लिए सूचनाएँ चालू करें।',
+    nDailyT: '🙏 जप का समय', nDailyB: '{name} आपकी प्रतीक्षा में हैं — एक माला भी काफ़ी है।', nNudgeT: '🔥 आपका {n} दिन का साधना क्रम', nNudgeB: 'आज रात 12 बजे टूट जाएगा — एक माला से इसे बचा लें।',
     gPrivacy: 'गोपनीयता और खाता', privacySub: 'आपका नाम और फ़ोटो इसी फ़ोन पर रहते हैं। भक्त सूची में आप केवल एक नंबर वाले भक्त के रूप में दिखते हैं — और वह भी तभी जब आप चालू करें।', about: 'आराध्य के बारे में',
     getApp: 'ऐप डाउनलोड करें', appTitle: 'आराध्य ऐप', appWhy: 'बिना इंटरनेट के भी जप करें — सारे वीडियो, राम नाम मंत्र और चालीसा फ़ोन में रहेंगे। इंटरनेट आते ही आपकी गिनती अपने-आप जुड़ जाएगी।',
     appStep1: 'नीचे दिए बटन से ऐप डाउनलोड करें', appStep2: 'डाउनलोड हुई फ़ाइल खोलें', appStep3: 'फ़ोन पूछे तो “इस स्रोत से ऐप की अनुमति दें” चालू करें', appStep4: '“इंस्टॉल” दबाएँ — हो गया 🙏', appDownload: 'ऐप डाउनलोड करें', appSize: 'केवल Android',
@@ -1078,7 +1086,10 @@ const I18N = {
     vListening: 'Listening', vOff: 'Voice off', vDenied: 'Mic blocked', vError: 'Voice stopped', vStarting: 'Starting…', vPaused: 'Paused',
     vMuted: 'Voice counting is on, so the recorded chant won’t play (it would be counted)', vNet: 'Speech recognition needs an internet connection',
     gLook: 'Appearance', bgSet: 'Background', bgForest: 'Forest', bgClouds: 'Clouds', bgKailash: 'Kailash', bgGrove: 'Grove', motionSet: 'Reduced motion', motionSetSub: 'Still pictures instead of animation — also saves battery and data',
-    gNotify: 'Notifications', reminder: 'Daily reminder', soon: 'Coming soon', reminderSub: 'Not available yet — it needs notifications in the app.',
+    gNotify: 'Notifications', reminder: 'Daily jaap reminder', remindAt: 'Time', remindSub: "A reminder at your chosen time — skipped on days you've already chanted.", remindAppOnly: 'Reminders are available in the Android app.',
+    nudge: 'Streak reminder', nudgeSub: "At 8 pm — only when you have a streak going and haven't chanted that day.",
+    nDenied: 'Notifications are off — allow them for Aradhya in your phone settings.',
+    nDailyT: '🙏 Time for jaap', nDailyB: '{name} is waiting for you — even one mala is enough.', nNudgeT: '🔥 Your {n}-day streak', nNudgeB: 'It ends at midnight — one mala keeps it going.',
     gPrivacy: 'Privacy & account', privacySub: 'Your name and photo stay on this phone. On the leaderboard you appear only as a numbered Bhakt, and only if you turn it on.', about: 'About Aradhya',
     getApp: 'Get the app', appTitle: 'Aradhya app', appWhy: 'Chant even without internet — all videos, the Ram Naam chant and the Chalisa stay on your phone. Your count syncs automatically when you are back online.',
     appStep1: 'Download the app with the button below', appStep2: 'Open the downloaded file', appStep3: 'If asked, allow installing apps from this source', appStep4: 'Tap “Install” — done 🙏', appDownload: 'Download the app', appSize: 'Android only',
@@ -2210,9 +2221,63 @@ const Voice = (() => {
 $('#voice-chip').addEventListener('click', () => Voice.toggle());
 
 /* ───────────────────────── 12 · SCREENS: home, setup, tabs, settings ───────────────────────── */
+/* Reminders (Android app): a daily jaap reminder at the chosen time, and an 8 pm nudge on an evening the streak would
+ * break. Scheduled on the phone (Capacitor LocalNotifications; nothing goes through a server) for the days ahead and
+ * planned again whenever the records change or the app comes back, so a day you've already chanted gets no reminder. */
+const Reminders = (() => {
+  const cap = IS_APP && window.Capacitor;
+  const LN = cap ? (cap.Plugins && cap.Plugins.LocalNotifications) || (cap.registerPlugin && cap.registerPlugin('LocalNotifications')) : null;
+  const DAILY = 100, NUDGE = 200, AHEAD = 14, NUDGE_HOUR = 20;   // ids 100–113 daily, 200–201 nudges
+  let running = false, again = false, timer = 0;
+  function plan() {
+    const out = [], days = practiceDays(), today = todayKey(), done = days.has(today), cur = streaks().cur, now = Date.now();
+    const [hh, mm] = (settings.remindTime || '07:00').split(':').map(Number);
+    for (let d = 0; d < AHEAD; d++) {
+      const day = new Date(); day.setDate(day.getDate() + d);
+      if (settings.remind && !(d === 0 && done)) {
+        const at = new Date(day); at.setHours(hh, mm, 0, 0);
+        if (at.getTime() > now + 30000) out.push({ id: DAILY + d, title: t('nDailyT'), body: t('nDailyB', { name: aName(aById(settings.aaradhya)) }), schedule: { at, allowWhileIdle: true } });
+      }
+    }
+    // the streak breaks tonight if it's going and today isn't done; if today is done, tomorrow evening is the next risk
+    // (any later evening only comes after a day without opening the app, when the streak has already ended)
+    if (settings.nudge && cur > 0) {
+      const d = done ? 1 : 0, at = new Date(); at.setDate(at.getDate() + d); at.setHours(NUDGE_HOUR, 0, 0, 0);
+      if (at.getTime() > now + 30000) out.push({ id: NUDGE + d, title: t('nNudgeT', { n: cur }), body: t('nNudgeB'), schedule: { at, allowWhileIdle: true } });
+    }
+    return out;
+  }
+  async function permitted(ask) {
+    let p = await LN.checkPermissions();
+    if (p.display !== 'granted' && ask) p = await LN.requestPermissions();
+    return p.display === 'granted';
+  }
+  // ask = the person just switched a reminder on, so the permission prompt may appear; returns false if it was refused
+  async function sync(ask = false) {
+    if (!LN) return true;
+    if (running) { again = true; return true; }
+    running = true; let ok = true;
+    try {
+      const pending = await LN.getPending();
+      const ours = (pending.notifications || []).filter(n => n.id >= DAILY && n.id < NUDGE + 100).map(n => ({ id: n.id }));
+      if (ours.length) await LN.cancel({ notifications: ours });
+      if (settings.remind || settings.nudge) {
+        if (await permitted(ask)) { const list = plan(); if (list.length) await LN.schedule({ notifications: list }); }
+        else if (ask) ok = false;
+      }
+    } catch (e) { console.warn('[reminders]', e && e.message); }
+    running = false;
+    if (again) { again = false; sync(); }
+    return ok;
+  }
+  const soon = () => { clearTimeout(timer); timer = setTimeout(() => sync(), 600); };
+  if (LN) document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') soon(); });
+  return { supported: !!LN, sync, soon, plan };
+})();
+
 function renderTokens() { $$('.tok-n').forEach(el => { el.textContent = fmtNum(tokenBalance()); }); }
 function onRecordsChanged() {
-  syncUnlocks(false); renderTokens();
+  syncUnlocks(false); renderTokens(); Reminders.soon();
   if (current === 'home') renderHome();
   if (current === 'streaks') renderStreaks();
   if (current === 'profile') Profile.render();
@@ -2371,7 +2436,7 @@ $('#a-sheet-go').addEventListener('click', async () => {
     openASheet(a); return;                             // if unlocked, the sheet now offers the download with its size
   }
   if (!Assets.has(a.id)) return downloadChar(a);
-  settings.aaradhya = a.id; persist();
+  settings.aaradhya = a.id; persist(); Reminders.soon();   // the reminder names the chosen Aaradhya
   ASheet.close(); renderAaradhya(); go('home');
 });
 onEnter.aaradhya = renderAaradhya;
@@ -2610,6 +2675,11 @@ function renderSettings() {
   syncers.forEach(f => f());
   $$('#lang-seg button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.lang === settings.lang)));
   setSwitch('#sw-breath', settings.breath);
+  setSwitch('#sw-remind', settings.remind && Reminders.supported); setSwitch('#sw-nudge', settings.nudge && Reminders.supported);
+  $('#sw-remind').disabled = !Reminders.supported; $('#nudge-item').hidden = !Reminders.supported;
+  $('#remind-time-row').hidden = !(settings.remind && Reminders.supported);
+  if (document.activeElement !== $('#remind-time')) $('#remind-time').value = settings.remindTime;
+  $('#remind-note').textContent = Reminders.supported ? t('remindSub') : t('remindAppOnly');
   setSwitch('#sw-voice', settings.voice && Voice.supported); setSwitch('#sw-motion', reduceMotion());
   $('#sw-motion').disabled = SYS_REDUCED;
   $('#vib-note').textContent = Haptics.supported ? t('vibNote') : t('vibNone');
@@ -2619,8 +2689,15 @@ function renderSettings() {
   $('#set-visible').textContent = p.show_on_leaderboard ? t('visOn') : t('visOff');
 }
 onEnter.settings = renderSettings;
-$$('#lang-seg button').forEach(b => b.addEventListener('click', () => { settings.lang = b.dataset.lang; persist(); applyLang(); }));
+$$('#lang-seg button').forEach(b => b.addEventListener('click', () => { settings.lang = b.dataset.lang; persist(); applyLang(); Reminders.soon(); }));
 $('#sw-breath').addEventListener('click', () => { settings.breath = !settings.breath; persist(); renderSettings(); });
+async function toggleReminder(key) {
+  settings[key] = !settings[key]; persist(); renderSettings();
+  if (!(await Reminders.sync(settings[key]))) { settings[key] = false; persist(); renderSettings(); toast(t('nDenied')); }
+}
+$('#sw-remind').addEventListener('click', () => toggleReminder('remind'));
+$('#sw-nudge').addEventListener('click', () => toggleReminder('nudge'));
+$('#remind-time').addEventListener('change', e => { if (/^\d\d:\d\d$/.test(e.target.value)) { settings.remindTime = e.target.value; persist(); Reminders.sync(); } });
 $('#sw-motion').addEventListener('click', () => { settings.reduceMotion = !settings.reduceMotion; persist(); applyMotion(); renderSettings(); });
 $('#sw-voice').addEventListener('click', async () => {
   if (!Voice.supported) return;
