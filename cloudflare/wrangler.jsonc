@@ -1,0 +1,12 @@
+{
+  // Used by deploy-cloudflare.sh, which copies the site into ./public next to this file before deploying.
+  "name": "aradhya",
+  "main": "worker.js",
+  "compatibility_date": "2026-10-01",
+  "assets": {
+    "directory": "./public",
+    "binding": "ASSETS",
+    "not_found_handling": "404-page",
+    "run_worker_first": ["/assets/*.mov", "/assets/*.webm", "/assets/*.mp4"]
+  }
+}
