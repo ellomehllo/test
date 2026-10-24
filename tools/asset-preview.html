@@ -58,7 +58,7 @@
   <table id="inv"><thead><tr><th>Source file</th><th>Format</th><th>Size</th><th>Used as</th></tr></thead><tbody></tbody></table>
 
   <h2>Characters — background removed, loops repaired</h2>
-  <p class="lead">Left: original first frame. Right: processed clip (VP9-alpha WebM here; Safari/iOS get the matching HEVC-alpha <code>.mov</code>). “Seam” compares the last frame with the first, against normal frame-to-frame motion.</p>
+  <p class="lead">Matted with the v3 hybrid method (<code>tools/matte3.swift</code>). “Edge flicker” is the average change in transparency between frames, before (v2) → after (v3); it includes the figure's real movement. Left: original first frame. Right: processed clip (VP9-alpha WebM here; Safari/iOS get the matching HEVC-alpha <code>.mov</code>). “Seam” compares the last frame with the first, against normal frame-to-frame motion.</p>
   <div class="grid" id="chars"></div>
 
   <h2>Backgrounds — seamless loops</h2>
@@ -102,9 +102,8 @@ fetch('preview/report.json').then(r => r.json()).catch(() => ({})).then(rep => {
     const media = still ? `<img src="../assets/av-${key}.webp" alt="">` : `<video src="../assets/av-${key}.webm" poster="../assets/av-${key}.webp" muted playsinline autoplay loop></video>`;
     const seamOk = r.seam_after != null && r.seam_after <= Math.max(r.consec * 2.2, 0.012);
     const tags = still ? '<span class="tag ok">still image</span>' : [
-      `<span class="tag ${seamOk ? 'ok' : 'warn'}">seam ${r.seam_before?.toFixed(4)} → ${r.seam_after?.toFixed(4)} (motion ${r.consec?.toFixed(4)})</span>`,
-      `<span class="tag ${r.border === 0 ? 'ok' : r.edge_note ? 'warn' : 'bad'}">side edges ${r.border === 0 ? 'transparent' : r.edge_note || 'alpha ' + r.border}</span>`,
-      `<span class="tag ${r.jump < 1.2 ? 'ok' : 'warn'}">coverage jump ${r.jump?.toFixed(2)}</span>`
+      `<span class="tag ${seamOk ? 'ok' : 'warn'}">loop seam ${r.seam_before?.toFixed(4)} → ${r.seam_after?.toFixed(4)} (motion ${r.consec?.toFixed(4)})</span>`,
+      `<span class="tag ${r.flicker_v3 < r.flicker_v2 ? 'ok' : 'warn'}">edge flicker ${r.flicker_v2?.toFixed(2)}% → ${r.flicker_v3?.toFixed(2)}%</span>`
     ].join('');
     return `<div class="card"><div class="pair"><figure class="src"><figcaption>original</figcaption><img src="preview/src-${src}.jpg" alt=""></figure><figure class="stage"><figcaption>processed</figcaption>${media}</figure></div>
       <div class="info"><h3>av-${key}</h3>${still ? '1 frame' : `${r.frames} frames · ${r.loop}`} · ${r.size || ''} ${r.out ? '· ' + r.out.join('×') : ''}<br>${tags}</div></div>`;

@@ -120,10 +120,21 @@
   .figure video, .figure img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; object-position: center bottom; }
   .figure.still img { animation: floatStill 7s ease-in-out infinite; }
   @keyframes floatStill { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-1.6%); } }
-  .halo { position: absolute; left: 50%; top: 46%; width: min(118%, 520px); aspect-ratio: 1; transform: translate(-50%, -50%); pointer-events: none;
-    background: radial-gradient(circle, rgba(255,220,140,.42) 0%, rgba(240,180,80,.20) 26%, rgba(220,150,60,.06) 48%, transparent 64%);
-    animation: haloBreath 7s ease-in-out infinite; }
-  @keyframes haloBreath { 0%, 100% { opacity: .78; transform: translate(-50%, -50%) scale(.96); } 50% { opacity: 1; transform: translate(-50%, -50%) scale(1.04); } }
+  /* Divine glow behind the Aaradhya: breathing aura + slow light rays + bright core, screen-blended into the scene */
+  .halo { position: absolute; left: 50%; top: 46%; width: min(132%, 580px); aspect-ratio: 1; transform: translate(-50%, -50%); pointer-events: none; }
+  .halo i { position: absolute; border-radius: 50%; mix-blend-mode: screen; }
+  .halo .aura { inset: 0; background: radial-gradient(circle, rgba(255,240,196,.75) 0%, rgba(255,210,126,.50) 14%, rgba(246,164,70,.26) 30%, rgba(214,118,40,.10) 46%, rgba(180,90,30,0) 64%);
+    animation: glowBreath 7s ease-in-out infinite; }
+  .halo .rays { inset: 4%; background: repeating-conic-gradient(from 0deg, rgba(255,222,160,0) 0deg, rgba(255,222,160,.09) 3deg, rgba(255,222,160,0) 6deg 14deg);
+    filter: blur(3px);
+    -webkit-mask-image: radial-gradient(circle, transparent 12%, #000 22%, rgba(0,0,0,.35) 40%, transparent 60%); mask-image: radial-gradient(circle, transparent 12%, #000 22%, rgba(0,0,0,.35) 40%, transparent 60%);
+    animation: raysSpin 160s linear infinite; }
+  .halo .core { inset: 31%; background: radial-gradient(circle, rgba(255,250,228,.70) 0%, rgba(255,226,160,.32) 38%, rgba(255,200,110,0) 72%);
+    filter: blur(8px); animation: glowBreath 7s ease-in-out infinite reverse; }
+  @keyframes glowBreath { 0%, 100% { opacity: .8; transform: scale(.95); } 50% { opacity: 1; transform: scale(1.05); } }
+  @keyframes raysSpin { to { transform: rotate(360deg); } }
+  /* rim light that follows the figure's silhouette */
+  .figure video, .figure img { filter: drop-shadow(0 0 4px rgba(255,226,160,.50)) drop-shadow(0 0 22px rgba(255,176,80,.30)); }
 
   /* ---------- Home ---------- */
   .topbar { display: grid; grid-template-columns: 44px 1fr auto 44px; align-items: center; gap: 8px; min-height: 48px; }
@@ -213,7 +224,7 @@
 
   /* ---------- Practice ---------- */
   .p-stage { position: relative; flex: 1 1 auto; min-height: 120px; margin: 0 -10px; }
-  body[data-mode="mala"] #p-fig, body[data-mode="jaap"] #p-mala, body[data-mode="jaap"] .p-stage .mala-glow { display: none; }
+  body[data-mode="mala"] #p-fig, body[data-mode="mala"] #s-practice .p-stage .halo, body[data-mode="jaap"] #p-mala, body[data-mode="jaap"] .p-stage .mala-glow { display: none; }
   .p-top-r { display: flex; justify-content: flex-end; }
   .voice-chip { display: inline-flex; align-items: center; gap: 6px; height: 34px; padding: 0 11px; border-radius: 999px; font-size: 13px; white-space: nowrap;
     background: rgba(6,16,20,.6); border: 1px solid var(--line-2); color: var(--ivory-2); }
@@ -387,8 +398,8 @@
     .p-stats b { font-size: 19px; } .pause-btn { width: 66px; height: 66px; } .ctl-ico { width: 46px; height: 46px; }
     .home-name h2 { font-size: 22px; } .stats-card { padding: 7px 6px; }
   }
-  @media (prefers-reduced-motion: reduce) { .halo, .figure.still img { animation: none; } .screen { transition-duration: .01ms; } }
-  body.reduce-motion .halo, body.reduce-motion .figure.still img, body.reduce-motion .voice-chip .vd { animation: none !important; }
+  @media (prefers-reduced-motion: reduce) { .halo i, .figure.still img { animation: none !important; } .screen { transition-duration: .01ms; } }
+  body.reduce-motion .halo i, body.reduce-motion .figure.still img, body.reduce-motion .voice-chip .vd { animation: none !important; }
 </style>
 </head>
 
@@ -442,7 +453,7 @@
     </div>
     <button id="get-app" class="icon-btn" hidden data-t-aria="getApp" aria-label="ऐप डाउनलोड करें"><svg width="19" height="19"><use href="#i-download"/></svg></button>
   </div>
-  <div class="home-stage" aria-hidden="true"><div class="halo"></div><div id="home-fig" class="figure"></div></div>
+  <div class="home-stage" aria-hidden="true"><div class="halo"><i class="aura"></i><i class="rays"></i><i class="core"></i></div><div id="home-fig" class="figure"></div></div>
   <div class="home-name"><h2 id="home-aname"></h2><p id="home-mantra"></p></div>
   <div class="card stats-card">
     <div class="stat-cell">
@@ -496,7 +507,7 @@
     <span></span>
   </header>
   <div class="p-top-r"><button id="voice-chip" class="voice-chip" data-state="off" hidden><span class="vd" aria-hidden="true"></span><span id="voice-txt"></span></button></div>
-  <div class="p-stage" aria-hidden="true"><div class="halo"></div><div id="p-fig" class="figure"></div><div class="mala-glow"></div><canvas id="p-mala"></canvas></div>
+  <div class="p-stage" aria-hidden="true"><div class="halo"><i class="aura"></i><i class="rays"></i><i class="core"></i></div><div id="p-fig" class="figure"></div><div class="mala-glow"></div><canvas id="p-mala"></canvas></div>
   <div class="tap-wrap">
     <button id="p-tap" class="tap-ring" data-t-aria="tapAria" aria-label="एक जप गिनें">
       <svg viewBox="0 0 200 200" aria-hidden="true">
@@ -524,7 +535,7 @@
   <div id="p-paused" class="paused-panel" hidden role="dialog" aria-modal="true" aria-labelledby="paused-h">
     <header class="subbar"><button class="icon-btn" id="paused-back" data-t-aria="back" aria-label="वापस"><svg width="20" height="20"><use href="#i-back"/></svg></button><h1 id="paused-h" class="h-title" data-t="paused">रुका हुआ</h1><span></span></header>
     <div class="card paused-card">
-      <div class="pfig"><div id="paused-fig" class="figure"></div></div>
+      <div class="pfig"><div class="halo" style="width:110%"><i class="aura"></i><i class="core"></i></div><div id="paused-fig" class="figure"></div></div>
       <h2 id="paused-name"></h2><p class="pm" id="paused-mantra"></p>
       <div class="paused-stats">
         <div><b id="paused-count" class="num">0</b><span class="k" data-t="reps">जप</span></div>
@@ -542,7 +553,7 @@
 <!-- ═══════════════ PRANAYAMA (after a timed jaap, optional) ═══════════════ -->
 <section id="s-breath" class="screen" aria-labelledby="breath-h">
   <header class="subbar"><span></span><h1 id="breath-h" class="h-title" data-t="breathTag">प्राणायाम</h1><span></span></header>
-  <div class="p-stage" aria-hidden="true"><div class="halo"></div><div id="b-fig" class="figure"></div></div>
+  <div class="p-stage" aria-hidden="true"><div class="halo"><i class="aura"></i><i class="rays"></i><i class="core"></i></div><div id="b-fig" class="figure"></div></div>
   <div class="breath-panel">
     <div class="breath-box">
       <div id="b-orb"></div>
@@ -717,7 +728,7 @@
   <div class="sheet-card">
     <div class="grip" aria-hidden="true"></div>
     <div class="sheet-head"><h2 id="a-sheet-h"></h2><button class="icon-btn" data-close data-t-aria="close" aria-label="बंद करें"><svg width="18" height="18"><use href="#i-close"/></svg></button></div>
-    <div class="ap-fig"><div class="halo"></div><div id="a-sheet-fig" class="figure"></div></div>
+    <div class="ap-fig"><div class="halo"><i class="aura"></i><i class="rays"></i><i class="core"></i></div><div id="a-sheet-fig" class="figure"></div></div>
     <p id="a-sheet-mantra" class="p-mantra" style="margin-top:6px"></p>
     <p id="a-sheet-status" class="pill-note" style="margin:8px 0 14px"></p>
     <div style="display:grid;gap:10px"><button id="a-sheet-go" class="btn-gold"></button><button id="a-sheet-alt" class="btn-line" hidden></button></div>
