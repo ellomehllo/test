@@ -63,9 +63,10 @@ if input.lowercased().hasSuffix(".png") || input.lowercased().hasSuffix(".jpg") 
     if let pb = CMSampleBufferGetImageBuffer(sb) { frames.append(grab(CIImage(cvPixelBuffer: pb))) }
   }
 }
-let N = frames.count, P = W * H
+let N = frames.count
+var P = W * H
 log("frames \(N) at \(W)x\(H)")
-let luma: [[Float]] = frames.map { f in (0..<P).map { k in 0.299 * Float(f.px[k * 4]) + 0.587 * Float(f.px[k * 4 + 1]) + 0.114 * Float(f.px[k * 4 + 2]) } }
+var luma: [[Float]] = frames.map { f in (0..<P).map { k in 0.299 * Float(f.px[k * 4]) + 0.587 * Float(f.px[k * 4 + 1]) + 0.114 * Float(f.px[k * 4 + 2]) } }
 
 if args.contains("--analyze") {
   let st = 6, tw = W / st, th = H / st
@@ -165,6 +166,21 @@ var masks: [[Float]] = frames.map { f in
   }
   return m
 }
+// crop to the figure early (union of all masks + margin): far less memory and time at full resolution
+do {
+  var bx0 = W, by0 = H, bx1 = 0, by1 = 0
+  for m in masks { for y in 0..<H { for x in 0..<W where m[y * W + x] > 0.05 { bx0 = min(bx0, x); bx1 = max(bx1, x); by0 = min(by0, y); by1 = max(by1, y) } } }
+  let mg = Int(Double(max(bx1 - bx0, by1 - by0)) * 0.08)
+  bx0 = max(0, bx0 - mg); by0 = max(0, by0 - mg); bx1 = min(W - 1, bx1 + mg); by1 = min(H - 1, by1 + mg)
+  let nw = bx1 - bx0 + 1, nh = by1 - by0 + 1, ow = W
+  func cropF(_ a: [Float]) -> [Float] { var o = [Float](repeating: 0, count: nw * nh); for y in 0..<nh { for x in 0..<nw { o[y * nw + x] = a[(y + by0) * ow + x + bx0] } }; return o }
+  frames = frames.map { f in var o = [UInt8](repeating: 0, count: nw * nh * 4)
+    for y in 0..<nh { let src = ((y + by0) * ow + bx0) * 4; o.replaceSubrange((y * nw * 4)..<((y + 1) * nw * 4), with: f.px[src..<(src + nw * 4)]) }
+    return Frame(px: o) }
+  luma = luma.map(cropF); masks = masks.map(cropF)
+  W = nw; H = nh; P = W * H
+  log("cropped to \(W)x\(H)")
+}
 masks = temporal(masks, radius: 2, sigma: 10)
 log("masks done")
 
@@ -175,7 +191,8 @@ for t in 0..<N {
   let f = frames[t], L = luma[t]
   var m = masks[t]
   let lum01 = L.map { $0 / 255 }
-  let mean = boxMean(lum01, 3), mean2 = boxMean(lum01.map { $0 * $0 }, 3)
+  let r3 = max(3, Int(3 * scale / 0.5)), r6 = max(6, Int(6 * scale / 0.5))
+  let mean = boxMean(lum01, r3), mean2 = boxMean(lum01.map { $0 * $0 }, r3)
   let lstd = (0..<P).map { k in max(0, mean2[k] - mean[k] * mean[k]).squareRoot() * 255 }
   // plate: the frame with the figure (mask + margin) inpainted away
   let outside = distanceTo(m.map { $0 > 0.25 }, borderIsSeed: false)
@@ -214,7 +231,7 @@ for t in 0..<N {
   // near-white with little saturation, and big enough not to be a highlight
   var pocket = [Bool](repeating: false, count: P)
   // wide-window texture: backlight glow is a perfectly smooth gradient, painted skin never is
-  let wmean = boxMean(lum01, 6), wmean2 = boxMean(lum01.map { $0 * $0 }, 6)
+  let wmean = boxMean(lum01, r6), wmean2 = boxMean(lum01.map { $0 * $0 }, r6)
   let wstd = (0..<P).map { k in max(0, wmean2[k] - wmean[k] * wmean[k]).squareRoot() * 255 }
   for k in 0..<P where m[k] > 0.05 && lstd[k] < 4 {
     let r = Float(f.px[k * 4]), g = Float(f.px[k * 4 + 1]), b = Float(f.px[k * 4 + 2])
@@ -282,7 +299,7 @@ for t in 0..<N {
 
 // ───────── 7. temporal smoothing, specks, decontamination ─────────
 alphas = temporal(alphas, radius: 1, sigma: 8)
-var rgba: [[Float]] = []
+var rgba: [[UInt8]] = []   // premultiplied RGBA8 (floats would need gigabytes at full resolution)
 for t in 0..<N {
   var a = alphas[t]
   for k in 0..<P { a[k] = smoothstep(0.04, 0.96, a[k]) }               // tiny choke: no faint fringe ring
@@ -299,20 +316,21 @@ for t in 0..<N {
   let big = Double(areas.max() ?? 0)
   for k in 0..<P { if lab[k] < 0 || Double(areas[Int(lab[k])]) < big * 0.03 { a[k] = 0 } }
   let f = frames[t], pl = plates[t]
-  var o = [Float](repeating: 0, count: P * 4)
+  var o = [UInt8](repeating: 0, count: P * 4)
   for k in 0..<P {
-    let al = a[k]; o[k * 4 + 3] = al
+    let al = a[k]; o[k * 4 + 3] = UInt8(min(255, max(0, al * 255 + 0.5)))
     for c in 0..<3 {
       let C = Float(f.px[k * 4 + c]) / 255, B = Float(pl[k * 3 + c]) / 255
       let F = al > 0 ? min(1, max(0, B + (C - B) / max(al, 0.15))) : 0
-      o[k * 4 + c] = F * al
+      o[k * 4 + c] = UInt8(min(255, max(0, F * al * 255 + 0.5)))
     }
   }
   rgba.append(o)
+  frames[t] = Frame(px: []); plates[t] = []
 }
 
 // ───────── loop ─────────
-func diff(_ a: [Float], _ b: [Float]) -> Double { var s = 0.0; for k in stride(from: 0, to: a.count, by: 4) { s += Double(abs(a[k] - b[k]) + abs(a[k + 1] - b[k + 1]) + abs(a[k + 2] - b[k + 2]) + abs(a[k + 3] - b[k + 3])) }; return s / Double(a.count) }
+func diff(_ a: [UInt8], _ b: [UInt8]) -> Double { var s = 0; for k in 0..<a.count { s += abs(Int(a[k]) - Int(b[k])) }; return Double(s) / Double(a.count) / 255 }
 var consec: [Double] = []; for i in 1..<max(2, N) where N > 1 { consec.append(diff(rgba[i - 1], rgba[i])) }
 let meanConsec = consec.isEmpty ? 0 : consec.reduce(0, +) / Double(consec.count)
 let seamBefore = N > 1 ? diff(rgba[N - 1], rgba[0]) : 0
@@ -323,17 +341,17 @@ else if K > 0 && N > 3 {
   outF = (0..<(N - K)).map { j in
     if j >= K { return rgba[j] }
     let tt = Float(j + 1) / Float(K + 1), A = rgba[N - K + j], B = rgba[j]
-    return (0..<A.count).map { A[$0] * (1 - tt) + B[$0] * tt }
+    return (0..<A.count).map { UInt8(Float(A[$0]) * (1 - tt) + Float(B[$0]) * tt + 0.5) }
   }
 }
 let NO = outF.count, seamAfter = NO > 1 ? diff(outF[NO - 1], outF[0]) : 0
 // flicker index: mean |Δalpha| between consecutive output frames (loop included)
 var flick = 0.0
-if NO > 1 { for i in 0..<NO { let A = outF[i], B = outF[(i + 1) % NO]; var s = 0.0; for k in stride(from: 3, to: A.count, by: 4) { s += Double(abs(A[k] - B[k])) }; flick += s / Double(P) }; flick /= Double(NO) }
+if NO > 1 { for i in 0..<NO { let A = outF[i], B = outF[(i + 1) % NO]; var s = 0; for k in stride(from: 3, to: A.count, by: 4) { s += abs(Int(A[k]) - Int(B[k])) }; flick += Double(s) / 255 / Double(P) }; flick /= Double(NO) }
 
 // ───────── crop, scale, write ─────────
 var x0 = W, y0 = H, x1 = 0, y1 = 0
-for o in outF { for y in 0..<H { for x in 0..<W where o[(y * W + x) * 4 + 3] > 0.03 { x0 = min(x0, x); x1 = max(x1, x); y0 = min(y0, y); y1 = max(y1, y) } } }
+for o in outF { for y in 0..<H { for x in 0..<W where o[(y * W + x) * 4 + 3] > 8 { x0 = min(x0, x); x1 = max(x1, x); y0 = min(y0, y); y1 = max(y1, y) } } }
 let pad = Int(Double(max(x1 - x0, y1 - y0)) * 0.04)
 x0 = max(0, x0 - pad); y0 = max(0, y0 - pad); x1 = min(W - 1, x1 + pad); y1 = min(H - 1, y1 + pad)
 let cw = x1 - x0 + 1, ch = y1 - y0 + 1
@@ -341,9 +359,9 @@ let th = (min(outH, Int(Double(ch) / scale)) / 2) * 2, tw = (Int(Double(cw) * Do
 for (j, o) in outF.enumerated() {
   var px = [UInt8](repeating: 0, count: cw * ch * 4)
   for y in 0..<ch { for x in 0..<cw {
-    let k = ((y + y0) * W + (x + x0)) * 4, q = (y * cw + x) * 4, al = o[k + 3]
-    px[q + 3] = UInt8(min(255, max(0, al * 255 + 0.5)))
-    for c in 0..<3 { px[q + c] = UInt8(min(255, max(0, (al > 0 ? o[k + c] / al : 0) * 255 + 0.5))) }
+    let k = ((y + y0) * W + (x + x0)) * 4, q = (y * cw + x) * 4, al = Int(o[k + 3])
+    px[q + 3] = UInt8(al)
+    for c in 0..<3 { px[q + c] = al > 0 ? UInt8(min(255, Int(o[k + c]) * 255 / al)) : 0 }
   } }
   let prov = CGDataProvider(data: Data(bytes: &px, count: px.count) as CFData)!
   let cg = CGImage(width: cw, height: ch, bitsPerComponent: 8, bitsPerPixel: 32, bytesPerRow: cw * 4, space: sRGB, bitmapInfo: CGBitmapInfo(rawValue: CGImageAlphaInfo.last.rawValue), provider: prov, decode: nil, shouldInterpolate: true, intent: .defaultIntent)!

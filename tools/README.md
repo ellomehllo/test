@@ -16,13 +16,13 @@ final motion-adaptive temporal smoothing, speck removal, edge colour decontamina
 ```bash
 swiftc -O tools/matte3.swift -o /tmp/matte3
 A=~/Desktop/Meditation_Assets/Animated
-/tmp/matte3 $A/Hanuman_Idle.mp4         out/hanuman-idle     --scale 0.5 --height 720 --start 19 --end 185 --xfade 10
-/tmp/matte3 $A/Hanuman_Meditatin.mp4    out/hanuman-meditate --scale 0.6 --height 720 --pingpong
-/tmp/matte3 $A/Ram_Idle.mp4             out/ram-idle         --scale 0.5 --height 720 --xfade 6
-/tmp/matte3 $A/Ram_meditating.mp4       out/ram-meditate     --scale 0.6 --height 720 --pingpong
-/tmp/matte3 $A/NaradMuni_Idle.mp4       out/narad-idle       --scale 0.5 --height 720 --start 3 --end 52 --pingpong
-/tmp/matte3 $A/NaradMuni_Meditating.mp4 out/narad-meditate   --scale 0.6 --height 720 --pingpong
-/tmp/matte3 ~/Desktop/Meditation_Assets/MeditatingShiv.png out/shiv-meditate --scale 0.6 --height 720
+/tmp/matte3 $A/Hanuman_Idle.mp4         out/hanuman-idle     --scale 1.0 --height 2160 --start 19 --end 185 --xfade 10
+/tmp/matte3 $A/Hanuman_Meditatin.mp4    out/hanuman-meditate --scale 1.0 --height 2160 --pingpong
+/tmp/matte3 $A/Ram_Idle.mp4             out/ram-idle         --scale 1.0 --height 2160 --xfade 6
+/tmp/matte3 $A/Ram_meditating.mp4       out/ram-meditate     --scale 1.0 --height 2160 --pingpong
+/tmp/matte3 $A/NaradMuni_Idle.mp4       out/narad-idle       --scale 1.0 --height 2160 --start 3 --end 52 --pingpong
+/tmp/matte3 $A/NaradMuni_Meditating.mp4 out/narad-meditate   --scale 1.0 --height 2160 --pingpong
+/tmp/matte3 ~/Desktop/Meditation_Assets/MeditatingShiv.png out/shiv-meditate --scale 1.0 --height 2160
 ```
 
 ## Older method — `matte.swift` (v2, kept for reference)
@@ -36,13 +36,13 @@ the head (`--xfade N`) or the clip is played forward-then-back (`--pingpong`).
 ```bash
 swiftc -O tools/matte.swift -o /tmp/matte
 A=~/Desktop/Meditation_Assets/Animated
-/tmp/matte $A/Hanuman_Idle.mp4        out/hanuman-idle     --scale 0.5 --height 720 --start 19 --end 185 --xfade 10 --simple
-/tmp/matte $A/Hanuman_Meditatin.mp4   out/hanuman-meditate --scale 0.6 --height 720 --pingpong --simple
-/tmp/matte $A/Ram_Idle.mp4            out/ram-idle         --scale 0.5 --height 720 --xfade 6
-/tmp/matte $A/Ram_meditating.mp4      out/ram-meditate     --scale 0.6 --height 720 --pingpong
-/tmp/matte $A/NaradMuni_Idle.mp4      out/narad-idle       --scale 0.5 --height 720 --start 3 --end 52 --pingpong   # clouds drift in after ~frame 60
-/tmp/matte $A/NaradMuni_Meditating.mp4 out/narad-meditate  --scale 0.6 --height 720 --pingpong
-/tmp/matte ~/Desktop/Meditation_Assets/MeditatingShiv.png "out/shiv-meditate" --scale 0.6 --height 720 --simple
+/tmp/matte $A/Hanuman_Idle.mp4        out/hanuman-idle     --scale 1.0 --height 2160 --start 19 --end 185 --xfade 10 --simple
+/tmp/matte $A/Hanuman_Meditatin.mp4   out/hanuman-meditate --scale 1.0 --height 2160 --pingpong --simple
+/tmp/matte $A/Ram_Idle.mp4            out/ram-idle         --scale 1.0 --height 2160 --xfade 6
+/tmp/matte $A/Ram_meditating.mp4      out/ram-meditate     --scale 1.0 --height 2160 --pingpong
+/tmp/matte $A/NaradMuni_Idle.mp4      out/narad-idle       --scale 1.0 --height 2160 --start 3 --end 52 --pingpong   # clouds drift in after ~frame 60
+/tmp/matte $A/NaradMuni_Meditating.mp4 out/narad-meditate  --scale 1.0 --height 2160 --pingpong
+/tmp/matte ~/Desktop/Meditation_Assets/MeditatingShiv.png "out/shiv-meditate" --scale 1.0 --height 2160 --simple
 ```
 
 `--analyze` prints the best loop windows (start/end frames whose pictures match most closely).
@@ -52,9 +52,9 @@ A=~/Desktop/Meditation_Assets/Animated
 
 ```bash
 # Chrome / Android / Firefox: VP9 with alpha
-ffmpeg -framerate 24 -i out/X/f_%04d.png -c:v libvpx-vp9 -pix_fmt yuva420p -b:v 0 -crf 32 -row-mt 1 -auto-alt-ref 0 assets/av-X.webm
+ffmpeg -framerate 24 -i out/X/f_%04d.png -c:v libvpx-vp9 -pix_fmt yuva420p -b:v 0 -crf 28 -row-mt 1 -auto-alt-ref 0 assets/av-X.webm
 # Safari / iOS: HEVC with alpha
-ffmpeg -framerate 24 -i out/X/f_%04d.png -c:v hevc_videotoolbox -alpha_quality 0.8 -q:v 52 -pix_fmt bgra -tag:v hvc1 assets/av-X.mov
+ffmpeg -framerate 24 -i out/X/f_%04d.png -c:v hevc_videotoolbox -alpha_quality 0.85 -q:v 62 -pix_fmt bgra -tag:v hvc1 assets/av-X.mov
 cwebp -q 80 -alpha_q 90 out/X/f_0000.png -o assets/av-X.webp      # poster / still
 ```
 

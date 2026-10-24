@@ -2,85 +2,85 @@
  "hanuman-idle": {
   "frames": 157,
   "loop": "cross-faded loop (10 frames)",
-  "consec": 0.009596671648377306,
-  "seam_before": 0.019442761036614818,
-  "seam_after": 0.010994860118205649,
+  "consec": 0.01200768748697922,
+  "seam_before": 0.02201302570291551,
+  "seam_after": 0.01321542305516867,
   "out": [
-   450,
-   720
+   1080,
+   1726
   ],
-  "size": "1872 KB webm",
-  "flicker_v3": 0.4064,
+  "size": "6168 KB webm",
+  "flicker_v3": 0.4416,
   "flicker_v2": 0.4509
  },
  "hanuman-meditate": {
   "frames": 84,
   "loop": "ping-pong (forward then back)",
-  "consec": 0.004608001078850616,
-  "seam_before": 0.03254283622747834,
-  "seam_after": 0.005554073375776781,
+  "consec": 0.005967289117541643,
+  "seam_before": 0.04241235599747186,
+  "seam_after": 0.00703021057967582,
   "out": [
-   970,
-   720
+   1460,
+   1080
   ],
-  "size": "1328 KB webm",
-  "flicker_v3": 0.5525,
+  "size": "2718 KB webm",
+  "flicker_v3": 0.5529,
   "flicker_v2": 0.6099
  },
  "ram-idle": {
   "frames": 186,
   "loop": "cross-faded loop (6 frames)",
-  "consec": 0.01327119832747157,
-  "seam_before": 0.013758667180861075,
-  "seam_after": 0.01325830781814619,
+  "consec": 0.017606319206011807,
+  "seam_before": 0.017954633151863474,
+  "seam_after": 0.0177926444890567,
   "out": [
-   328,
-   720
+   818,
+   1796
   ],
-  "size": "1867 KB webm",
-  "flicker_v3": 0.6072,
+  "size": "8700 KB webm",
+  "flicker_v3": 0.6433,
   "flicker_v2": 0.8483
  },
  "ram-meditate": {
   "frames": 50,
   "loop": "ping-pong (forward then back)",
-  "consec": 0.01513071953691433,
-  "seam_before": 0.07116887526268735,
-  "seam_after": 0.020566660363841752,
+  "consec": 0.02336927617478789,
+  "seam_before": 0.1061567971531431,
+  "seam_after": 0.031010047608135395,
   "out": [
-   806,
-   720
+   1212,
+   1080
   ],
-  "size": "1088 KB webm",
-  "flicker_v3": 1.2121,
+  "size": "2082 KB webm",
+  "flicker_v3": 1.2179,
   "flicker_v2": 1.5365
  },
  "narad-idle": {
   "frames": 98,
   "loop": "ping-pong (forward then back)",
-  "consec": 0.005624839854201813,
-  "seam_before": 0.04569994695684233,
-  "seam_after": 0.004556013974324742,
+  "consec": 0.01594642054660601,
+  "seam_before": 0.11166004062103274,
+  "seam_after": 0.01315942283905342,
   "out": [
-   472,
-   720
+   712,
+   1080
   ],
-  "size": "1340 KB webm",
-  "flicker_v3": 0.6015,
+  "size": "2389 KB webm",
+  "flicker_v3": 0.6412,
   "flicker_v2": 0.7433
  },
  "narad-meditate": {
   "frames": 80,
   "loop": "ping-pong (forward then back)",
-  "consec": 0.010047789912468994,
-  "seam_before": 0.0557064830600361,
-  "seam_after": 0.009784703767131952,
+  "consec": 0.021575936162596322,
+  "seam_before": 0.11167987067107289,
+  "seam_after": 0.021074756699814866,
   "out": [
-   724,
-   720
+   962,
+   956
   ],
-  "size": "1582 KB webm",
-  "flicker_v3": 0.7429,
+  "size": "3048 KB webm",
+  "flicker_v3": 0.7787,
   "flicker_v2": 1.1942
  },
  "notes": [

@@ -152,7 +152,18 @@
   /* the Aaradhya stands close to the camera: face large in the free space, feet tucked behind the name and buttons */
   #home-fig { transform: scale(1.55); transform-origin: 50% 4%; }
   .home-stage .halo { top: 30%; }
-  .home-name, .home-stage ~ .card, .mode-row { position: relative; z-index: 2; }
+  .home-name, .home-stage ~ .card, .home-start { position: relative; z-index: 2; }
+  /* Mala / Jaap choice: round toggles on the right of the figure; the one Start button follows it */
+  .mode-pick { position: absolute; right: 14px; top: calc(var(--safe-t) + 132px); z-index: 3; display: flex; flex-direction: column; gap: 12px; }
+  .pick { display: flex; flex-direction: column; align-items: center; gap: 4px; font-size: 13px; font-weight: 500; color: var(--ivory-2); text-shadow: 0 1px 6px rgba(0,0,0,.8); }
+  .pick-ico { width: 56px; height: 56px; border-radius: 50%; display: grid; place-items: center; color: var(--gold-2);
+    background: rgba(6,16,20,.62); border: 1.5px solid var(--line); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+    box-shadow: 0 8px 22px rgba(0,0,0,.35); transition: background .2s, border-color .2s, box-shadow .2s, color .2s, transform .15s; }
+  .pick:active .pick-ico { transform: scale(.93); }
+  .pick[aria-checked="true"] { color: var(--ivory); font-weight: 600; }
+  .pick[aria-checked="true"] .pick-ico { color: #1F150A; border-color: var(--gold-2);
+    background: radial-gradient(circle at 35% 30%, #FBE7AE, #D9A84E 60%, #A87A31); box-shadow: 0 0 0 4px rgba(242,211,135,.18), 0 0 24px rgba(242,211,135,.4); }
+  .home-start { margin-top: 10px; min-height: 60px; font-size: 20px; }
   .home-name { margin: 0 -16px; padding: 26px 16px 2px; background: linear-gradient(180deg, transparent, rgba(4,12,14,.55) 55%, rgba(4,12,14,.7)); }
   .home-name { text-align: center; margin-top: 2px; }
   .home-name h2 { font-family: var(--serif); font-size: 26px; font-weight: 600; line-height: 1.1; text-shadow: 0 2px 14px rgba(0,0,0,.6); }
@@ -393,7 +404,7 @@
   body[data-screen="practice"] #toast { top: calc(var(--safe-t) + 62px); }
 
   @media (max-height: 640px) {
-    .mode-btn { min-height: 64px; } .mode-ico { width: 42px; height: 42px; }
+    .pick-ico { width: 50px; height: 50px; } .mode-pick { gap: 8px; top: calc(var(--safe-t) + 134px); } .home-start { min-height: 54px; }
     .picker { height: 208px; } .picker::before { top: 78px; } .wheel-pad { height: 78px; } .picker-unit { top: 104px; }
     .p-stats b { font-size: 19px; } .pause-btn { width: 66px; height: 66px; } .ctl-ico { width: 46px; height: 46px; }
     .home-name h2 { font-size: 22px; } .stats-card { padding: 7px 6px; }
@@ -467,10 +478,11 @@
     </div>
   </div>
   <button id="resume-card" class="card resume" hidden><span class="dot" aria-hidden="true"></span><span id="resume-txt"></span><b data-t="continue">जारी रखें</b></button>
-  <div class="mode-row">
-    <button id="go-mala" class="mode-btn"><span class="mode-ico" aria-hidden="true"><svg width="28" height="28"><use href="#i-mala"/></svg></span><span><b data-t="mala">माला</b><small data-t="malaSub">108 मनकों का एक चक्र</small></span></button>
-    <button id="go-jaap" class="mode-btn"><span class="mode-ico" aria-hidden="true"><svg width="26" height="26"><use href="#i-timer"/></svg></span><span><b data-t="jaap">जप</b><small data-t="jaapSub">समय चुनें या खुला जप</small></span></button>
+  <div class="mode-pick" id="mode-pick" role="radiogroup" data-t-aria="practiceType" aria-label="साधना का प्रकार">
+    <button class="pick" role="radio" data-mode="mala" aria-checked="false"><span class="pick-ico" aria-hidden="true"><svg width="26" height="26"><use href="#i-mala"/></svg></span><span data-t="mala">माला</span></button>
+    <button class="pick" role="radio" data-mode="jaap" aria-checked="true"><span class="pick-ico" aria-hidden="true"><svg width="24" height="24"><use href="#i-timer"/></svg></span><span data-t="jaap">जप</span></button>
   </div>
+  <button id="home-start" class="btn-gold home-start"><svg width="22" height="22" aria-hidden="true"><use id="home-start-ico" href="#i-play"/></svg><span id="home-start-lbl"></span></button>
 </section>
 
 <!-- ═══════════════ JAAP SETUP — timer ═══════════════ -->
@@ -788,7 +800,7 @@ const Store = {
 const saved = Store.read();
 const settings = Object.assign({
   minutes: 25, sound: 'ram', vib: 'medium', lang: 'hi',
-  goal: 108, aaradhya: 'hanuman', mantra: {}, malas: 1, bg: 'forest',
+  goal: 108, aaradhya: 'hanuman', mantra: {}, malas: 1, bg: 'forest', homeMode: 'jaap',
   breath: true, holdFinish: saved.settings && saved.settings.lockout === false ? false : true,
   voice: false, reduceMotion: false
 }, saved.settings);
@@ -812,7 +824,7 @@ const I18N = {
     resumeTxt: 'चल रही साधना · {n} जप', mala: 'माला', malaSub: '108 मनकों का एक चक्र', jaap: 'जप', jaapSub: 'समय चुनें या खुला जप',
     setTimer: 'समय चुनें', setTimerSub: 'कितनी देर जप करना चाहते हैं?', minShort: 'मिनट', start: 'शुरू करें', or: 'या',
     noTimer: 'बिना समय के', noTimerSub: 'सिर्फ़ जप गिनें', mantra: 'मंत्र', selectMala: 'माला चुनें', eachMala: 'एक माला = 108 जप',
-    nMala: '{n} माला', startMala: 'माला शुरू करें', pauseBack: 'रोककर वापस जाएँ', tapAria: 'एक जप गिनें',
+    nMala: '{n} माला', startMala: 'माला शुरू करें', startJaap: 'जप शुरू करें', practiceType: 'साधना का प्रकार', pauseBack: 'रोककर वापस जाएँ', tapAria: 'एक जप गिनें',
     malaProgress: 'माला प्रगति', undo: 'वापस लें', pause: 'रोकें', resume: 'फिर शुरू करें', finish: 'पूर्ण करें', holdFinish: 'दबाकर रखें',
     paused: 'रुका हुआ', reps: 'जप', activeTime: 'सक्रिय समय', timeLeft: 'बाकी समय', elapsed: 'बीता समय', totalMalas: 'कुल माला', target: 'लक्ष्य',
     modeJaap: 'नाम जप', modeMala: 'माला जप', timedSub: '{m} मिनट', freeSub: 'खुला जप', malaOf: 'माला {a} / {b}',
@@ -863,7 +875,7 @@ const I18N = {
     resumeTxt: 'Session in progress · {n} Naam', mala: 'Mala', malaSub: '108 beads per round', jaap: 'Jaap', jaapSub: 'Set a timer or count freely',
     setTimer: 'Set Timer', setTimerSub: 'Choose how long you want to practise', minShort: 'min', start: 'Start', or: 'or',
     noTimer: 'No Timer', noTimerSub: 'Just count repetitions', mantra: 'Mantra', selectMala: 'Select Mala Count', eachMala: 'Each mala = 108 repetitions',
-    nMala: '{n} mala', startMala: 'Start Mala', pauseBack: 'Pause and go back', tapAria: 'Count one repetition',
+    nMala: '{n} mala', startMala: 'Start Mala', startJaap: 'Start Jaap', practiceType: 'Practice type', pauseBack: 'Pause and go back', tapAria: 'Count one repetition',
     malaProgress: 'Mala progress', undo: 'Undo', pause: 'Pause', resume: 'Resume', finish: 'Finish', holdFinish: 'Hold',
     paused: 'Paused', reps: 'Repetitions', activeTime: 'Active time', timeLeft: 'Time left', elapsed: 'Time elapsed', totalMalas: 'Total malas', target: 'Target',
     modeJaap: 'Naam Jaap', modeMala: 'Mala Jaap', timedSub: '{m} min', freeSub: 'Free count', malaOf: 'Mala {a} of {b}',
@@ -1946,13 +1958,28 @@ function renderHome() {
   $('#streak-txt').textContent = daysLabel(streaks().cur);
   const rc = $('#resume-card');
   rc.hidden = !session;
+  renderModePick();
   if (session) $('#resume-txt').textContent = t('resumeTxt', { n: fmtNum(session.count) });
   renderTokens();
 }
 onEnter.home = renderHome;
 $('#resume-card').addEventListener('click', () => go('practice'));
-$('#go-jaap').addEventListener('click', () => { if (session) { toast(t('tRestored')); go('practice'); } else go('jaap-setup'); });
-$('#go-mala').addEventListener('click', () => { if (session) { toast(t('tRestored')); go('practice'); } else go('mala-setup'); });
+function renderModePick() {
+  const mode = settings.homeMode === 'mala' ? 'mala' : 'jaap';
+  $$('#mode-pick .pick').forEach(b => b.setAttribute('aria-checked', String(b.dataset.mode === mode)));
+  $('#home-start-lbl').textContent = t(mode === 'mala' ? 'startMala' : 'startJaap');
+  $('#home-start-ico').setAttribute('href', mode === 'mala' ? '#i-mala' : '#i-play');
+}
+$$('#mode-pick .pick').forEach(b => b.addEventListener('click', () => { settings.homeMode = b.dataset.mode; persist(); renderModePick(); Haptics.tick(); }));
+$('#mode-pick').addEventListener('keydown', e => {
+  const k = { ArrowDown: 1, ArrowRight: 1, ArrowUp: -1, ArrowLeft: -1 }[e.key]; if (!k) return;
+  e.preventDefault(); settings.homeMode = settings.homeMode === 'mala' ? 'jaap' : 'mala'; persist(); renderModePick();
+  $(`#mode-pick [data-mode="${settings.homeMode}"]`).focus();
+});
+$('#home-start').addEventListener('click', () => {
+  if (session) { toast(t('tRestored')); go('practice'); return; }
+  go(settings.homeMode === 'mala' ? 'mala-setup' : 'jaap-setup');
+});
 
 /* mantra chips on both setup screens */
 function renderMantraChips(box) {
