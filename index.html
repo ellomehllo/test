@@ -494,7 +494,7 @@
 </style>
 </head>
 
-<body data-screen="home" data-bg="forest" data-mode="jaap">
+<body data-screen="home" data-bg="grove" data-mode="jaap">
 
 <div id="backdrop" aria-hidden="true">
   <video id="bg-video" muted playsinline loop preload="none"></video>
@@ -792,7 +792,7 @@
     </div>
     <div class="set-group"><h3 data-t="gLook">रूप</h3>
       <div class="card set-list">
-        <div class="set-item"><span data-t="bgSet">पृष्ठभूमि</span><div class="seg" data-group="bg"><button data-value="forest" data-t="bgForest">वन</button><button data-value="clouds" data-t="bgClouds">बादल</button><button data-value="kailash" data-t="bgKailash">कैलाश</button><button data-value="grove" data-t="bgGrove">उपवन</button></div></div>
+        <div class="set-item"><span data-t="bgSet">पृष्ठभूमि</span><div class="seg" data-group="bg"><button data-value="grove" data-t="bgGrove">उपवन</button><button data-value="forest" data-t="bgForest">वन</button><button data-value="clouds" data-t="bgClouds">बादल</button><button data-value="kailash" data-t="bgKailash">कैलाश</button></div></div>
         <div class="set-item"><div class="row-between"><span data-t="motionSet">कम हलचल</span><button id="sw-motion" class="switch" role="switch" aria-checked="false" data-t-aria="motionSet" aria-label="कम हलचल"></button></div><p class="sub" data-t="motionSetSub">चलती तस्वीरों की जगह स्थिर चित्र — बैटरी और डेटा भी बचता है</p></div>
       </div>
     </div>
@@ -905,12 +905,14 @@ const Store = {
 const saved = Store.read();
 const settings = Object.assign({
   minutes: 25, sound: 'ram', vib: 'medium', lang: 'hi',
-  goal: 108, aaradhya: 'hanuman', mantra: {}, malas: 1, bg: 'forest', homeMode: 'jaap',
+  goal: 108, aaradhya: 'hanuman', mantra: {}, malas: 1, bg: 'grove', homeMode: 'jaap',
   breath: true,
   voice: false, reduceMotion: false
 }, saved.settings);
 delete settings.lockout; delete settings.holdFinish;   // hold-to-finish was removed: finishing is one tap + a yes/no question
-settings.sound = 'mute';                 // silent practice: AudioEngine.bell/chime also stay quiet
+settings.sound = 'mute';
+// Grove became the default background: move everyone still on the old default (forest) over, once
+if (!settings.bgV2) { if (settings.bg === 'forest') settings.bg = 'grove'; settings.bgV2 = 1; }                 // silent practice: AudioEngine.bell/chime also stay quiet
 // v1 only allowed 20–60 minutes in steps of 1; the new wheel uses fixed stops
 const MINUTE_STOPS = [1, 2, 3, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 75, 90, 120];
 settings.minutes = MINUTE_STOPS.reduce((a, b) => Math.abs(b - settings.minutes) < Math.abs(a - settings.minutes) ? b : a, 25);
@@ -1590,10 +1592,10 @@ const Backdrop = (() => {
   const v = $('#bg-video'), bd = $('#backdrop');
   const conn = navigator.connection || {};
   const slow = !!conn.saveData || /(^|-)(2g|3g)$/.test(conn.effectiveType || '');
-  const POSTER = { forest: 'bg-forest-poster.webp', clouds: 'bg-clouds-poster.webp', kailash: 'bg-kailash.webp', grove: 'bg-grove.webp' };
+  const POSTER = { grove: 'bg-grove.webp', forest: 'bg-forest-poster.webp', clouds: 'bg-clouds-poster.webp', kailash: 'bg-kailash.webp' };
   const STILL = ['kailash', 'grove'];   // pictures, not videos (they drift slowly instead)
   function apply() {
-    const bg = POSTER[settings.bg] ? settings.bg : 'forest';
+    const bg = POSTER[settings.bg] ? settings.bg : 'grove';
     document.body.dataset.bg = bg;
     bd.style.backgroundImage = `url('assets/${POSTER[bg]}?v=${AV}')`;
     v.classList.remove('on');
