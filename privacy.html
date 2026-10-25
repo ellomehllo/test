@@ -41,6 +41,7 @@
     <li><strong>Your profile name.</strong> The name you write on your profile, shown to everyone on the leaderboard. Leave it empty to appear as a numbered Bhakt.</li>
     <li><strong>Your leaderboard choice.</strong> Whether you appear on the leaderboard (on unless you turn it off).</li>
     <li><strong>Name reports.</strong> If you report someone's name, we keep that you reported it until the report is dealt with.</li>
+    <li><strong>Token purchases.</strong> If you buy Bhakti tokens in the app: the App Store transaction number, the pack and the date, so the tokens reach your account exactly once. Payment itself is handled by Apple; we never see your card or Apple Account details.</li>
   </ul>
 
   <h2>What stays only on your phone</h2>
@@ -48,6 +49,7 @@
     <li>The photo you set on your profile. It is never uploaded.</li>
     <li>Your settings, chosen Aaradhya and mantra, and your detailed session history.</li>
     <li>Downloaded Aaradhya animations.</li>
+    <li>On iPhone, the numbers the home-screen widget and the lock-screen session view show (today's jaap, goal, streak, the running count).</li>
   </ul>
 
   <h2>The leaderboard</h2>
@@ -59,13 +61,18 @@
     removed. To report a name directly, write to <a href="mailto:support@vanarsathi.online">support@vanarsathi.online</a>.</p>
 
   <h2>Voice counting (optional)</h2>
-  <p>If you switch on voice counting, the app asks for microphone permission and counts your naam using your phone's built-in speech
-    recognition. We don't receive or store any audio. Depending on your phone, its speech recognition service (for example Apple or Google)
-    may process the audio under that company's own privacy policy.</p>
+  <p>If you switch on voice counting, the app asks for microphone permission and counts your naam using speech recognition built into
+    your phone. We never receive, record or store any audio.</p>
+  <ul>
+    <li><strong>iPhone app:</strong> Apple's speech recognition, on the phone itself wherever the phone supports it for the language; otherwise Apple processes the audio under its own privacy policy.</li>
+    <li><strong>Android app:</strong> recognition runs entirely on the phone, offline.</li>
+    <li><strong>Website:</strong> your browser's speech recognition, which may send audio to its maker (Google for Chrome, Apple for Safari).</li>
+  </ul>
 
   <h2>Who helps us run Aradhya</h2>
   <ul>
     <li><strong>Supabase</strong> stores the account ID, sessions and unlocks described above (servers in Tokyo, Japan) and serves the Aaradhya animations you download.</li>
+    <li><strong>Apple</strong> handles in-app payments and, on iPhone, speech recognition as described above.</li>
     <li><strong>Cloudflare</strong> hosts vanarsathi.online and, like any web host, briefly processes your IP address to deliver the pages.</li>
     <li>On the website only, fonts come from <strong>Google Fonts</strong> and one script from <strong>jsDelivr</strong>, which receive your IP address when they load. The app has these files built in.</li>
   </ul>

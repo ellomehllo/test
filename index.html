@@ -416,6 +416,7 @@
   .board .tt { font-family: var(--serif); font-size: 19px; font-weight: 600; }
   .board li.gap { justify-content: center; padding: 0; min-height: 0; border: 0; background: none; color: var(--ivory-3); letter-spacing: .3em; }
   .board .nm small { font-size: 12px; color: var(--ivory-3); }
+  .b-care { margin-top: 10px; font-size: 12.5px; color: var(--ivory-3); text-align: center; }
   .board .rep { flex: none; width: 32px; height: 32px; margin: -6px -8px -6px -4px; display: grid; place-items: center; border-radius: 50%; color: var(--ivory-3); opacity: .7; }
   .board-more { width: 100%; margin-top: 8px; min-height: 46px; font-size: 15px; }
   .board li.empty { justify-content: center; text-align: center; color: var(--ivory-2); font-size: 14.5px; padding: 18px 14px; }
@@ -757,6 +758,7 @@
     </div>
     <p id="b-hint" class="lead" style="margin-top:34px;min-height:22px" aria-live="polite"></p>
     <p class="k" style="margin-top:4px"><span id="b-remaining" class="num">5:00</span> · <span id="b-cycles"></span></p>
+    <p class="b-care" data-t="breathCare">धीरे-धीरे साँस लें — चक्कर आए तो रुक जाएँ।</p>
     <button id="b-skip" class="btn-line" style="margin-top:10px" data-t="skip">प्राणायाम छोड़ें</button>
   </div>
 </section>
@@ -1105,7 +1107,7 @@ const I18N = {
     malaProgress: 'माला प्रगति', undo: 'वापस लें', pause: 'रोकें', resume: 'फिर शुरू करें', finish: 'पूर्ण करें', holdFinish: 'दबाकर रखें',
     paused: 'रुका हुआ', reps: 'जप', activeTime: 'सक्रिय समय', timeLeft: 'बाकी समय', elapsed: 'बीता समय', totalMalas: 'कुल माला', target: 'लक्ष्य',
     modeJaap: 'नाम जप', modeMala: 'माला जप', timedSub: '{m} मिनट', freeSub: 'खुला जप', malaOf: 'माला {a} / {b}',
-    breathTag: 'प्राणायाम', skip: 'प्राणायाम छोड़ें', cycle: 'चक्र {n}', sIn: 'लें', sHold: 'रोकें', sOut: 'छोड़ें',
+    breathTag: 'प्राणायाम', breathCare: 'धीरे-धीरे साँस लें — चक्कर आए तो रुक जाएँ।', skip: 'प्राणायाम छोड़ें', cycle: 'चक्र {n}', sIn: 'लें', sHold: 'रोकें', sOut: 'छोड़ें',
     pIn: 'साँस लें', pHold: 'रोकें', pOut: 'साँस छोड़ें',
     hIn: 'नाक से धीरे-धीरे साँस अंदर लें', hHoldIn: 'साँस अंदर रोककर रखें', hOut: 'धीरे-धीरे साँस बाहर छोड़ें', hHoldOut: 'साँस बाहर ही रोककर रखें',
     doneTitle: 'जप पूर्ण', doneTitleMala: 'माला पूर्ण', doneEarly: 'साधना सहेजी गई', doneSub: 'उठने से पहले एक पल शांत बैठें।', time: 'समय', malas: 'माला',
@@ -1133,14 +1135,14 @@ const I18N = {
     vibNote: 'हर जप पर हल्का कंपन · हर माला पर दो बार · अंत में घंटी जैसा कंपन', vibNone: 'इस फ़ोन या ब्राउज़र में कंपन नहीं चलता (जैसे iPhone)।',
     breathSet: 'समय पूरा होने पर प्राणायाम', breathSetSub: 'समय वाले जप के बाद 5 मिनट साँस का अभ्यास', holdSet: 'पूर्ण करने के लिए दबाकर रखें', holdSetSub: 'जप के समय गलती से छूने पर साधना बंद न हो',
     gVoice: 'आवाज़ से गिनती', voiceSet: 'बोलकर जप गिनें',
-    voiceAbout: 'माइक से आपका जप सुनकर गिनती बढ़ती है। यह प्रयोग है — शोर, धीमी आवाज़ या तेज़ जप में गिनती छूट सकती है, इसलिए छूकर गिनना हमेशा चालू रहता है। Chrome आवाज़ पहचानने के लिए Google को और Safari Apple को आवाज़ भेजता है; आराध्य ऐप कोई आवाज़ रिकॉर्ड या सेव नहीं करता।',
+   
     voiceUnsupported: 'इस ब्राउज़र/ऐप में आवाज़ पहचान उपलब्ध नहीं है — छूकर गिनें। (Chrome या Safari में खोलें)', voiceDenied: 'माइक की अनुमति नहीं मिली। ब्राउज़र की सेटिंग में माइक चालू करें, या छूकर गिनें।',
     voiceAsk: 'अनुमति माँगी जा रही है…', voiceReady: 'माइक की अनुमति मिल गई। साधना शुरू होने पर सुनना शुरू होगा।',
     vListening: 'सुन रहे हैं', vOff: 'आवाज़ बंद', vDenied: 'माइक बंद', vError: 'आवाज़ रुकी', vStarting: 'शुरू हो रहा…', vPaused: 'रुका',
     vMuted: 'आवाज़ से गिनती चालू है, इसलिए रिकॉर्ड किया जप नहीं बजेगा (वरना वही गिना जाता)', vNet: 'आवाज़ पहचान के लिए इंटरनेट चाहिए',
     gLook: 'रूप', bgSet: 'पृष्ठभूमि', bgForest: 'वन', bgClouds: 'बादल', bgKailash: 'कैलाश', bgGrove: 'उपवन', motionSet: 'कम हलचल', motionSetSub: 'चलती तस्वीरों की जगह स्थिर चित्र — बैटरी और डेटा भी बचता है',
     gNotify: 'सूचनाएँ', reminder: 'रोज़ जप की याद', remindAt: 'समय', remindSub: 'चुने हुए समय पर याद — जिस दिन जप हो चुका हो, उस दिन नहीं।', remindAppOnly: 'याद दिलाने की सुविधा Android ऐप में मिलती है।',
-    nudge: 'शाम 8 बजे साधना क्रम की याद', aboutTitle: 'आराध्य', aboutText: 'नाम जप और माला साधना का साथी — हर दिन थोड़ी भक्ति, थोड़ा ध्यान। 🙏', aboutOk: 'ठीक है', nudgeSub: 'शाम 8 बजे — केवल तब, जब आपका क्रम चल रहा हो और उस दिन जप न हुआ हो।',
+    nudge: 'शाम 8 बजे साधना क्रम की याद', aboutTitle: 'आराध्य', aboutText: 'नाम जप और माला साधना का साथी — हर दिन थोड़ी भक्ति, थोड़ा ध्यान। 🙏 यह भक्ति साधना का साथी है, कोई चिकित्सा सेवा नहीं।', aboutOk: 'ठीक है', nudgeSub: 'शाम 8 बजे — केवल तब, जब आपका क्रम चल रहा हो और उस दिन जप न हुआ हो।',
     nDenied: 'सूचनाओं की अनुमति नहीं मिली — फ़ोन की सेटिंग्स में आराध्य के लिए सूचनाएँ चालू करें।',
     nDailyT: '🙏 जप का समय', nDailyB: '{name} आपकी प्रतीक्षा में हैं — एक माला भी काफ़ी है।', nNudgeT: '🔥 आपका {n} दिन का साधना क्रम', nNudgeB: 'आज रात 12 बजे टूट जाएगा — एक माला से इसे बचा लें।',
     gPrivacy: 'गोपनीयता और खाता', privacySub: 'भक्त सूची में आपका प्रोफ़ाइल नाम सबको दिखता है (चाहें तो सूची से छिप सकते हैं)। आपकी फ़ोटो इसी फ़ोन पर रहती है।', about: 'आराध्य के बारे में',
@@ -1181,7 +1183,7 @@ const I18N = {
     malaProgress: 'Mala progress', undo: 'Undo', pause: 'Pause', resume: 'Resume', finish: 'Finish', holdFinish: 'Hold',
     paused: 'Paused', reps: 'Repetitions', activeTime: 'Active time', timeLeft: 'Time left', elapsed: 'Time elapsed', totalMalas: 'Total malas', target: 'Target',
     modeJaap: 'Naam Jaap', modeMala: 'Mala Jaap', timedSub: '{m} min', freeSub: 'Free count', malaOf: 'Mala {a} of {b}',
-    breathTag: 'Pranayama', skip: 'Skip breathing', cycle: 'Round {n}', sIn: 'In', sHold: 'Hold', sOut: 'Out',
+    breathTag: 'Pranayama', breathCare: 'Breathe gently — stop if you feel dizzy.', skip: 'Skip breathing', cycle: 'Round {n}', sIn: 'In', sHold: 'Hold', sOut: 'Out',
     pIn: 'Breathe in', pHold: 'Hold', pOut: 'Breathe out',
     hIn: 'Breathe in slowly through the nose', hHoldIn: 'Hold the breath in', hOut: 'Breathe out slowly', hHoldOut: 'Stay empty, hold',
     doneTitle: 'Jaap Complete', doneTitleMala: 'Mala Complete', doneEarly: 'Session saved', doneSub: 'Sit quietly for a moment before you get up.', time: 'Time', malas: 'Mala',
@@ -1209,14 +1211,14 @@ const I18N = {
     vibNote: 'A light tick for each count · two at each mala · a bell-like buzz at the end', vibNone: 'This phone or browser can’t vibrate (e.g. iPhone).',
     breathSet: 'Pranayama when the timer ends', breathSetSub: '5 minutes of breathing after a timed jaap', holdSet: 'Hold to finish', holdSetSub: 'A stray touch can’t end your session',
     gVoice: 'Voice counting', voiceSet: 'Count by voice',
-    voiceAbout: 'Listens through the microphone and counts each chant it recognises. It is experimental — noise, a soft voice or very fast chanting can be missed, so tap counting always stays on. Chrome sends audio to Google and Safari to Apple for recognition; Aradhya never records or stores audio.',
+   
     voiceUnsupported: 'Speech recognition isn’t available in this browser or app — tap to count. (Try Chrome or Safari.)', voiceDenied: 'Microphone permission was denied. Allow the microphone in your browser settings, or tap to count.',
     voiceAsk: 'Asking for permission…', voiceReady: 'Microphone allowed. Listening starts when a session begins.',
     vListening: 'Listening', vOff: 'Voice off', vDenied: 'Mic blocked', vError: 'Voice stopped', vStarting: 'Starting…', vPaused: 'Paused',
     vMuted: 'Voice counting is on, so the recorded chant won’t play (it would be counted)', vNet: 'Speech recognition needs an internet connection',
     gLook: 'Appearance', bgSet: 'Background', bgForest: 'Forest', bgClouds: 'Clouds', bgKailash: 'Kailash', bgGrove: 'Grove', motionSet: 'Reduced motion', motionSetSub: 'Still pictures instead of animation — also saves battery and data',
     gNotify: 'Notifications', reminder: 'Daily jaap reminder', remindAt: 'Time', remindSub: "A reminder at your chosen time — skipped on days you've already chanted.", remindAppOnly: 'Reminders are available in the Android app.',
-    nudge: 'Streak reminder at 8 pm', aboutTitle: 'Aradhya', aboutText: 'A companion for naam jaap and mala practice — a little devotion every day. 🙏', aboutOk: 'OK', nudgeSub: "At 8 pm — only when you have a streak going and haven't chanted that day.",
+    nudge: 'Streak reminder at 8 pm', aboutTitle: 'Aradhya', aboutText: 'A companion for naam jaap and mala practice — a little devotion every day. 🙏 A devotional practice, not a medical service.', aboutOk: 'OK', nudgeSub: "At 8 pm — only when you have a streak going and haven't chanted that day.",
     nDenied: 'Notifications are off — allow them for Aradhya in your phone settings.',
     nDailyT: '🙏 Time for jaap', nDailyB: '{name} is waiting for you — even one mala is enough.', nNudgeT: '🔥 Your {n}-day streak', nNudgeB: 'It ends at midnight — one mala keeps it going.',
     gPrivacy: 'Privacy & account', privacySub: 'Your profile name is shown to everyone on the leaderboard (you can hide yourself from it). Your photo stays on this phone.', about: 'About Aradhya',
@@ -1836,6 +1838,16 @@ const Cloud = (() => {
     try { msg = (await error.context.json()).error || msg; } catch (_) {}
     return { error: msg };
   }
+  // whether the server can credit App Store purchases yet: until the apple-purchase function is deployed it answers
+  // 404, and the shop stays hidden rather than take money it can't turn into tokens
+  async function purchasesLive() {
+    await init();
+    if (!api.ready) return false;
+    const { error } = await sb.functions.invoke('apple-purchase', { body: {} });
+    if (!error) return true;
+    const status = error.context && error.context.status;
+    return !!status && status !== 404;
+  }
   async function flush() {
     if (!api.ready) return;
     const q = readQ(); if (!q.length) return;
@@ -1906,7 +1918,7 @@ const Cloud = (() => {
   const resume = () => { if (!api.ready) init().then(() => { onRecordsChanged(); Community.renderAccount(); }); else flush().then(refreshStats); };
   addEventListener('online', resume);
   document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') resume(); });
-  Object.assign(api, { init, record, refreshStats, unlock, fileUrl, pending: readQ, myCode, deleteAccount, applePurchase, saveProfile, saveName, reportName, leaderboard, myRank, totalsAll, linkEmail, signOut, loadProfile });
+  Object.assign(api, { init, record, refreshStats, unlock, fileUrl, pending: readQ, myCode, deleteAccount, applePurchase, purchasesLive, saveProfile, saveName, reportName, leaderboard, myRank, totalsAll, linkEmail, signOut, loadProfile });
   return api;
 })();
 
@@ -3021,7 +3033,8 @@ const Billing = (() => {
     try {
       const { products = [] } = await VS.products({ ids: TOKEN_PACKS.map(k => k.id) });
       products.forEach(p => { api.prices[p.id] = p.displayPrice; });
-      api.available = products.length > 0;
+      // the shop opens only when the App Store has the packs and the server is ready to credit them
+      api.available = products.length > 0 && await Cloud.purchasesLive();
     } catch (e) { console.warn('[billing]', e && e.message); }
     await Cloud.init();
     if (Cloud.ready) retryUnfinished();
