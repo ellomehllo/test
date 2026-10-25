@@ -1029,6 +1029,7 @@ const SYS_REDUCED = matchMedia('(prefers-reduced-motion: reduce)').matches;
 // Inside the Android app (Capacitor) everything is bundled; the native bridge handles vibration and keep-awake
 const IS_APP = !!(window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform());
 const NATIVE = (IS_APP && window.Capacitor.Plugins && window.Capacitor.Plugins.VanarNative) || null;
+const IS_IOS = IS_APP && !!window.Capacitor.getPlatform && window.Capacitor.getPlatform() === 'ios';
 function nativePlugin(name) {
   const cap = IS_APP && window.Capacitor;
   if (!cap || !(cap.isPluginAvailable ? cap.isPluginAvailable(name) : cap.Plugins && cap.Plugins[name])) return null;
@@ -2320,7 +2321,7 @@ const pMala = new MalaView($('#p-mala'), { compact: true });
 const setupMala = new MalaView($('#mala-setup-canvas'), { idle: true });
 
 function beginSession(mode, opts) {
-  if (session) { toast(t('tRestored')); go('practice', true); renderPractice(); return; }
+  if (session) { toast(t('tRestored')); go('practice', true); renderPractice(); Glance.liveStart(); return; }
   const a = aById(settings.aaradhya);
   session = {
     id: `${wall().toString(36)}-${Math.random().toString(36).slice(2, 8)}`, mode, aaradhya: a.id, mantra: mantraFor(a),
@@ -2335,6 +2336,7 @@ function beginSession(mode, opts) {
   go('practice', true);
   renderPractice(true);
   Voice.sessionStart();
+  Glance.liveStart();
   startTicker();
 }
 function startTicker() { clearInterval(ticker); ticker = setInterval(tickSession, 250); }
@@ -2384,6 +2386,7 @@ function countOne(source) {
   if (n % MALA === 0) { Haptics.mala(); toast(t('tMala', { n: n / MALA })); } else { Haptics.tick(); if (source === 'tap') AudioEngine.ui('count'); }
   saveSession();
   renderCount(true);
+  Glance.liveUpdate();
   $('#sr-live').textContent = String(n);
   if (session.mode === 'mala' && session.target && n >= session.target) finishSession(true);
   return true;
@@ -2392,21 +2395,21 @@ function undoOne() {
   if (!session || session.finished) return;
   if (session.count <= 0) { toast(t('tUndoNone')); return; }
   session.count--;
-  saveSession(); renderCount(false);
+  saveSession(); renderCount(false); Glance.liveUpdate();
   Haptics.fire([10, 40, 10]);
 }
 function pauseSession() {
   if (!session || session.paused || session.finished) return;
   session.activeMs = activeMs(); session.runSince = null; session.paused = true;
   saveSession();
-  AudioEngine.stopProfile(0.5); Voice.pause(); Wake.off();
+  AudioEngine.stopProfile(0.5); Voice.pause(); Wake.off(); Glance.liveUpdate(true);
   renderPractice();
 }
 function resumeSession() {
   if (!session || !session.paused || session.finished) return;
   session.paused = false; session.runSince = wall();
   saveSession();
-  AudioEngine.ensure(); startSound(true); Voice.resume(); Wake.on(); startTicker();
+  AudioEngine.ensure(); startSound(true); Voice.resume(); Wake.on(); startTicker(); Glance.liveUpdate(true);
   renderPractice();
 }
 /* Finish exactly once: freeze time, record, reward, then pranayama (timed jaap) or the complete screen */
@@ -2415,7 +2418,7 @@ function finishSession(completed) {
   s.activeMs = activeMs(s); s.runSince = null; s.finished = true;
   session = null; saveSession();               // cleared before recording, so a reload can never record it twice
   clearInterval(ticker);
-  AudioEngine.stopProfile(1); Voice.stop(); Wake.off();
+  AudioEngine.stopProfile(1); Voice.stop(); Wake.off(); Glance.liveEnd(s);
   if (s.count === 0 && s.activeMs < 60000) { toast(t('tNothing')); go('home'); return; }
   const result = recordSession(s, completed);
   if (completed) Haptics.templeBell();
@@ -2579,7 +2582,7 @@ onEnter.complete = () => renderTokens();
  * a live guess is often revised), and each utterance's final transcript settles the rest. A pace cap (5 words a second)
  * stops a misheard burst from racing ahead. Tap counting always stays on.                                            */
 const Voice = (() => {
-  const NV = nativePlugin('VanarVoice');            // Android app
+  const NV = nativePlugin('VanarVoice');            // the apps: Vosk on Android, Apple's on-device recogniser on iPhone
   const SR = NV ? null : window.SpeechRecognition || window.webkitSpeechRecognition;
   const api = { supported: !!(NV || SR), offline: !!NV, state: 'off' };
   let want = false, pausedFlag = false, occ = 0, seen = 0, stamps = [];
@@ -2587,8 +2590,8 @@ const Voice = (() => {
   const set = st => { api.state = st; api.render(); };
   api.active = () => settings.voice && api.supported && api.state !== 'denied';
   const mantra = () => MANTRAS[session && session.mantra] || MANTRAS.ram;
-  // the offline recogniser answers in Devanagari with exactly the grammar's words; the browser may write either script
-  const hits = text => (NV ? text.split(/\s+/).filter(w => w === mantra().key).length
+  // Vosk (Android) answers in Devanagari with exactly the grammar's words; Apple's recogniser and the browser may write either script
+  const hits = text => (NV && !IS_IOS ? text.split(/\s+/).filter(w => w === mantra().key).length
     : (text.match(new RegExp(mantra().re.source, 'gi')) || []).length);
   function add(n) {
     if (!session || session.paused || session.finished || n <= 0) return;
@@ -2616,7 +2619,9 @@ const Voice = (() => {
       ]);
       await hooked;
       seen = 0;
-      await NV.start({ words: mantra().words });     // the first start loads the model (a few seconds)
+      // iPhone: the page's own sounds have to allow the microphone too, or WebKit would switch it off
+      if (IS_IOS) try { navigator.audioSession.type = 'play-and-record'; } catch (_) {}
+      await NV.start({ words: mantra().words, hints: mantra().en.split(/\s+/) });   // the first start loads the model (a few seconds)
       running = true;
       if (!want) { nativeHalt(); return; }
       if (pausedFlag) { NV.pause().catch(() => {}); set('paused'); return; }
@@ -2627,7 +2632,10 @@ const Voice = (() => {
       set(denied ? 'denied' : 'error');
     }
   }
-  function nativeHalt() { running = false; NV.stop().catch(() => {}); }
+  function nativeHalt() {
+    running = false; NV.stop().catch(() => {});
+    if (IS_IOS) try { navigator.audioSession.type = 'ambient'; } catch (_) {}
+  }
 
   // ── website: browser speech recognition, restarted after every utterance
   function webLaunch() {
@@ -2774,8 +2782,40 @@ function renderTokens() {
     if (had || v !== '0') { el.classList.remove('bump'); void el.offsetWidth; el.classList.add('bump'); }
   });
 }
+/* iPhone: the home-screen widget (today's jaap, goal, streak) and the running session as a Live Activity on the lock
+ * screen, both drawn natively from what the page sends here (VanarNativePlugin). */
+const Glance = (() => {
+  const NP = IS_IOS ? NATIVE : null;
+  const api = { widget() {}, liveStart() {}, liveUpdate() {}, liveEnd() {} };
+  if (!NP || !NP.widget) return api;
+  api.widget = () => {
+    NP.widget({ day: todayKey(), today: todayCount(), goal: settings.goal, streak: streaks().cur,
+      name: aName(aById(settings.aaradhya)), lang: settings.lang }).catch(() => {});
+  };
+  const state = (s = session) => {
+    const run = activeMs(s), timed = s.mode === 'jaap' && s.timerMin;
+    return { count: s.count, target: s.target || 0, paused: !!s.paused, timerStart: Date.now() - run,
+      endsAt: timed && !s.paused ? Date.now() + Math.max(0, s.timerMin * 60000 - run) : null, elapsed: run / 1000 };
+  };
+  // every message carries the whole picture, so an update can also start one (a session restored after a restart)
+  const full = (s = session) => Object.assign({ name: aName(aById(s.aaradhya)), mantra: mText(s.mantra), lang: settings.lang }, state(s));
+  let pending = 0;
+  api.liveStart = () => { if (session) NP.liveStart(full()).catch(() => {}); };
+  // counts come fast: the lock screen hears about them at most once a second
+  api.liveUpdate = (now = false) => {
+    if (!session) return;
+    clearTimeout(pending);
+    const send = () => { if (session) NP.liveUpdate(full()).catch(() => {}); };
+    if (now) send(); else pending = setTimeout(send, 1000);
+  };
+  api.liveEnd = s => { clearTimeout(pending); NP.liveEnd(full(s)).catch(() => {}); api.widget(); };
+  document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden') api.widget(); });
+  setTimeout(api.widget, 1500);
+  return api;
+})();
+
 function onRecordsChanged() {
-  syncUnlocks(false); renderTokens(); Reminders.soon();
+  syncUnlocks(false); renderTokens(); Reminders.soon(); Glance.widget();
   if (current === 'home') renderHome();
   if (current === 'streaks') renderStreaks();
   if (current === 'profile') Profile.render();
