@@ -174,7 +174,8 @@
   .home-stage { position: relative; flex: 1 1 auto; min-height: 150px; margin: 4px -8px 0; z-index: 0; }
   /* the Aaradhya stands close to the camera: face large in the free space, feet tucked behind the name and buttons */
   #home-fig { transform: scale(1.55); transform-origin: 50% 4%; }
-  .home-stage .halo { top: 30%; }
+  /* the glow sits behind the head and shoulders only; sized from the stage height, as the figure is */
+  .home-stage .halo { top: 19%; width: auto; height: 69%; }
   .home-name, .home-stage ~ .card, .home-start { position: relative; z-index: 2; }
   /* Mala / Jaap choice: round toggles on the right of the figure; the one Start button follows it */
   .mode-pick { position: absolute; right: 14px; top: calc(var(--safe-t) + 132px); z-index: 3; display: flex; flex-direction: column; gap: 12px; }
@@ -261,6 +262,7 @@
 
   /* ---------- Practice ---------- */
   .p-stage { position: relative; flex: 1 1 auto; min-height: 120px; margin: 0 -10px; }
+  .p-stage .halo { top: 44%; width: auto; height: 82%; }   /* behind head and back, like the home glow */
   body[data-mode="mala"] #p-fig, body[data-mode="mala"] #s-practice .p-stage .halo, body[data-mode="jaap"] #p-mala, body[data-mode="jaap"] .p-stage .mala-glow { display: none; }
   .p-top-r { display: flex; justify-content: flex-end; }
   .voice-chip { display: inline-flex; align-items: center; gap: 6px; height: 34px; padding: 0 11px; border-radius: 999px; font-size: 13px; white-space: nowrap;
@@ -315,7 +317,8 @@
   .paused-panel { position: absolute; inset: 0; z-index: 5; display: flex; flex-direction: column; padding: calc(var(--safe-t) + 10px) 16px calc(var(--safe-b) + 16px);
     background: linear-gradient(180deg, rgba(4,10,14,.55), rgba(4,10,14,.82)); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); }
   .paused-card { margin: auto 0; padding: 0 0 16px; overflow: hidden; text-align: center; }
-  .paused-card .pfig { position: relative; height: clamp(150px, 30dvh, 260px); background: radial-gradient(ellipse at 50% 70%, rgba(240,180,80,.25), transparent 65%); }
+  .paused-card .pfig { position: relative; height: clamp(150px, 30dvh, 260px); margin-top: 16px; background: radial-gradient(closest-side at 50% 60%, rgba(240,180,80,.22), transparent); }
+  .paused-card .halo { top: 44%; width: auto; height: 82%; }   /* behind head and back, clear of the card's edges */
   .paused-card h2 { font-family: var(--serif); font-size: 22px; font-weight: 600; margin-top: 6px; }
   :lang(hi) .paused-card h2 { font-family: var(--deva); font-weight: 400; }
   .paused-card .pm { font-family: var(--deva); color: var(--gold-2); font-size: 15px; }
@@ -711,7 +714,7 @@
   <div id="p-paused" class="paused-panel" hidden role="dialog" aria-modal="true" aria-labelledby="paused-h">
     <header class="subbar"><button class="icon-btn" id="paused-back" data-t-aria="back" aria-label="वापस"><svg width="20" height="20"><use href="#i-back"/></svg></button><h1 id="paused-h" class="h-title" data-t="paused">रुका हुआ</h1><span></span></header>
     <div class="card paused-card">
-      <div class="pfig"><div class="halo" style="width:110%"><i class="aura"></i><i class="core"></i></div><div id="paused-fig" class="figure"></div></div>
+      <div class="pfig"><div class="halo"><i class="aura"></i><i class="core"></i></div><div id="paused-fig" class="figure"></div></div>
       <h2 id="paused-name"></h2><p class="pm" id="paused-mantra"></p>
       <div class="paused-stats">
         <div><b id="paused-count" class="num">0</b><span class="k" data-t="reps">जप</span></div>
@@ -1831,7 +1834,7 @@ function makeSheet(el, onOpen) {
 /* ───────────────────────── 8 · FIGURES — transparent animated Aaradhya ─────────────────────────
  * Safari and every iOS browser (WebKit) only render video transparency from HEVC; the rest use VP9 WebM.
  * Still WebP posters show instantly and stay when motion is reduced (Shiv is always a still).        */
-const AV = 4;
+const AV = 5;
 const UA = navigator.userAgent;
 const VEXT = /AppleWebKit/.test(UA) && !/Chrome|Chromium|Edg|OPR|Android/.test(UA) ? 'mov' : 'webm';
 if (VEXT === 'mov') document.body.classList.add('lite-glass');   // WebKit: no frosted glass over the video (see CSS)
