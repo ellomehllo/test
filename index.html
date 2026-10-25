@@ -2633,12 +2633,15 @@ const Voice = (() => {
   }
   // the word still being spoken can change, so it normally waits for the next word or the end of the phrase; Apple's
   // recogniser often ends a phrase after a pause without repeating it, so on iPhone every word counts as soon as it's heard
+  // iPhone counts single-word mantras itself, by when each word was said ('hit' events), so the text is ignored then
+  const nativeHits = () => NV && IS_IOS && !!mantra().w;
   function partial(text) {
+    if (nativeHits()) return;
     const words = text.trim().split(/\s+/);
     const n = hits((NV && IS_IOS ? words : words.slice(0, -1)).join(' '));
     if (n > seen) { add(n - seen); seen = n; }
   }
-  function final(text) { add(hits(text) - seen); seen = 0; }
+  function final(text) { if (nativeHits()) return; add(hits(text) - seen); seen = 0; }
 
   // ── app: offline engine
   async function nativeStart() {
@@ -2647,13 +2650,15 @@ const Voice = (() => {
       if (!hooked) hooked = Promise.all([
         NV.addListener('partial', e => partial((e && e.text) || '')),
         NV.addListener('result', e => final((e && e.text) || '')),
+        NV.addListener('hit', e => { if (nativeHits()) add((e && e.n) || 0); }),
         NV.addListener('error', () => { if (want) set('error'); })
       ]);
       await hooked;
       seen = 0;
       // iPhone: the page's own sounds have to allow the microphone too, or WebKit would switch it off
       if (IS_IOS) try { navigator.audioSession.type = 'play-and-record'; } catch (_) {}
-      await NV.start({ words: mantra().words, hints: mantra().en.split(/\s+/) });   // the first start loads the model (a few seconds)
+      const m = mantra();
+      await NV.start({ words: m.words, hints: m.en.split(/\s+/), match: m.w ? m.w.source : undefined });   // the first start loads the model (a few seconds)
       running = true;
       if (!want) { nativeHalt(); return; }
       if (pausedFlag) { NV.pause().catch(() => {}); set('paused'); return; }
