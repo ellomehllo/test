@@ -1625,10 +1625,12 @@ const AudioEngine = (() => {
  * Each figure is a background-removed clip from the Meditation_Assets folder (idle + meditating),
  * except Mahadev Shiv, who exists only as still pictures. `re` finds one spoken repetition-word
  * for voice counting; `per` words make one repetition.                                        */
+const RAM_WORD = /^(?:राम[ाः्]?|रम|r(?:a+|u|o)h?m+[ae]?|rome)$/i;
 const MANTRAS = {
   // words = what the offline recogniser listens for (Hindi model vocabulary; ॐ is "ओम" there), key = the word counted
-  ram:     { hi: 'राम राम राम', en: 'Ram Ram Ram', re: /राम|\bra+m+a?\b/gi, per: 1, words: ['राम'], key: 'राम' },
-  shriram: { hi: 'श्री राम जय राम जय जय राम', en: 'Shri Ram Jai Ram Jai Jai Ram', re: /राम|\bra+m+a?\b/gi, per: 3, words: ['श्री', 'राम', 'जय'], key: 'राम' },
+  // w = one whole spoken word that counts (Apple's recogniser writes a chanted Ram as राम, रम, Raam, Rum, Rom, Rahm …)
+  ram:     { hi: 'राम राम राम', en: 'Ram Ram Ram', re: /राम|\bra+m+a?\b/gi, w: RAM_WORD, per: 1, words: ['राम'], key: 'राम' },
+  shriram: { hi: 'श्री राम जय राम जय जय राम', en: 'Shri Ram Jai Ram Jai Jai Ram', re: /राम|\bra+m+a?\b/gi, w: RAM_WORD, per: 3, words: ['श्री', 'राम', 'जय'], key: 'राम' },
   hanuman: { hi: 'ॐ हं हनुमते नमः', en: 'Om Ham Hanumate Namah', re: /हनुमते|हनुमत|hanumat[ae]?/gi, per: 1, words: ['ओम', 'हं', 'हनुमते', 'नमः'], key: 'हनुमते' },
   narayan: { hi: 'नारायण नारायण', en: 'Narayan Narayan', re: /नारायण|narayana?/gi, per: 1, words: ['नारायण'], key: 'नारायण' },
   shiv:    { hi: 'ॐ नमः शिवाय', en: 'Om Namah Shivaya', re: /शिवाय|शिवा|shivaa?ya?/gi, per: 1, words: ['ओम', 'नमः', 'शिवाय'], key: 'शिवाय' }
@@ -2614,8 +2616,12 @@ const Voice = (() => {
   api.active = () => settings.voice && api.supported && api.state !== 'denied';
   const mantra = () => MANTRAS[session && session.mantra] || MANTRAS.ram;
   // Vosk (Android) answers in Devanagari with exactly the grammar's words; Apple's recogniser and the browser may write either script
-  const hits = text => (NV && !IS_IOS ? text.split(/\s+/).filter(w => w === mantra().key).length
-    : (text.match(new RegExp(mantra().re.source, 'gi')) || []).length);
+  const hits = text => {
+    const m = mantra();
+    if (NV && !IS_IOS) return text.split(/\s+/).filter(w => w === m.key).length;
+    if (m.w) return text.toLowerCase().split(/[\s.,!?।|-]+/).filter(w => m.w.test(w)).length;
+    return (text.match(new RegExp(m.re.source, 'gi')) || []).length;
+  };
   function add(n) {
     if (!session || session.paused || session.finished || n <= 0) return;
     const now = performance.now(), m = mantra();
@@ -2625,8 +2631,11 @@ const Voice = (() => {
       if (++occ >= m.per) { occ -= m.per; countOne('voice'); }
     }
   }
+  // the word still being spoken can change, so it normally waits for the next word or the end of the phrase; Apple's
+  // recogniser often ends a phrase after a pause without repeating it, so on iPhone every word counts as soon as it's heard
   function partial(text) {
-    const n = hits(text.trim().split(/\s+/).slice(0, -1).join(' '));
+    const words = text.trim().split(/\s+/);
+    const n = hits((NV && IS_IOS ? words : words.slice(0, -1)).join(' '));
     if (n > seen) { add(n - seen); seen = n; }
   }
   function final(text) { add(hits(text) - seen); seen = 0; }
