@@ -1057,7 +1057,8 @@ delete settings.lockout; delete settings.holdFinish; delete settings.reduceMotio
 if (!settings.voiceV2) { settings.voice = true; settings.voiceV2 = 1; }   // voice counting became solid (offline in the app) and on by default
 // sound came back: soft wind through leaves in sessions and soft sounds on buttons, on by default; one switch turns all of it off
 if (!settings.soundV2) { settings.soundOn = true; settings.soundV2 = 1; }
-settings.sound = settings.soundOn ? 'wind' : 'mute';
+if (!['wind', 'drone'].includes(settings.sessionSound)) settings.sessionSound = 'wind';   // wind & leaves, or the Om vibration
+settings.sound = settings.soundOn ? settings.sessionSound : 'mute';
 // Grove became the default background: move everyone still on the old default (forest) over, once
 if (!settings.bgV2) { if (settings.bg === 'forest') settings.bg = 'grove'; settings.bgV2 = 1; }                 // silent practice: AudioEngine.bell/chime also stay quiet
 // v1 only allowed 20–60 minutes in steps of 1; the new wheel uses fixed stops
@@ -1099,7 +1100,7 @@ const I18N = {
     achFirst: 'पहला जप', achMala1: 'पहली माला', achMala10: '10 माला', achMala108: '108 माला', achJaap1008: '1,008 जप', achJaap10008: '10,008 जप',
     achStreak3: '3 दिन लगातार', achStreak7: '7 दिन लगातार', achStreak30: '30 दिन लगातार', achHour: '1 घंटा साधना', achAaradhya: 'नया आराध्य', achAll: 'सभी आराध्य',
     editInProfile: 'प्रोफ़ाइल में बदलें', nameNotSet: 'नाम अभी नहीं लिखा',
-    nMala: '{n} माला', startMala: 'माला शुरू करें', startJaap: 'जप शुरू करें', practiceType: 'साधना का प्रकार', pauseBack: 'रोककर वापस जाएँ', soundOnAria: 'ध्वनि चालू (बंद करने के लिए छुएँ)', soundOffAria: 'ध्वनि बंद (चालू करने के लिए छुएँ)', tapAria: 'एक जप गिनें',
+    nMala: '{n} माला', startMala: 'माला शुरू करें', startJaap: 'जप शुरू करें', practiceType: 'साधना का प्रकार', pauseBack: 'रोककर वापस जाएँ', soundOnAria: 'ध्वनि: हवा और पत्ते (बदलने के लिए छुएँ)', soundOmAria: 'ध्वनि: ॐ गूँज (बंद करने के लिए छुएँ)', soundOffAria: 'ध्वनि बंद (चालू करने के लिए छुएँ)', sndWind: 'हवा और पत्ते 🍃', sndOm: 'ॐ गूँज', sndOff: 'ध्वनि बंद', tapAria: 'एक जप गिनें',
     malaProgress: 'माला प्रगति', undo: 'वापस लें', pause: 'रोकें', resume: 'फिर शुरू करें', finish: 'पूर्ण करें', holdFinish: 'दबाकर रखें',
     paused: 'रुका हुआ', reps: 'जप', activeTime: 'सक्रिय समय', timeLeft: 'बाकी समय', elapsed: 'बीता समय', totalMalas: 'कुल माला', target: 'लक्ष्य',
     modeJaap: 'नाम जप', modeMala: 'माला जप', timedSub: '{m} मिनट', freeSub: 'खुला जप', malaOf: 'माला {a} / {b}',
@@ -1175,7 +1176,7 @@ const I18N = {
     achFirst: 'First jaap', achMala1: 'First mala', achMala10: '10 malas', achMala108: '108 malas', achJaap1008: '1,008 jaap', achJaap10008: '10,008 jaap',
     achStreak3: '3-day streak', achStreak7: '7-day streak', achStreak30: '30-day streak', achHour: '1 hour of practice', achAaradhya: 'New Aaradhya', achAll: 'All Aaradhya',
     editInProfile: 'Edit in profile', nameNotSet: 'No name yet',
-    nMala: '{n} mala', startMala: 'Start Mala', startJaap: 'Start Jaap', practiceType: 'Practice type', pauseBack: 'Pause and go back', soundOnAria: 'Sound on (tap to turn off)', soundOffAria: 'Sound off (tap to turn on)', tapAria: 'Count one repetition',
+    nMala: '{n} mala', startMala: 'Start Mala', startJaap: 'Start Jaap', practiceType: 'Practice type', pauseBack: 'Pause and go back', soundOnAria: 'Sound: wind & leaves (tap to change)', soundOmAria: 'Sound: Om vibration (tap to turn off)', soundOffAria: 'Sound off (tap to turn on)', sndWind: 'Wind & leaves 🍃', sndOm: 'Om vibration', sndOff: 'Sound off', tapAria: 'Count one repetition',
     malaProgress: 'Mala progress', undo: 'Undo', pause: 'Pause', resume: 'Resume', finish: 'Finish', holdFinish: 'Hold',
     paused: 'Paused', reps: 'Repetitions', activeTime: 'Active time', timeLeft: 'Time left', elapsed: 'Time elapsed', totalMalas: 'Total malas', target: 'Target',
     modeJaap: 'Naam Jaap', modeMala: 'Mala Jaap', timedSub: '{m} min', freeSub: 'Free count', malaOf: 'Mala {a} of {b}',
@@ -1404,16 +1405,21 @@ const AudioEngine = (() => {
     knock(dest, t + 0.045 + Math.random() * 0.02, 2300, 0.17);
   }
 
-  /* Om drone: a still bed of pure tones (Sa, Pa, upper Sa, a light low Sa) that breathes very slowly. Not used in
-   * sessions any more (they have the wind); kept for a sound choice later. */
+  /* Om vibration: the deep resonant drone (sub Sa + Sa + Pa, a growling resonant saw and a breath of air), played
+   * almost at the edge of hearing so it is felt more than heard */
   function startDrone(dest, nodes) {
     const t = ctx.currentTime;
-    const body = gain(0.5); body.connect(dest);
-    const breath = osc('sine', 0.05, t), breathG = gain(0.08); breath.connect(breathG); breathG.connect(body.gain);
-    [[SA / 2, 0.12], [SA, 0.42], [SA * 1.5, 0.12], [SA * 2, 0.08]].forEach(([f, a]) => {   // low Sa kept light: earphones make it rumble
-      const o = osc('sine', f, t), g = gain(a); o.connect(g); g.connect(body); o.start(t); nodes.push(o);
+    const body = gain(0.55); body.connect(dest);
+    const ampL = osc('sine', 0.09, t), ampG = gain(0.2); ampL.connect(ampG); ampG.connect(body.gain);
+    [[SA / 2, 'sine', 0.6], [SA, 'sine', 0.22], [SA * 0.75, 'triangle', 0.09], [SA * 1.5, 'sine', 0.05]].forEach(([f, type, a]) => {
+      const o = osc(type, f, t), g = gain(a); o.connect(g); g.connect(body); o.start(t); nodes.push(o);
     });
-    breath.start(t); nodes.push(breath);
+    const saw = osc('sawtooth', SA / 2, t); saw.detune.value = 4;
+    const lp = filt('lowpass', 240, 7), lfo = osc('sine', 0.045, t), lfoG = gain(110);
+    lfo.connect(lfoG); lfoG.connect(lp.frequency);
+    const sg = gain(0.12); saw.connect(lp); lp.connect(sg); sg.connect(body);
+    const n = noise(), nb = filt('bandpass', 320, 0.7), ng = gain(0.05); n.connect(nb); nb.connect(ng); ng.connect(body);
+    [saw, lfo, ampL, n].forEach(x => { x.start(t); nodes.push(x); });
   }
   /* Soft wind through leaves: airy noise that rises and falls in slow gusts, and leaves that rustle more as the wind
    * picks up. No tones at all and nothing below 150 Hz, so nothing hums or rumbles in earphones. */
@@ -1495,7 +1501,9 @@ const AudioEngine = (() => {
     out.gain.setValueAtTime(0, t);
     if (name === 'wind') {   // stays very low: fades in, then rises a touch while the session settles
       out.gain.linearRampToValueAtTime(0.04, t + 4); out.gain.linearRampToValueAtTime(0.06, t + 16);   // barely there, by ear
-    } else if (name === 'drone') out.gain.linearRampToValueAtTime(0.24, t + 3);
+    } else if (name === 'drone') {   // the same: at the level its fade-out passes through, rising a touch
+      out.gain.linearRampToValueAtTime(0.028, t + 4); out.gain.linearRampToValueAtTime(0.04, t + 16);
+    }
     else out.gain.linearRampToValueAtTime(1, t + 0.5);
     out.connect(input);
     if (name === 'drone') { startDrone(out, out._nodes); return; }
@@ -2338,20 +2346,25 @@ function tickSession() {
   renderTime();
 }
 
-/* Session sound: soft wind through leaves, in mala and jaap alike, unless the sound switch is off */
+/* Session sound, in mala and jaap alike: wind & leaves or the Om vibration, unless sound is off. The header button
+ * goes round wind → Om vibration → off (every sound off) → wind. */
 function startSound(resume) {
-  AudioEngine.startProfile(settings.soundOn ? 'wind' : 'mute', resume);
+  AudioEngine.startProfile(settings.soundOn ? settings.sessionSound : 'mute', resume);
 }
 function renderSoundBtn() {
   const b = $('#p-sound'), on = !!settings.soundOn;
   b.setAttribute('aria-checked', String(on));
-  b.setAttribute('aria-label', t(on ? 'soundOnAria' : 'soundOffAria'));
-  $('use', b).setAttribute('href', on ? '#i-sound' : '#i-sound-off');
+  b.setAttribute('aria-label', t(on ? (settings.sessionSound === 'drone' ? 'soundOmAria' : 'soundOnAria') : 'soundOffAria'));
+  $('use', b).setAttribute('href', on ? (settings.sessionSound === 'drone' ? '#i-om' : '#i-sound') : '#i-sound-off');
 }
 $('#p-sound').addEventListener('click', () => {
-  settings.soundOn = !settings.soundOn; settings.sound = settings.soundOn ? 'wind' : 'mute'; persist();
+  if (settings.soundOn && settings.sessionSound === 'wind') settings.sessionSound = 'drone';
+  else if (settings.soundOn) settings.soundOn = false;
+  else { settings.soundOn = true; settings.sessionSound = 'wind'; }
+  settings.sound = settings.soundOn ? settings.sessionSound : 'mute'; persist();
   if (settings.soundOn) { AudioEngine.ui('on'); if (session && !session.paused && !session.finished) startSound(true); }
   else AudioEngine.stopProfile(0.4);
+  toast(t(settings.soundOn ? (settings.sessionSound === 'drone' ? 'sndOm' : 'sndWind') : 'sndOff'));
   renderSoundBtn();
 });
 
