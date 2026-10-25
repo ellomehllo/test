@@ -54,6 +54,10 @@
   body[data-bg="grove"] #backdrop, body[data-bg="kailash"] #backdrop { animation: bgDrift 48s ease-in-out infinite alternate; }
   @keyframes bgDrift { from { transform: scale(1.02) translate(0, 0); } to { transform: scale(1.09) translate(-1.2%, -1.5%); } }
   body.reduce-motion #backdrop { animation: none !important; }
+  /* iOS app: background, tint, glow and the stage figures are drawn natively behind this transparent page (NativeStage) */
+  html.native-stage, body.native-stage { background: transparent; }
+  body.native-stage #backdrop { display: none; }
+  body.native-stage .home-stage .halo, body.native-stage .p-stage .halo { visibility: hidden; }
   #bg-video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0; transition: opacity 1.2s ease; }
   #bg-video.on { opacity: 1; }
   .bg-tint { position: absolute; inset: 0; transition: background 1s ease;
@@ -1738,26 +1742,88 @@ function makeSheet(el, onOpen) {
 /* ───────────────────────── 8 · FIGURES — transparent animated Aaradhya ─────────────────────────
  * Safari and every iOS browser (WebKit) only render video transparency from HEVC; the rest use VP9 WebM.
  * Still WebP posters show instantly and stay when motion is reduced (Shiv is always a still).        */
-const AV = 3;
+const AV = 4;
 const UA = navigator.userAgent;
 const VEXT = /AppleWebKit/.test(UA) && !/Chrome|Chromium|Edg|OPR|Android/.test(UA) ? 'mov' : 'webm';
 if (VEXT === 'mov') document.body.classList.add('lite-glass');   // WebKit: no frosted glass over the video (see CSS)
+/* iOS app: the stage (background and its tint, the sacred glow and the animated Aaradhya on home, practice and breath)
+ * is drawn natively behind a transparent page by the NativeStage plugin. WebKit wouldn't autoplay the figure video in
+ * Low Power Mode (it showed a play button) and redrew it slowly; AVPlayer does neither. The page keeps deciding what is
+ * shown and where: the figure elements stay in place (empty) and their positions are sent while things move. */
+const Stage = (() => {
+  const NS = nativePlugin('NativeStage');
+  const api = { on: !!NS, NS };
+  if (!NS) { api.slot = () => null; api.sync = () => {}; return api; }
+  document.documentElement.classList.add('native-stage');
+  document.body.classList.add('native-stage');
+  const SLOTS = { 'home-fig': 'home', 'p-fig': 'practice', 'b-fig': 'breath' };
+  const shown = {};   // slot → what it shows, so a repeat doesn't reload the clip
+  api.slot = el => SLOTS[el.id] || null;
+  api.figure = (el, video, poster) => {
+    const slot = SLOTS[el.id], key = `${video}|${poster}`;
+    if (shown[slot] !== key) { shown[slot] = key; NS.figure({ slot, video: video || '', poster: poster || '' }).catch(() => {}); }
+    el.innerHTML = '';
+    api.sync();
+  };
+  api.backdrop = (image, video, drift) => { NS.backdrop({ image, video: video || '', drift }).catch(() => {}); };
+  const tint = () => {
+    const b = document.body, sc = b.dataset.screen;
+    if (b.classList.contains('tab-page')) return 'tab';
+    if (['practice', 'breath', 'complete'].includes(sc)) return 'practice';
+    return b.dataset.bg === 'clouds' || b.dataset.bg === 'kailash' ? 'sky' : 'home';
+  };
+  function send() {
+    const slots = Object.entries(SLOTS).map(([id, slot]) => {
+      const el = document.getElementById(id), r = el.getBoundingClientRect();
+      const halo = el.parentElement && el.parentElement.querySelector('.halo'), h = halo ? halo.getBoundingClientRect() : r;
+      const visible = !!shown[slot] && !!el.closest('.screen.is-on') && r.width > 0 && r.height > 0;
+      return { slot, visible, x: r.left, y: r.top, w: r.width, h: r.height, hx: h.left, hy: h.top, hw: h.width, hh: h.height };
+    });
+    NS.layout({ tint: tint(), slots }).catch(() => {});
+  }
+  // follow the page for a moment: screen transitions move and scale the stage
+  let until = 0, raf = 0;
+  api.sync = (ms = 500) => {
+    until = Math.max(until, performance.now() + ms);
+    if (raf) return;
+    const tick = () => { send(); raf = performance.now() < until ? requestAnimationFrame(tick) : 0; };
+    raf = requestAnimationFrame(tick);
+  };
+  new MutationObserver(() => api.sync()).observe(document.body, { attributes: true, attributeFilter: ['class', 'data-screen', 'data-mode', 'data-bg'] });
+  addEventListener('resize', () => api.sync());
+  document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') api.sync(); });
+  return api;
+})();
+
 /* In the Android/iOS app only Hanuman's animations ship inside the app (plus every Aaradhya's small idle picture for the
  * cards). The others are downloaded once, from the private 'aaradhya' storage bucket, after the server has unlocked them,
- * and kept in the app's Cache Storage; on the website every file is simply under assets/. */
+ * and kept in the app's Cache Storage (Android) or as files the native stage can play (iOS); on the website every file
+ * is simply under assets/. */
 const Assets = (() => {
   const CACHE = `aaradhya-v${AV}`, SHIPPED = ['hanuman'];
-  const urls = {}, busy = {};
+  const urls = {}, paths = {}, busy = {};   // web URL / native file path of each downloaded file
   const TYPE = { webm: 'video/webm', mov: 'video/quicktime', webp: 'image/webp' };
   const files = id => (aById(id).video ? [`av-${id}-idle.${VEXT}`, `av-${id}-meditate.${VEXT}`] : []).concat(`av-${id}-meditate.webp`);
   const shipped = name => !IS_APP || name.endsWith('-idle.webp') || SHIPPED.some(id => name.startsWith(`av-${id}-`));
   const src = name => (shipped(name) ? `assets/${name}?v=${AV}` : urls[name] || null);
   const has = id => files(id).every(f => !!src(f));
+  // what the native stage plays: the bundled copy, or the downloaded file
+  const nativeSrc = name => (shipped(name) ? `assets/${name}` : paths[name] || null);
+  const NS = Stage.on ? Stage.NS : null;
+  const fileUrl = path => window.Capacitor.convertFileSrc(path);
   // approximate one-time download, in MB
   const MB = { webm: { ram: 10, narad: 7, shiv: 0.2 }, mov: { ram: 11, narad: 8, shiv: 0.2 } };
   const size = id => (MB[VEXT] || MB.webm)[id] || 0;
   // what an earlier download left in the cache
   const ready = (async () => {
+    if (NS) {
+      try {
+        const { files: list = [] } = await NS.files();
+        for (const f of list) { urls[f.name] = fileUrl(f.path); paths[f.name] = f.path; }
+      } catch (e) { console.warn('[assets]', e && e.message); }
+      refreshFigures();
+      return;
+    }
     if (!IS_APP || !window.caches) return;
     try {
       const c = await caches.open(CACHE);
@@ -1774,8 +1840,18 @@ const Assets = (() => {
     if (has(id)) return;
     if (busy[id]) return busy[id];
     busy[id] = (async () => {
-      const need = files(id).filter(f => !src(f)), c = await caches.open(CACHE);
+      const need = files(id).filter(f => !src(f));
       const total = need.length; let done = 0;
+      if (NS) {   // iOS: the native side downloads straight into a file
+        for (const f of need) {
+          const { path } = await NS.download({ url: await Cloud.fileUrl(`${id}/${f}`), name: f });
+          urls[f] = fileUrl(path); paths[f] = path; done++;
+          if (onProgress) onProgress(Math.min(99, Math.round(done / total * 100)));
+        }
+        refreshFigures();
+        return;
+      }
+      const c = await caches.open(CACHE);
       for (const f of need) {
         const res = await fetch(await Cloud.fileUrl(`${id}/${f}`));
         if (!res.ok) throw new Error(`download ${res.status}`);
@@ -1793,12 +1869,22 @@ const Assets = (() => {
     })().finally(() => { delete busy[id]; });
     return busy[id];
   }
-  return { src, has, size, fetchChar, ready };
+  return { src, nativeSrc, has, size, fetchChar, ready };
 })();
 function refreshFigures() {
   ['#home-fig', '#p-fig', '#a-sheet-fig', '#b-fig'].forEach(s => { const el = $(s); if (el && el.dataset.key) { const [aid, kind] = el.dataset.key.split('-'); el.dataset.key = ''; setFigure(el, aid, kind, el.dataset.want !== 'false'); } });
 }
 function setFigure(el, aid, kind, animate = true) {
+  if (Stage.on) {
+    if (Stage.slot(el)) {
+      const a = aById(aid), key = `${aid}-${kind}`, clip = Assets.nativeSrc(`av-${key}.${VEXT}`);
+      const anim = animate && a.video && !reduceMotion() && !!clip;
+      el.dataset.key = key; el.dataset.anim = String(anim); el.dataset.want = String(animate);
+      Stage.figure(el, anim ? clip : '', Assets.nativeSrc(`av-${key}.webp`) || Assets.nativeSrc(`av-${aid}-idle.webp`));
+      return;
+    }
+    animate = false;   // small figures in sheets and panels: a still picture (WebKit would show a play button)
+  }
   const a = aById(aid), key = `${aid}-${kind}`, clip = Assets.src(`av-${key}.${VEXT}`);
   const anim = animate && a.video && !reduceMotion() && !!clip;
   if (el.dataset.key === key && el.dataset.anim === String(anim)) { const v = $('video', el); if (v && el.closest('.is-on')) v.play().catch(() => {}); return; }
@@ -1828,6 +1914,11 @@ const Backdrop = (() => {
   function apply() {
     const bg = POSTER[settings.bg] ? settings.bg : 'grove';
     document.body.dataset.bg = bg;
+    if (Stage.on) {
+      const still = STILL.includes(bg) || reduceMotion();
+      Stage.backdrop(`assets/${POSTER[bg]}`, still ? '' : `assets/bg-${bg}.mp4`, STILL.includes(bg) && !reduceMotion());
+      return;
+    }
     bd.style.backgroundImage = `url('assets/${POSTER[bg]}?v=${AV}')`;
     v.classList.remove('on');
     if (STILL.includes(bg) || reduceMotion() || (!IS_APP && slow)) { v.pause(); v.removeAttribute('src'); v.load(); return; }
