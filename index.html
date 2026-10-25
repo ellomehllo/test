@@ -192,7 +192,25 @@
   .pick[aria-checked="true"] { color: var(--ivory); font-weight: 600; }
   .pick[aria-checked="true"] .pick-ico { color: #1F150A; border-color: var(--gold-2);
     background: radial-gradient(circle at 35% 30%, #FBE7AE, #D9A84E 60%, #A87A31); box-shadow: 0 0 0 4px rgba(242,211,135,.18), 0 0 24px rgba(242,211,135,.4); }
-  .home-start { margin-top: 10px; min-height: 60px; font-size: 20px; }
+  .home-start { margin-top: 10px; min-height: 60px; font-size: 20px; overflow: hidden; }
+  /* Mala picked on home: the mala itself turns in place of the Aaradhya */
+  .home-stage #home-mala { position: absolute; inset: 8% 6% 4%; width: 88%; height: 88%; opacity: 0; transition: opacity .3s ease; }
+  .home-stage .mala-glow { opacity: 0; transition: opacity .3s ease; }
+  body[data-home="mala"] .home-stage #home-mala, body[data-home="mala"] .home-stage .mala-glow { opacity: 1; }
+  body[data-home="mala"] #home-fig, body[data-home="mala"] .home-stage .halo { display: none; }
+  /* a light that sweeps across Start now and then, and a slow ring around the chosen practice */
+  .home-start::after { content: ''; position: absolute; inset: 0; border-radius: inherit; pointer-events: none;
+    background: linear-gradient(105deg, transparent 35%, rgba(255,250,232,.55) 50%, transparent 65%); transform: translateX(-130%);
+    animation: start-sheen 4.6s cubic-bezier(.4,0,.2,1) 1.4s infinite; }
+  @keyframes start-sheen { 0% { transform: translateX(-130%); } 32%, 100% { transform: translateX(130%); } }
+  .pick-ico { position: relative; }
+  .pick[aria-checked="true"] .pick-ico::after { content: ''; position: absolute; inset: -3px; border-radius: 50%; pointer-events: none;
+    border: 1.5px solid rgba(242,211,135,.75); animation: pick-ring 2.6s ease-out infinite; }
+  @keyframes pick-ring { 0% { transform: scale(.94); opacity: .9; } 70%, 100% { transform: scale(1.32); opacity: 0; } }
+  @media (prefers-reduced-motion: reduce) { .home-start::after, .pick[aria-checked="true"] .pick-ico::after { animation: none; opacity: 0; } }
+  .st-sankalp { margin-bottom: 12px; }
+  .share-btn { width: 100%; min-height: 50px; display: flex; align-items: center; justify-content: center; gap: 9px; margin-top: 12px; font-size: 16px; }
+  #s-complete .share-btn { margin: 0 0 10px; }
   .home-name { margin: 0 -16px; padding: 26px 16px 2px; }
   /* one continuous scrim from above the name down to the bottom of the screen: no visible edge */
   .home-name::before { content: ''; position: absolute; z-index: -1; left: 0; right: 0; top: -36px; height: 100dvh; pointer-events: none;
@@ -412,7 +430,22 @@
   .board { list-style: none; margin: 8px 0 0; padding: 0; display: grid; gap: 6px; }
   .board li { display: flex; align-items: center; gap: 12px; padding: 10px 14px; border-radius: 14px; background: rgba(246,235,211,.04); border: 1px solid var(--line-2); font-size: 15.5px; }
   .board li.me { border-color: var(--gold); background: rgba(217,168,78,.12); }
-  .board .rk { width: 28px; text-align: center; font-weight: 700; color: var(--gold-2); }
+  .board .rk { flex: none; width: 26px; height: 26px; display: grid; place-items: center; font-weight: 700; font-size: 14px; color: var(--gold-2); border-radius: 50%; }
+  .board .rk.medal { color: #2a1c0c; box-shadow: inset 0 -2px 0 rgba(0,0,0,.18), 0 2px 8px rgba(0,0,0,.3); }
+  .board .rk.m1 { background: radial-gradient(circle at 35% 30%, #FFF0B8, #E7B53C 60%, #B07F1C); }
+  .board .rk.m2 { background: radial-gradient(circle at 35% 30%, #FFFFFF, #C9CED6 60%, #8D949E); }
+  .board .rk.m3 { background: radial-gradient(circle at 35% 30%, #FFD9B0, #C98446 60%, #8A5223); }
+  .board .av { flex: none; width: 42px; height: 42px; border-radius: 50%; overflow: hidden; display: grid; place-items: center;
+    border: 2px solid rgba(242,211,135,.45); background: rgba(8,20,26,.7); }
+  .board li.me .av { border-color: var(--gold); }
+  .board .av img { width: 100%; height: 100%; object-fit: cover; }
+  .board .av.aar img { object-position: 50% 8%; transform: scale(1.9); transform-origin: 50% 12%; }
+  .board .av.ini { background: hsl(var(--h) 38% 30%); color: #fff; font-weight: 700; font-size: 17px; }
+  .board .who { flex: 1; min-width: 0; display: grid; gap: 3px; }
+  .board .bdg { display: flex; gap: 10px; font-size: 12.5px; color: var(--ivory-2); }
+  .board .bdg span { display: inline-flex; align-items: center; gap: 3px; }
+  .board .b-fire svg { color: #F2994A; } .board .b-aar svg { color: var(--gold-2); }
+  .board .bdg:empty { display: none; }
   .board .nm { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .board .tt { font-family: var(--serif); font-size: 19px; font-weight: 600; }
   .board li.gap { justify-content: center; padding: 0; min-height: 0; border: 0; background: none; color: var(--ivory-3); letter-spacing: .3em; }
@@ -623,6 +656,7 @@
     <symbol id="i-sound" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9.5h3.2L12 5.5v13l-4.8-4H4z"/><path d="M15.6 9.2a4 4 0 0 1 0 5.6M18.2 6.6a7.6 7.6 0 0 1 0 10.8"/></g></symbol>
     <symbol id="i-sound-off" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9.5h3.2L12 5.5v13l-4.8-4H4z"/><path d="M16 9.5l5 5M21 9.5l-5 5"/></g></symbol>
     <symbol id="i-flag" viewBox="0 0 24 24"><path d="M5 21V4m0 0h11l-1.6 4L16 12H5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-share" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15V3.5M7.5 8 12 3.5 16.5 8"/><path d="M5 12.5V19a1.5 1.5 0 0 0 1.5 1.5h11A1.5 1.5 0 0 0 19 19v-6.5"/></g></symbol>
     <symbol id="i-download" viewBox="0 0 24 24"><path d="M12 3v12M7 10l5 5 5-5M5 21h14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
   </defs>
 </svg>
@@ -637,13 +671,9 @@
     <button class="icon-btn" data-go="settings" data-t-aria="settings" aria-label="सेटिंग्स"><svg width="20" height="20"><use href="#i-gear"/></svg></button>
   </header>
   <div class="home-row">
-    <div class="sankalp card">
-      <svg width="22" height="22" aria-hidden="true"><use href="#i-leaf"/></svg>
-      <div><small data-t="sankalp">आज का संकल्प</small><p id="sankalp-text"></p></div>
-    </div>
     <!-- app-strip:start --><button id="get-app" class="icon-btn" hidden data-t-aria="getApp" aria-label="ऐप डाउनलोड करें"><svg width="19" height="19"><use href="#i-download"/></svg></button><!-- app-strip:end -->
   </div>
-  <div class="home-stage" aria-hidden="true"><div class="halo"><i class="aura"></i><i class="rays"></i><i class="core"></i></div><div id="home-fig" class="figure"></div></div>
+  <div class="home-stage" aria-hidden="true"><div class="halo"><i class="aura"></i><i class="rays"></i><i class="core"></i></div><div id="home-fig" class="figure"></div><div class="mala-glow"></div><canvas id="home-mala"></canvas></div>
   <div class="home-name"><h2 id="home-aname"></h2><p id="home-mantra"></p></div>
   <div class="card stats-card">
     <div class="stat-cell">
@@ -783,6 +813,7 @@
       <p class="note" id="c-earn-note" style="margin-top:6px"></p>
     </div>
   </div>
+  <button id="c-share" class="btn-line share-btn"><svg width="20" height="20" aria-hidden="true"><use href="#i-share"/></svg><span data-t="shareToday">आज की साधना शेयर करें</span></button>
   <button id="c-continue" class="btn-gold" data-t="continue">जारी रखें</button>
 </section>
 
@@ -799,6 +830,10 @@
 <section id="s-streaks" class="screen tabbed" aria-labelledby="str-h">
   <header class="page-head"><h1 id="str-h" class="h-title" data-t="streaks">साधना क्रम</h1><button class="token-pill" data-to="aaradhya" data-t-aria="tokensAria" aria-label="भक्ति टोकन"><span class="coin" aria-hidden="true"></span><span class="tok-n num">0</span></button></header>
   <div class="page-body scroll">
+    <div class="sankalp card st-sankalp">
+      <svg width="22" height="22" aria-hidden="true"><use href="#i-leaf"/></svg>
+      <div><small data-t="sankalp">आज का संकल्प</small><p id="sankalp-text"></p></div>
+    </div>
     <div class="card streak-hero">
       <div class="hero-row">
         <div class="hero-flame" id="hero-flame" aria-hidden="true"><svg width="54" height="54"><use href="#i-flame"/></svg></div>
@@ -807,6 +842,7 @@
       </div>
       <div class="week-strip" id="week-strip" role="list" data-t-aria="thisWeek" aria-label="इस हफ़्ते"></div>
       <p class="week-line"><svg width="16" height="16" aria-hidden="true"><use href="#i-check"/></svg><span id="st-weeks"></span></p>
+      <button id="st-share" class="btn-line share-btn"><svg width="20" height="20" aria-hidden="true"><use href="#i-share"/></svg><span data-t="shareToday">आज की साधना शेयर करें</span></button>
     </div>
 
     <h3 class="sec-t" data-t="achievements">उपलब्धियाँ</h3>
@@ -924,7 +960,7 @@
 <!-- Bottom tabs -->
 <nav id="tabbar" aria-label="मुख्य">
   <button class="tab" data-tab="home" aria-current="page"><svg width="24" height="24" aria-hidden="true"><use href="#i-lotus"/></svg><span data-t="tabJaap">जप</span></button>
-  <button class="tab" data-tab="aaradhya"><svg width="24" height="24" aria-hidden="true"><use href="#i-om"/></svg><span data-t="aaradhya">आराध्य</span></button>
+  <button class="tab" data-tab="aaradhya"><svg width="24" height="24" aria-hidden="true"><use href="#i-om"/></svg><span data-t="tabAar">साधना</span></button>
   <button class="tab" data-tab="streaks"><svg width="22" height="22" aria-hidden="true"><use href="#i-flame"/></svg><span data-t="tabStreaks">क्रम</span></button>
   <button class="tab" data-tab="profile"><svg width="22" height="22" aria-hidden="true"><use href="#i-user"/></svg><span data-t="tabProfile">प्रोफ़ाइल</span></button>
 </nav>
@@ -1088,6 +1124,7 @@ const I18N = {
     resumeTxt: 'चल रही साधना · {n} जप', mala: 'माला', malaSub: '108 मनकों का एक चक्र', jaap: 'जप', jaapSub: 'समय चुनें या खुला जप',
     setTimer: 'समय चुनें', setTimerSub: 'कितनी देर जप करना चाहते हैं?', minShort: 'मिनट', start: 'शुरू करें', or: 'या',
     noTimer: 'बिना समय के', noTimerSub: 'सिर्फ़ जप गिनें', mantra: 'मंत्र', selectMala: 'माला चुनें', eachMala: 'एक माला = 108 जप',
+    shareToday: 'आज की साधना शेयर करें', shareJaap: 'आज का जप', shareMalas: 'माला', shareStreak: 'दिन लगातार', shareText: 'आज मैंने {n} नाम जप किया 🙏 साधना ऐप पर मेरे साथ जप करें:', shareFail: 'शेयर नहीं हो पाया — फिर कोशिश करें',
     shopBal: 'आपके टोकन', packPopular: 'सबसे पसंदीदा', packValue: 'सबसे किफ़ायती', shopNeed: '{name} को खोलने के लिए {n} टोकन और चाहिए',
     shopSoon: 'टोकन ख़रीदना जल्द शुरू होगा — तब तक जप से कमाएँ 🙏', shopPending: 'मंज़ूरी का इंतज़ार है — मंज़ूर होते ही टोकन जुड़ जाएँगे', shopTest: 'टेस्ट ख़रीद — टोकन नहीं जुड़े', shopPaidLater: 'भुगतान मिल गया — आपके टोकन थोड़ी देर में जुड़ जाएँगे 🙏',
     shopThanks: '{n} टोकन जुड़ गए 🙏', shopFail: 'ख़रीद पूरी नहीं हुई — फिर कोशिश करें', getMore: 'टोकन लें · {n} और चाहिए',
@@ -1116,8 +1153,8 @@ const I18N = {
     pIn: 'साँस लें', pHold: 'रोकें', pOut: 'साँस छोड़ें',
     hIn: 'नाक से धीरे-धीरे साँस अंदर लें', hHoldIn: 'साँस अंदर रोककर रखें', hOut: 'धीरे-धीरे साँस बाहर छोड़ें', hHoldOut: 'साँस बाहर ही रोककर रखें',
     doneTitle: 'जप पूर्ण', doneTitleMala: 'माला पूर्ण', doneEarly: 'साधना सहेजी गई', doneSub: 'उठने से पहले एक पल शांत बैठें।', time: 'समय', malas: 'माला',
-    youEarned: 'आपने कमाए', bhaktiTokens: 'भक्ति टोकन', earnFull: 'लक्ष्य पूरा करने पर 3 + हर पूरी माला पर 2', earnPart: 'हर पूरी माला पर 1 टोकन', earnNone: 'पूरी माला होने पर टोकन मिलते हैं',
-    aaradhya: 'आराध्य', aarIntro: 'जिनका ध्यान करते हुए जप करना चाहें, उन्हें चुनें। साधना के समय से नए आराध्य खुलते हैं।',
+    youEarned: 'आपने कमाए', bhaktiTokens: 'भक्ति टोकन', earnFull: 'लक्ष्य पूरा करने पर 6 + हर पूरी माला पर 4', earnPart: 'हर पूरी माला पर 2 टोकन', earnNone: 'पूरी माला होने पर टोकन मिलते हैं',
+    aaradhya: 'आराध्य', tabAar: 'साधना', aarIntro: 'जिनका ध्यान करते हुए जप करना चाहें, उन्हें चुनें। साधना के समय से नए आराध्य खुलते हैं।',
    
     selected: 'चुने हुए', unlocked: 'खुला', practiceOf: '{a} / {b} साधना', choose: 'चुनें', chosen: 'चुने गए ✓', unlockFor: '{n} टोकन से खोलें',
     lockedHow: '{h} की साधना पूरी होने पर अपने-आप खुलेगा — या {n} भक्ति टोकन से।', needTokens: 'अभी {n} टोकन और चाहिए', unlockedNow: '{name} अब खुल गए 🙏',
@@ -1164,6 +1201,7 @@ const I18N = {
     resumeTxt: 'Session in progress · {n} Naam', mala: 'Mala', malaSub: '108 beads per round', jaap: 'Jaap', jaapSub: 'Set a timer or count freely',
     setTimer: 'Set Timer', setTimerSub: 'Choose how long you want to practise', minShort: 'min', start: 'Start', or: 'or',
     noTimer: 'No Timer', noTimerSub: 'Just count repetitions', mantra: 'Mantra', selectMala: 'Select Mala Count', eachMala: 'Each mala = 108 repetitions',
+    shareToday: 'Share today’s sadhana', shareJaap: 'Jaap today', shareMalas: 'Malas', shareStreak: 'Day streak', shareText: 'I chanted {n} names today 🙏 Chant with me on Sadhana:', shareFail: 'Couldn’t share — try again',
     shopBal: 'Your tokens', packPopular: 'Most popular', packValue: 'Best value', shopNeed: '{n} more tokens to unlock {name}',
     shopSoon: 'Buying tokens opens soon — until then, earn them by chanting 🙏', shopPending: 'Waiting for approval — the tokens arrive once it is approved', shopTest: 'Test purchase — no tokens added', shopPaidLater: 'Payment received — your tokens will be added shortly 🙏',
     shopThanks: '{n} tokens added 🙏', shopFail: "The purchase didn't complete — try again", getMore: 'Get tokens · {n} more needed',
@@ -1192,8 +1230,8 @@ const I18N = {
     pIn: 'Breathe in', pHold: 'Hold', pOut: 'Breathe out',
     hIn: 'Breathe in slowly through the nose', hHoldIn: 'Hold the breath in', hOut: 'Breathe out slowly', hHoldOut: 'Stay empty, hold',
     doneTitle: 'Jaap Complete', doneTitleMala: 'Mala Complete', doneEarly: 'Session saved', doneSub: 'Sit quietly for a moment before you get up.', time: 'Time', malas: 'Mala',
-    youEarned: 'You earned', bhaktiTokens: 'Bhakti Tokens', earnFull: 'Goal reached: 3 + 2 for each full mala', earnPart: '1 token for each full mala', earnNone: 'Tokens come with each full mala',
-    aaradhya: 'Aaradhya', aarIntro: 'Choose whom you wish to meditate on while you chant. More Aaradhya open with your practice time.',
+    youEarned: 'You earned', bhaktiTokens: 'Bhakti Tokens', earnFull: 'Goal reached: 6 + 4 for each full mala', earnPart: '2 tokens for each full mala', earnNone: 'Tokens come with each full mala',
+    aaradhya: 'Aaradhya', tabAar: 'Sadhana', aarIntro: 'Choose whom you wish to meditate on while you chant. More Aaradhya open with your practice time.',
    
     selected: 'Selected', unlocked: 'Unlocked', practiceOf: '{a} / {b} practice', choose: 'Choose', chosen: 'Chosen ✓', unlockFor: 'Unlock with {n} tokens',
     lockedHow: 'Opens by itself after {h} of practice — or with {n} Bhakti tokens.', needTokens: '{n} more tokens needed', unlockedNow: '{name} is now unlocked 🙏',
@@ -1636,10 +1674,10 @@ const MANTRAS = {
   shiv:    { hi: 'ॐ नमः शिवाय', en: 'Om Namah Shivaya', re: /शिवाय|शिवा|shivaa?ya?/gi, per: 1, words: ['ओम', 'नमः', 'शिवाय'], key: 'शिवाय' }
 };
 const AARADHYA = [
-  { id: 'hanuman', hi: 'श्री हनुमान', en: 'Shri Hanuman', video: true, mantras: ['ram', 'hanuman'], unlockMin: 0, cost: 0 },
-  { id: 'ram', hi: 'प्रभु श्री राम', en: 'Prabhu Shri Ram', video: true, mantras: ['shriram', 'ram'], unlockMin: 360, cost: 110 },
-  { id: 'narad', hi: 'देवर्षि नारद', en: 'Devarshi Narad', video: true, mantras: ['narayan'], unlockMin: 720, cost: 220 },
-  { id: 'shiv', hi: 'महादेव शिव', en: 'Mahadev Shiv', video: false, mantras: ['shiv'], unlockMin: 1440, cost: 430 }
+  { id: 'hanuman', hi: 'श्री हनुमान', en: 'Shri Hanuman', video: true, mantras: ['ram'], unlockMin: 0, cost: 0 },   // ॐ हं हनुमते नमः removed (its entry in MANTRAS stays for old sessions)
+  { id: 'ram', hi: 'प्रभु श्री राम', en: 'Prabhu Shri Ram', video: true, mantras: ['shriram', 'ram'], unlockMin: 360, cost: 220 },
+  { id: 'narad', hi: 'देवर्षि नारद', en: 'Devarshi Narad', video: true, mantras: ['narayan'], unlockMin: 720, cost: 440 },
+  { id: 'shiv', hi: 'महादेव शिव', en: 'Mahadev Shiv', video: false, mantras: ['shiv'], unlockMin: 1440, cost: 860 }
 ];
 const aById = id => AARADHYA.find(a => a.id === id) || AARADHYA[0];
 const aName = a => (settings.lang === 'en' ? a.en : a.hi);
@@ -1655,7 +1693,7 @@ const SERVER_UNLOCKS = !NO_CLOUD;
 // same rule as public.session_tokens() on the server: malas count at most one per minute of the session
 const sessionTokens = (count, completed, minutes) => {
   const malas = Math.min(Math.floor(count / MALA), minutes || 0);
-  return completed ? 3 + 2 * malas : malas;
+  return completed ? 6 + 4 * malas : 2 * malas;
 };
 const pendingJaap = () => { try { return Cloud.pending().filter(r => r.kind === 'jaap'); } catch (_) { return []; } };
 function tokenBalance() {
@@ -1799,7 +1837,7 @@ const Cloud = (() => {
     } catch (e) { console.warn('[cloud] offline', e && e.message); api.ready = false; }
   }
   async function loadProfile() {
-    const { data } = await sb.from('profiles').select('display_name, show_on_leaderboard').eq('id', api.user.id).maybeSingle();
+    const { data } = await sb.from('profiles').select('*').eq('id', api.user.id).maybeSingle();
     api.profile = data || null;
     if (!data) {   // first time: on the list by default, under the profile name if there is one
       const name = (records.profile && records.profile.name) || '';
@@ -1890,6 +1928,12 @@ const Cloud = (() => {
     if (error) throw error;
     api.profile = Object.assign({ show_on_leaderboard: true }, api.profile, { display_name: name || null });
   }
+  // the Aaradhya picture shown next to your name on the leaderboard (never a photo)
+  async function saveAvatar(avatar) {
+    if (NO_CLOUD || !api.ready || !api.user) return;
+    const { error } = await sb.from('profiles').upsert({ id: api.user.id, avatar: avatar || null });
+    if (!error) api.profile = Object.assign({ show_on_leaderboard: true }, api.profile, { avatar: avatar || null });
+  }
   async function reportName(ref) {
     if (!api.ready) throw new Error('offline');
     const { error } = await sb.rpc('report_name', { p_ref: ref });
@@ -1931,7 +1975,7 @@ const Cloud = (() => {
   const resume = () => { if (!api.ready) init().then(() => { onRecordsChanged(); Community.renderAccount(); }); else flush().then(refreshStats); };
   addEventListener('online', resume);
   document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') resume(); });
-  Object.assign(api, { init, record, refreshStats, unlock, fileUrl, pending: readQ, myCode, deleteAccount, applePurchase, purchasesLive, saveProfile, saveName, reportName, leaderboard, myRank, totalsAll, linkEmail, signOut, loadProfile });
+  Object.assign(api, { init, record, refreshStats, unlock, fileUrl, pending: readQ, myCode, deleteAccount, applePurchase, purchasesLive, saveProfile, saveName, saveAvatar, reportName, leaderboard, myRank, totalsAll, linkEmail, signOut, loadProfile });
   return api;
 })();
 
@@ -2748,7 +2792,7 @@ const Voice = (() => {
 $('#voice-chip').addEventListener('click', () => Voice.toggle());
 
 /* ───────────────────────── 12 · SCREENS: home, setup, tabs, settings ───────────────────────── */
-/* Reminders (Android app): a daily jaap reminder at the chosen time, and an 8 pm nudge on an evening the streak would
+/* Reminders (Android and iPhone apps): a daily jaap reminder at the chosen time carrying that day's sankalp, and an 8 pm nudge on an evening the streak would
  * break. Scheduled on the phone (Capacitor LocalNotifications; nothing goes through a server) for the days ahead and
  * planned again whenever the records change or the app comes back, so a day you've already chanted gets no reminder. */
 const Reminders = (() => {
@@ -2762,7 +2806,7 @@ const Reminders = (() => {
       const day = new Date(); day.setDate(day.getDate() + d);
       if (settings.remind && !(d === 0 && done)) {
         const at = new Date(day); at.setHours(hh, mm, 0, 0);
-        if (at.getTime() > now + 30000) out.push({ id: DAILY + d, title: t('nDailyT'), body: t('nDailyB', { name: aName(aById(settings.aaradhya)) }), schedule: { at, allowWhileIdle: true } });
+        if (at.getTime() > now + 30000) out.push({ id: DAILY + d, title: t('nDailyT'), body: `${t('sankalp')}: ${sankalpFor(day)}\n${t('nDailyB', { name: aName(aById(settings.aaradhya)) })}`, schedule: { at, allowWhileIdle: true } });
       }
     }
     // the streak breaks tonight if it's going and today isn't done; if today is done, tomorrow evening is the next risk
@@ -2864,9 +2908,6 @@ function renderHome() {
   setFigure($('#home-fig'), a.id, 'idle');
   $('#home-aname').textContent = aName(a);
   $('#home-mantra').textContent = mText(mantraFor(a));
-  const sk = (I18N[settings.lang] || I18N.hi).sk;
-  const doy = Math.floor((new Date() - new Date(new Date().getFullYear(), 0, 0)) / 864e5);
-  $('#sankalp-text').textContent = sk[doy % sk.length];
   const tc = todayCount();
   $('#goal-txt').textContent = `${fmtNum(tc)}/${fmtNum(settings.goal)}`;
   $('#goal-bar').style.width = `${Math.min(100, tc / settings.goal * 100)}%`;
@@ -2879,8 +2920,18 @@ function renderHome() {
 }
 onEnter.home = renderHome;
 $('#resume-card').addEventListener('click', () => go('practice'));
+// today's sankalp: one line a day, shown on the Streaks page and in the morning reminder
+function sankalpFor(date = new Date()) {
+  const sk = (I18N[settings.lang] || I18N.hi).sk;
+  const doy = Math.floor((date - new Date(date.getFullYear(), 0, 0)) / 864e5);
+  return sk[doy % sk.length];
+}
+let homeMala = null;
 function renderModePick() {
   const mode = settings.homeMode === 'mala' ? 'mala' : 'jaap';
+  document.body.dataset.home = mode;   // Mala: the turning mala replaces the Aaradhya at once (CSS)
+  if (mode === 'mala') { if (!homeMala) homeMala = new MalaView($('#home-mala'), { idle: true }); homeMala.start(); }
+  if (Stage.on) Stage.sync();
   $$('#mode-pick .pick').forEach(b => b.setAttribute('aria-checked', String(b.dataset.mode === mode)));
   $('#home-start-lbl').textContent = t(mode === 'mala' ? 'startMala' : 'startJaap');
   $('#home-start-ico').setAttribute('href', mode === 'mala' ? '#i-mala' : '#i-play');
@@ -3027,10 +3078,10 @@ $$('.token-pill').forEach(b => b.addEventListener('click', () => {
  * shop stays hidden (?shop previews it on the website). The packs mirror token_packs() on the server, and only the
  * server credits bought tokens, after checking the purchase with the store. */
 const TOKEN_PACKS = [
-  { id: 'tokens_50', tokens: 70, inr: 29, hi: 'दीप', en: 'Diya' },   // id predates the 70-token pack (App Store ids can't change)
-  { id: 'tokens_150', tokens: 150, inr: 49, hi: 'पुष्प', en: 'Pushp' },
-  { id: 'tokens_350', tokens: 350, inr: 99, hi: 'माला', en: 'Mala', tag: 'packPopular' },
-  { id: 'tokens_800', tokens: 800, inr: 199, hi: 'कलश', en: 'Kalash', tag: 'packValue' }
+  { id: 'tokens_50', tokens: 140, inr: 29, hi: 'दीप', en: 'Diya' },   // id predates the 70-token pack (App Store ids can't change)
+  { id: 'tokens_150', tokens: 300, inr: 49, hi: 'पुष्प', en: 'Pushp' },
+  { id: 'tokens_350', tokens: 700, inr: 99, hi: 'माला', en: 'Mala', tag: 'packPopular' },
+  { id: 'tokens_800', tokens: 1600, inr: 199, hi: 'कलश', en: 'Kalash', tag: 'packValue' }
 ];
 /* Billing. iOS app: StoreKit 2 through the VanarStore plugin. Each signed purchase goes to the apple-purchase function,
  * which checks it with Apple's certificates and credits the tokens; only then is the StoreKit transaction finished, so
@@ -3127,6 +3178,85 @@ const Shop = (() => {
 })();
 $('#a-sheet-alt').addEventListener('click', () => { if (Shop.visible()) Shop.open(); });
 
+/* Share poster: today's practice as a picture for WhatsApp (or anywhere the share sheet offers) — the chosen Aaradhya in
+ * the middle, today's jaap, malas and streak, and the day's sankalp. Drawn on this phone; nothing is uploaded. */
+const SharePoster = (() => {
+  const W = 1080, H = 1350, BG = { grove: 'bg-grove.webp', forest: 'bg-forest-poster.webp', clouds: 'bg-clouds-poster.webp', kailash: 'bg-kailash.webp' };
+  const load = src => new Promise((ok, no) => { const i = new Image(); i.onload = () => ok(i); i.onerror = no; i.src = src; });
+  const deva = () => settings.lang === 'hi';
+  function cover(g, img, x, y, w, h) {
+    const r = Math.max(w / img.width, h / img.height), iw = img.width * r, ih = img.height * r;
+    g.drawImage(img, x + (w - iw) / 2, y + (h - ih) / 2, iw, ih);
+  }
+  function rr(g, x, y, w, h, r) { g.beginPath(); g.moveTo(x + r, y); g.arcTo(x + w, y, x + w, y + h, r); g.arcTo(x + w, y + h, x, y + h, r); g.arcTo(x, y + h, x, y, r); g.arcTo(x, y, x + w, y, r); g.closePath(); }
+  function wrap(g, text, maxW) {
+    const words = text.split(' '), lines = []; let line = '';
+    for (const w of words) { const t2 = line ? `${line} ${w}` : w; if (g.measureText(t2).width > maxW && line) { lines.push(line); line = w; } else line = t2; }
+    if (line) lines.push(line); return lines.slice(0, 2);
+  }
+  function today() {
+    const tk = todayKey(), hist = records.history.filter(h => h.day === tk);
+    return { jaap: todayCount(), malas: hist.reduce((n, h) => n + Math.floor(h.count / MALA), 0), streak: streaks().cur };
+  }
+  async function draw() {
+    try { await document.fonts.ready; } catch (_) {}
+    const c = document.createElement('canvas'); c.width = W; c.height = H;
+    const g = c.getContext('2d'), a = aById(settings.aaradhya), d = today();
+    const serif = deva() ? "'Tiro Devanagari Hindi', serif" : "'Cormorant Garamond', serif", sans = "'Mukta', sans-serif";
+    // backdrop, darkened towards the bottom so the numbers read
+    try { cover(g, await load(`assets/${BG[settings.bg] || BG.grove}?v=${AV}`), 0, 0, W, H); } catch (_) { g.fillStyle = '#0b1d1c'; g.fillRect(0, 0, W, H); }
+    let sh = g.createLinearGradient(0, 0, 0, H);
+    sh.addColorStop(0, 'rgba(4,12,14,.55)'); sh.addColorStop(.45, 'rgba(4,12,14,.15)'); sh.addColorStop(1, 'rgba(4,10,12,.92)');
+    g.fillStyle = sh; g.fillRect(0, 0, W, H);
+    // title and date
+    g.textAlign = 'center'; g.fillStyle = '#F2D387';
+    g.font = `600 64px ${serif}`; g.fillText(t('appName'), W / 2, 112);
+    g.fillStyle = 'rgba(246,235,211,.82)'; g.font = `400 34px ${sans}`;
+    g.fillText(new Date().toLocaleDateString(deva() ? 'hi-IN' : 'en-IN', { weekday: 'long', day: 'numeric', month: 'long' }), W / 2, 162);
+    // halo and the Aaradhya
+    const cy = 540, halo = g.createRadialGradient(W / 2, cy - 120, 20, W / 2, cy - 60, 420);
+    halo.addColorStop(0, 'rgba(255,226,150,.75)'); halo.addColorStop(.35, 'rgba(240,180,80,.32)'); halo.addColorStop(1, 'rgba(240,180,80,0)');
+    g.fillStyle = halo; g.fillRect(0, 120, W, 860);
+    try {
+      const fig = await load(Assets.src(`av-${a.id}-idle.webp`) || `assets/av-${a.id}-idle.webp?v=${AV}`);
+      const fh = 700, fw = fig.width * fh / fig.height; g.drawImage(fig, (W - fw) / 2, 190, fw, fh);
+    } catch (_) {}
+    g.fillStyle = '#F6EBD3'; g.font = `600 56px ${serif}`; g.fillText(aName(a), W / 2, 950);
+    g.fillStyle = '#F2D387'; g.font = `400 36px ${serif}`; g.fillText(mText(mantraFor(a)), W / 2, 1000);
+    // the day's numbers
+    const px = 70, py = 1040, pw = W - 140, ph = 170;
+    rr(g, px, py, pw, ph, 36); g.fillStyle = 'rgba(8,22,26,.78)'; g.fill(); g.strokeStyle = 'rgba(242,211,135,.45)'; g.lineWidth = 2; g.stroke();
+    [[fmtNum(d.jaap), t('shareJaap')], [fmtNum(d.malas), t('shareMalas')], [`🔥 ${fmtNum(d.streak)}`, t('shareStreak')]].forEach(([v, k], i) => {
+      const x = px + pw / 6 + i * pw / 3;
+      g.fillStyle = '#F6EBD3'; g.font = `600 66px 'Cormorant Garamond', serif`; g.fillText(v, x, py + 92);
+      g.fillStyle = 'rgba(246,235,211,.7)'; g.font = `400 30px ${sans}`; g.fillText(k, x, py + 138);
+      if (i) { g.fillStyle = 'rgba(242,211,135,.25)'; g.fillRect(px + i * pw / 3, py + 34, 2, ph - 68); }
+    });
+    // sankalp and footer
+    g.fillStyle = '#F2D387'; g.font = `400 34px ${deva() ? sans : "'Cormorant Garamond', serif"}`;
+    wrap(g, `“${sankalpFor()}”`, W - 180).forEach((l, i) => g.fillText(l, W / 2, 1268 + i * 40));
+    g.fillStyle = 'rgba(246,235,211,.55)'; g.font = `400 26px ${sans}`; g.fillText('vanarsathi.online', W / 2, H - 22);
+    return c;
+  }
+  async function share(btn) {
+    if (btn) btn.disabled = true;
+    try {
+      const c = await draw();
+      const blob = await new Promise(ok => c.toBlob(ok, 'image/jpeg', 0.9));
+      const file = new File([blob], 'sadhana.jpg', { type: 'image/jpeg' });
+      const text = `${t('shareText', { n: fmtNum(today().jaap) })} https://vanarsathi.online`;
+      // iPhone app: the native share sheet (the web view can't share files); elsewhere the browser's own share
+      if (IS_IOS && NATIVE) await NATIVE.share({ image: c.toDataURL('image/jpeg', 0.9).split(',')[1], text, name: 'sadhana.jpg' });
+      else if (navigator.canShare && navigator.canShare({ files: [file] })) await navigator.share({ files: [file], text });
+      else { const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'sadhana.jpg'; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 4000); }
+    } catch (e) { if (!(e && e.name === 'AbortError')) { console.warn('[share]', e && e.message); toast(t('shareFail')); } }
+    if (btn) btn.disabled = false;
+  }
+  return { draw, share };
+})();
+$('#c-share').addEventListener('click', e => SharePoster.share(e.currentTarget));
+$('#st-share').addEventListener('click', e => SharePoster.share(e.currentTarget));
+
 /* Streaks page */
 // Monday of the week a day belongs to (local dates)
 const weekOf = key => { const d = new Date(key + 'T12:00:00'); d.setDate(d.getDate() - ((d.getDay() + 6) % 7)); return todayKey(d); };
@@ -3138,6 +3268,7 @@ function weekStreak(days) {
   return n;
 }
 function renderStreaks() {
+  $('#sankalp-text').textContent = sankalpFor();
   const st = streaks(), tk = todayKey();
   $('#st-cur').textContent = fmtNum(st.cur);
   $('#st-cur-k').textContent = t(st.cur === 1 ? 'dayStreak1' : 'dayStreak');
@@ -3211,7 +3342,23 @@ const Community = (() => {
   const label = r => (hidden(r) ? t('hiddenName') : isCode(r.display_name) ? t('bhaktN', { n: r.display_name }) : r.display_name);
   const reportBtn = r => (!r.is_me && r.ref && !isCode(r.display_name) && !hidden(r)
     ? `<button class="rep" data-ref="${esc(r.ref)}" data-name="${esc(r.display_name)}" aria-label="${esc(t('reportAria'))}"><svg width="16" height="16" aria-hidden="true"><use href="#i-flag"/></svg></button>` : '');
-  const row = r => `<li class="${r.is_me ? 'me' : ''}"><span class="rk">${r.rank}</span><span class="nm">${esc(label(r))}${r.is_me ? ` <small>${esc(t('youTag'))}</small>` : ''}</span><span class="tt">${fmtNum(+r.total)}</span>${reportBtn(r)}</li>`;
+  // Duolingo-style rows: medal for the top three, a face (the chosen Aaradhya picture, or an initial), and badges for
+  // the current streak and the Aaradhya someone has. Your own row shows your own picture, even a phone photo.
+  const AV_OK = ['hanuman', 'ram', 'narad', 'shiv'];
+  const hue = s => [...String(s || '')].reduce((h, c) => (h * 31 + c.charCodeAt(0)) % 360, 17);
+  function face(r) {
+    if (r.is_me) {
+      const pr = records.profile || {};
+      if (pr.photo) return `<span class="av"><img src="${pr.photo}" alt=""></span>`;
+      if (pr.aaradhyaPhoto) return `<span class="av aar"><img src="assets/av-${pr.aaradhyaPhoto}-idle.webp?v=${AV}" alt=""></span>`;
+    }
+    if (!hidden(r) && AV_OK.includes(r.avatar)) return `<span class="av aar"><img src="assets/av-${r.avatar}-idle.webp?v=${AV}" alt="" loading="lazy"></span>`;
+    const name = label(r), ch = isCode(r.display_name) || hidden(r) ? '' : [...name.trim()][0] || '';
+    return `<span class="av ini" style="--h:${hue(r.ref || name)}">${ch ? esc(ch.toUpperCase()) : '<svg width="18" height="18"><use href="#i-lotus"/></svg>'}</span>`;
+  }
+  const badges = r => `<span class="bdg">${+r.streak > 0 ? `<span class="b-fire"><svg width="13" height="13"><use href="#i-flame"/></svg>${fmtNum(+r.streak)}</span>` : ''}${r.aaradhya ? `<span class="b-aar"><svg width="13" height="13"><use href="#i-lotus"/></svg>${fmtNum(+r.aaradhya)}/${AARADHYA.length}</span>` : ''}</span>`;
+  const rank = n => `<span class="rk${n <= 3 ? ` medal m${n}` : ''}">${n}</span>`;
+  const row = r => `<li class="${r.is_me ? 'me' : ''}">${rank(+r.rank)}${face(r)}<span class="who"><span class="nm">${esc(label(r))}${r.is_me ? ` <small>${esc(t('youTag'))}</small>` : ''}</span>${badges(r)}</span><span class="tt">${fmtNum(+r.total)}</span>${reportBtn(r)}</li>`;
   const myLabel = () => (Cloud.profile && Cloud.profile.display_name) || t('bhaktN', { n: Cloud.myCode() });
   // top 10 (or all on "show more"); your own row is pinned underneath whenever it isn't in view
   function render(rows = lastRows, mine = lastMine, listed = lastListed) {
@@ -3220,7 +3367,8 @@ const Community = (() => {
     let html = shown.map(row).join('');
     if (mine && +mine.total > 0 && !shown.some(r => r.is_me)) {
       const myName = listed ? myLabel() : t('you');
-      html += `<li class="gap" aria-hidden="true">⋯</li><li class="me"><span class="rk">${mine.rank}</span><span class="nm">${esc(myName)}${listed ? '' : ` <small>${esc(t('youHidden'))}</small>`}</span><span class="tt">${fmtNum(+mine.total)}</span></li>`;
+      const me = { is_me: true, rank: mine.rank, total: mine.total, display_name: myName, streak: streaks().cur, aaradhya: AARADHYA.filter(isUnlocked).length };
+      html += `<li class="gap" aria-hidden="true">⋯</li><li class="me">${rank(+mine.rank)}${face(me)}<span class="who"><span class="nm">${esc(myName)}${listed ? '' : ` <small>${esc(t('youHidden'))}</small>`}</span>${badges(me)}</span><span class="tt">${fmtNum(+mine.total)}</span></li>`;
     }
     if (!rows.length && !html) { note(t('boardEmpty')); return; }
     if (!rows.length) html = `<li class="empty">${esc(t('boardEmpty'))}</li>` + html;
@@ -3279,6 +3427,9 @@ const Profile = (() => {
   records.profile = Object.assign({ name: '', photo: '', aaradhyaPhoto: '' }, records.profile);
   const pr = records.profile;
   const name = () => pr.name;                        // also the name everyone sees on the leaderboard
+  // the leaderboard shows the chosen Aaradhya picture; a phone photo stays on the phone, so then no picture is shared
+  const boardAvatar = () => (pr.photo ? null : pr.aaradhyaPhoto || null);
+  const syncAvatar = () => { if (Cloud.ready && ((Cloud.profile && Cloud.profile.avatar) || null) !== boardAvatar()) Cloud.saveAvatar(boardAvatar()).then(() => Community.load()).catch(() => {}); };
   function avatarHTML() {
     if (pr.photo) return `<img src="${pr.photo}" alt="">`;
     if (pr.aaradhyaPhoto) return `<img class="aar" src="assets/av-${pr.aaradhyaPhoto}-idle.webp?v=${AV}" alt="">`;
@@ -3315,24 +3466,24 @@ const Profile = (() => {
       const m = Math.min(img.width, img.height), g = c.getContext('2d');
       g.drawImage(img, (img.width - m) / 2, (img.height - m) / 2, m, m, 0, 0, S, S);
       URL.revokeObjectURL(url);
-      pr.photo = c.toDataURL('image/jpeg', 0.85); pr.aaradhyaPhoto = ''; persist(); render(); PhotoSheet.close();
+      pr.photo = c.toDataURL('image/jpeg', 0.85); pr.aaradhyaPhoto = ''; persist(); render(); PhotoSheet.close(); syncAvatar();
     };
     img.onerror = () => { URL.revokeObjectURL(url); toast(t('cloudErr')); };
     img.src = url;
   }
   const PhotoSheet = makeSheet($('#photo-sheet'), () => {
     $('#photo-pick').innerHTML = AARADHYA.map(a => `<button data-a="${a.id}" aria-pressed="${pr.aaradhyaPhoto === a.id && !pr.photo}" ${isUnlocked(a) ? '' : 'disabled'} aria-label="${aName(a)}"><img src="assets/av-${a.id}-idle.webp?v=${AV}" alt=""></button>`).join('');
-    $$('#photo-pick button').forEach(b => b.addEventListener('click', () => { pr.aaradhyaPhoto = b.dataset.a; pr.photo = ''; persist(); render(); PhotoSheet.close(); }));
+    $$('#photo-pick button').forEach(b => b.addEventListener('click', () => { pr.aaradhyaPhoto = b.dataset.a; pr.photo = ''; persist(); render(); PhotoSheet.close(); syncAvatar(); }));
     $('#photo-remove').disabled = !pr.photo && !pr.aaradhyaPhoto;
   });
   $('#photo-btn').addEventListener('click', PhotoSheet.open);
   $('#prof-avatar').addEventListener('click', PhotoSheet.open);
   $('#photo-upload').addEventListener('click', () => $('#photo-file').click());
   $('#photo-file').addEventListener('change', e => { usePhoto(e.target.files[0]); e.target.value = ''; });
-  $('#photo-remove').addEventListener('click', () => { pr.photo = ''; pr.aaradhyaPhoto = ''; persist(); render(); PhotoSheet.close(); });
+  $('#photo-remove').addEventListener('click', () => { pr.photo = ''; pr.aaradhyaPhoto = ''; persist(); render(); PhotoSheet.close(); syncAvatar(); });
   $('#prof-name-save').addEventListener('click', saveName);
   $('#prof-name').addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); saveName(); } });
-  return { name, render, renderAvatars };
+  return { name, render, renderAvatars, syncAvatar };
 })();
 onEnter.profile = Profile.render;
 
@@ -3460,7 +3611,7 @@ if (session) {
   toast(t('tRestored'));
 }
 // connect as soon as the (deferred) Supabase library has run
-const startCloud = () => { Cloud.init().then(onRecordsChanged); Billing.init(); };
+const startCloud = () => { Cloud.init().then(() => { onRecordsChanged(); Profile.syncAvatar(); }); Billing.init(); };
 if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', startCloud); else startCloud();
 if (FAST) setTimeout(() => toast(t('tFast')), 400);
 </script>
