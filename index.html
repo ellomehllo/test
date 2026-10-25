@@ -1063,7 +1063,7 @@ if (!settings.soundV3) { settings.sessionSound = 'tranquil'; settings.soundV3 = 
 if (!SESSION_SOUNDS.includes(settings.sessionSound)) settings.sessionSound = 'tranquil';
 settings.sound = settings.soundOn ? settings.sessionSound : 'mute';
 // Grove became the default background: move everyone still on the old default (forest) over, once
-if (!settings.bgV2) { if (settings.bg === 'forest') settings.bg = 'grove'; settings.bgV2 = 1; }                 // silent practice: AudioEngine.bell/chime also stay quiet
+if (!settings.bgV2) { if (settings.bg === 'forest') settings.bg = 'grove'; settings.bgV2 = 1; }
 // v1 only allowed 20–60 minutes in steps of 1; the new wheel uses fixed stops
 const MINUTE_STOPS = [1, 2, 3, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 75, 90, 120];
 settings.minutes = MINUTE_STOPS.reduce((a, b) => Math.abs(b - settings.minutes) < Math.abs(a - settings.minutes) ? b : a, 25);
@@ -1559,26 +1559,6 @@ const AudioEngine = (() => {
     if (name !== 'mute') previewTimer = setTimeout(() => api.stopProfile(1.2), 4600);
   };
 
-  /* Temple bell — inharmonic partials with a slow beat between near-twins */
-  api.bell = (amp = 0.5, base = 293.66, delay = 0.05) => {
-    if (settings.sound === 'mute' || !api.ensure()) return;
-    const t = ctx.currentTime + delay;
-    [[0.5, 0.55, 9], [1, 1, 7], [1.19, 0.42, 5.5], [1.51, 0.32, 4.5], [2.0, 0.3, 3.6], [2.74, 0.2, 2.6], [3.76, 0.12, 1.9], [5.4, 0.07, 1.2]]
-      .forEach(([r, a, d], i) => {
-        (i < 4 ? [0, 1.3] : [0]).forEach((beatHz, j) => {
-          const o = osc('sine', base * r + beatHz, t), g = gain(0);
-          g.gain.setValueAtTime(0.0001, t);
-          g.gain.exponentialRampToValueAtTime(amp * a * (j ? 0.5 : 1) * 0.35, t + 0.004);
-          g.gain.exponentialRampToValueAtTime(0.0001, t + d);
-          o.connect(g); g.connect(input); o.start(t); o.stop(t + d + 0.1);
-        });
-      });
-    const n = noise(), hp = filt('highpass', 2500, 0.7), ng = gain(0);
-    ng.gain.setValueAtTime(0.0001, t); ng.gain.exponentialRampToValueAtTime(amp * 0.25, t + 0.002); ng.gain.exponentialRampToValueAtTime(0.0001, t + 0.06);
-    n.connect(hp); hp.connect(ng); ng.connect(input); n.start(t, Math.random()); n.stop(t + 0.08);
-  };
-  api.templeBell = () => { api.bell(0.34, 293.66, 0.05); api.bell(0.24, 293.66, 2.6); api.bell(0.16, 293.66, 5.0); };
-  api.chime = () => api.bell(0.14, 587.33, 0.03);
 
   /* Button sounds: short, soft mallet notes from one scale (C# pentatonic), quiet and dry, so they reward a
    * tap without ever getting in the way. The counter's tap is barely there. Off with the sound switch. */
@@ -1613,10 +1593,10 @@ const AudioEngine = (() => {
     if (!out) idleLater();
   };
 
-  /* Breath guidance: rising tone + airy noise on inhale, falling on exhale, tiny chime on holds */
+  /* Breath guidance: rising tone + airy noise on inhale, falling on exhale, silence on holds */
   api.breathCue = phase => {
     if (settings.sound === 'mute' || !api.ensure()) return;
-    if (phase === 1 || phase === 3) { api.bell(0.1, 880, 0.02); return; }
+    if (phase === 1 || phase === 3) return;   // holds are silent
     const t = ctx.currentTime + 0.02, D = 3.9, up = phase === 0;
     const o = osc('sine', up ? SA * 2 : SA * 3, t); o.frequency.exponentialRampToValueAtTime(up ? SA * 3 : SA * 2, t + D);
     const g = gain(0); g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(0.07, t + 1.2); g.gain.setValueAtTime(0.07, t + D - 1); g.gain.exponentialRampToValueAtTime(0.0001, t + D);
@@ -2367,7 +2347,7 @@ function tickSession() {
   const el = activeMs();
   if (session.timerMin) {
     const dur = session.timerMin * MINUTE_MS;
-    if (!session.halfFired && el >= dur / 2) { session.halfFired = true; Haptics.halfway(); AudioEngine.chime(); toast(t('tHalf')); }
+    if (!session.halfFired && el >= dur / 2) { session.halfFired = true; Haptics.halfway(); toast(t('tHalf')); }
     if (el >= dur) { finishSession(true); return; }
   }
   if (wall() - lastBeatSave > 1000) { lastBeatSave = wall(); saveSession(); }
@@ -2404,7 +2384,7 @@ function countOne(source) {
   if (session.paused) { if (source === 'tap') toast(t('tPausedTap')); return false; }
   session.count++;
   const n = session.count;
-  if (n % MALA === 0) { Haptics.mala(); AudioEngine.chime(); toast(t('tMala', { n: n / MALA })); } else { Haptics.tick(); if (source === 'tap') AudioEngine.ui('count'); }
+  if (n % MALA === 0) { Haptics.mala(); toast(t('tMala', { n: n / MALA })); } else { Haptics.tick(); if (source === 'tap') AudioEngine.ui('count'); }
   saveSession();
   renderCount(true);
   $('#sr-live').textContent = String(n);
@@ -2441,7 +2421,7 @@ function finishSession(completed) {
   AudioEngine.stopProfile(1); Voice.stop(); Wake.off();
   if (s.count === 0 && s.activeMs < 60000) { toast(t('tNothing')); go('home'); return; }
   const result = recordSession(s, completed);
-  if (completed) { AudioEngine.templeBell(); Haptics.templeBell(); }
+  if (completed) Haptics.templeBell();
   if (completed && s.mode === 'jaap' && s.timerMin && settings.breath) startPranayama(s, result);
   else showComplete(s, result);
 }
@@ -2549,7 +2529,7 @@ function startPranayama(s, result) {
 function breathFrame() {
   if (!breath || current !== 'breath') return;
   const el = performance.now() - breath.start;
-  if (el >= PRANAYAMA_MS) { AudioEngine.bell(0.45); Haptics.fire([300, 120, 180]); finishBreath(false); return; }
+  if (el >= PRANAYAMA_MS) { Haptics.fire([300, 120, 180]); finishBreath(false); return; }
   const cyc = el % 16000, idx = Math.floor(cyc / 4000), k = (cyc % 4000) / 4000;
   const b = idx === 0 ? easeSine(k) : idx === 1 ? 1 : idx === 2 ? 1 - easeSine(k) : 0;
   if (idx !== breath.lastPhase) {
