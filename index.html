@@ -616,6 +616,8 @@
     <symbol id="i-mic" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5V21"/></g></symbol>
     <symbol id="i-clock" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/></g></symbol>
     <symbol id="i-chev" viewBox="0 0 24 24"><path d="m9 5 7 7-7 7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-sound" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9.5h3.2L12 5.5v13l-4.8-4H4z"/><path d="M15.6 9.2a4 4 0 0 1 0 5.6M18.2 6.6a7.6 7.6 0 0 1 0 10.8"/></g></symbol>
+    <symbol id="i-sound-off" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9.5h3.2L12 5.5v13l-4.8-4H4z"/><path d="M16 9.5l5 5M21 9.5l-5 5"/></g></symbol>
     <symbol id="i-flag" viewBox="0 0 24 24"><path d="M5 21V4m0 0h11l-1.6 4L16 12H5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></symbol>
     <symbol id="i-download" viewBox="0 0 24 24"><path d="M12 3v12M7 10l5 5 5-5M5 21h14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
   </defs>
@@ -689,7 +691,7 @@
   <header class="subbar">
     <button class="icon-btn" id="p-back" data-t-aria="pauseBack" aria-label="रोककर वापस जाएँ"><svg width="20" height="20"><use href="#i-back"/></svg></button>
     <div class="p-title-wrap"><h1 id="p-title"></h1><p id="p-sub"></p></div>
-    <span></span>
+    <button class="icon-btn" id="p-sound" role="switch" aria-checked="true" aria-label="Sound on"><svg width="20" height="20"><use href="#i-sound"/></svg></button>
   </header>
   <div class="p-top-r"><button id="voice-chip" class="voice-chip" data-state="off" hidden><span class="vd" aria-hidden="true"></span><span id="voice-txt"></span></button></div>
   <div class="p-stage" aria-hidden="true"><div class="halo"><i class="aura"></i><i class="rays"></i><i class="core"></i></div><div id="p-fig" class="figure"></div><div class="mala-glow"></div><canvas id="p-mala"></canvas></div>
@@ -1053,7 +1055,9 @@ const settings = Object.assign({
 }, saved.settings);
 delete settings.lockout; delete settings.holdFinish; delete settings.reduceMotion;   // removed settings: hold-to-finish (one tap + a yes/no question), reduced motion (the phone's own setting still applies)
 if (!settings.voiceV2) { settings.voice = true; settings.voiceV2 = 1; }   // voice counting became solid (offline in the app) and on by default
-settings.sound = 'mute';
+// sound came back: a low Om drone in sessions and soft sounds on buttons, on by default; one switch turns all of it off
+if (!settings.soundV2) { settings.soundOn = true; settings.soundV2 = 1; }
+settings.sound = settings.soundOn ? 'drone' : 'mute';
 // Grove became the default background: move everyone still on the old default (forest) over, once
 if (!settings.bgV2) { if (settings.bg === 'forest') settings.bg = 'grove'; settings.bgV2 = 1; }                 // silent practice: AudioEngine.bell/chime also stay quiet
 // v1 only allowed 20–60 minutes in steps of 1; the new wheel uses fixed stops
@@ -1095,7 +1099,7 @@ const I18N = {
     achFirst: 'पहला जप', achMala1: 'पहली माला', achMala10: '10 माला', achMala108: '108 माला', achJaap1008: '1,008 जप', achJaap10008: '10,008 जप',
     achStreak3: '3 दिन लगातार', achStreak7: '7 दिन लगातार', achStreak30: '30 दिन लगातार', achHour: '1 घंटा साधना', achAaradhya: 'नया आराध्य', achAll: 'सभी आराध्य',
     editInProfile: 'प्रोफ़ाइल में बदलें', nameNotSet: 'नाम अभी नहीं लिखा',
-    nMala: '{n} माला', startMala: 'माला शुरू करें', startJaap: 'जप शुरू करें', practiceType: 'साधना का प्रकार', pauseBack: 'रोककर वापस जाएँ', tapAria: 'एक जप गिनें',
+    nMala: '{n} माला', startMala: 'माला शुरू करें', startJaap: 'जप शुरू करें', practiceType: 'साधना का प्रकार', pauseBack: 'रोककर वापस जाएँ', soundOnAria: 'ध्वनि चालू (बंद करने के लिए छुएँ)', soundOffAria: 'ध्वनि बंद (चालू करने के लिए छुएँ)', tapAria: 'एक जप गिनें',
     malaProgress: 'माला प्रगति', undo: 'वापस लें', pause: 'रोकें', resume: 'फिर शुरू करें', finish: 'पूर्ण करें', holdFinish: 'दबाकर रखें',
     paused: 'रुका हुआ', reps: 'जप', activeTime: 'सक्रिय समय', timeLeft: 'बाकी समय', elapsed: 'बीता समय', totalMalas: 'कुल माला', target: 'लक्ष्य',
     modeJaap: 'नाम जप', modeMala: 'माला जप', timedSub: '{m} मिनट', freeSub: 'खुला जप', malaOf: 'माला {a} / {b}',
@@ -1171,7 +1175,7 @@ const I18N = {
     achFirst: 'First jaap', achMala1: 'First mala', achMala10: '10 malas', achMala108: '108 malas', achJaap1008: '1,008 jaap', achJaap10008: '10,008 jaap',
     achStreak3: '3-day streak', achStreak7: '7-day streak', achStreak30: '30-day streak', achHour: '1 hour of practice', achAaradhya: 'New Aaradhya', achAll: 'All Aaradhya',
     editInProfile: 'Edit in profile', nameNotSet: 'No name yet',
-    nMala: '{n} mala', startMala: 'Start Mala', startJaap: 'Start Jaap', practiceType: 'Practice type', pauseBack: 'Pause and go back', tapAria: 'Count one repetition',
+    nMala: '{n} mala', startMala: 'Start Mala', startJaap: 'Start Jaap', practiceType: 'Practice type', pauseBack: 'Pause and go back', soundOnAria: 'Sound on (tap to turn off)', soundOffAria: 'Sound off (tap to turn on)', tapAria: 'Count one repetition',
     malaProgress: 'Mala progress', undo: 'Undo', pause: 'Pause', resume: 'Resume', finish: 'Finish', holdFinish: 'Hold',
     paused: 'Paused', reps: 'Repetitions', activeTime: 'Active time', timeLeft: 'Time left', elapsed: 'Time elapsed', totalMalas: 'Total malas', target: 'Target',
     modeJaap: 'Naam Jaap', modeMala: 'Mala Jaap', timedSub: '{m} min', freeSub: 'Free count', malaOf: 'Mala {a} of {b}',
@@ -1273,7 +1277,14 @@ const Haptics = {
   document.addEventListener('pointercancel', release, { passive: true });
   document.addEventListener('scroll', release, { capture: true, passive: true });   // a scroll isn't a press
   document.addEventListener('touchstart', () => {}, { passive: true });             // lets iOS apply :active too
-  document.addEventListener('click', e => { const el = e.target.closest(TICK); if (el && !el.disabled) Haptics.tap(); }, true);
+  document.addEventListener('click', e => {
+    const el = e.target.closest(TICK); if (el && !el.disabled) Haptics.tap();
+    const b = e.target.closest(PRESS);
+    if (!b || b.disabled || b.id === 'p-tap' || b.id === 'p-sound') return;   // the counter and the sound switch sound themselves
+    const back = /back|close/i.test(b.id) || b.dataset.tAria === 'back' || b.classList.contains('sheet-x');
+    AudioEngine.ui(b.getAttribute('role') === 'switch' ? (b.getAttribute('aria-checked') === 'true' ? 'off' : 'on')
+      : back ? 'back' : b.classList.contains('btn-gold') ? 'go' : b.classList.contains('tab') ? 'tab' : 'tap');
+  }, true);
 })();
 
 /* ───────────────────────── 3 · AUDIO ENGINE ─────────────────────────
@@ -1281,7 +1292,7 @@ const Haptics = {
  *   voice → profile gain → input → (dry + convolver reverb) → compressor → master → out  */
 const AudioEngine = (() => {
   const SA = 138.59;                       // tonic (C#3) shared by chant, tanpura and drone
-  let ctx = null, input = null, noiseBuf = null;
+  let ctx = null, input = null, noiseBuf = null, comp = null, verb = null, uiBus = null, idleTimer = 0;
   let out = null, sched = null, nextBeat = 0, beat = 0, current = 'mute', previewTimer = null;
   const api = { onBead: null };
 
@@ -1289,22 +1300,29 @@ const AudioEngine = (() => {
     if (!ctx) {
       const AC = window.AudioContext || window.webkitAudioContext;
       if (!AC) return null;
-      try { if (navigator.audioSession) navigator.audioSession.type = 'playback'; } catch (_) {}
+      // ambient: follows the ring/silent switch and plays along with the person's own music
+      try { if (navigator.audioSession) navigator.audioSession.type = 'ambient'; } catch (_) {}
       ctx = new AC();
-      const comp = ctx.createDynamicsCompressor();
+      comp = ctx.createDynamicsCompressor();
       comp.threshold.value = -20; comp.knee.value = 18; comp.ratio.value = 3; comp.attack.value = 0.01; comp.release.value = 0.4;
       const master = gain(0.9);
       comp.connect(master); master.connect(ctx.destination);
       input = gain(1); input.connect(comp);
-      const verb = ctx.createConvolver(); verb.buffer = impulse(3.2, 2.6);
+      verb = ctx.createConvolver(); verb.buffer = impulse(3.2, 2.6);
       const wet = gain(0.3); input.connect(verb); verb.connect(wet); wet.connect(comp);
       noiseBuf = ctx.createBuffer(1, ctx.sampleRate * 2, ctx.sampleRate);
       const d = noiseBuf.getChannelData(0);
       for (let i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1;
     }
     if (ctx.state === 'suspended') ctx.resume().catch(() => {});
+    clearTimeout(idleTimer);
     return ctx;
   };
+  // nothing playing for a while: let the phone power the audio down
+  function idleLater() {
+    clearTimeout(idleTimer);
+    idleTimer = setTimeout(() => { if (ctx && !out && !chalisaOn && !ramOn && ctx.state === 'running') ctx.suspend().catch(() => {}); }, 15000);
+  }
 
   /* small node helpers */
   function gain(v = 0) { const g = ctx.createGain(); g.gain.value = v; return g; }
@@ -1439,7 +1457,10 @@ const AudioEngine = (() => {
     if (name === 'mute' || !api.ensure()) return;
     const t = ctx.currentTime;
     out = gain(0); out._nodes = [];
-    out.gain.setValueAtTime(0, t); out.gain.linearRampToValueAtTime(1, t + (name === 'drone' ? 3 : 0.5));
+    out.gain.setValueAtTime(0, t);
+    if (name === 'drone') {   // stays very low: fades in, then rises a touch while the session settles
+      out.gain.linearRampToValueAtTime(0.16, t + 2.5); out.gain.linearRampToValueAtTime(0.24, t + 14);
+    } else out.gain.linearRampToValueAtTime(1, t + 0.5);
     out.connect(input);
     if (name === 'drone') startDrone(out, out._nodes);
     else { const dest = out; nextBeat = t + 0.15; beat = 0; schedule(dest); sched = setInterval(() => schedule(dest), 120); }
@@ -1451,6 +1472,7 @@ const AudioEngine = (() => {
     if (ramOn) { const a = $('#ram-audio'); ramPos = a.currentTime || 0; a.pause(); a.loop = false; ramOn = false; }
     if (!out || !ctx) { out = null; return; }
     const o = out, t = ctx.currentTime; out = null;
+    idleLater();
     o.gain.cancelScheduledValues(t); o.gain.setValueAtTime(o.gain.value, t); o.gain.linearRampToValueAtTime(0, t + fade);
     setTimeout(() => { o._nodes.forEach(n => { try { n.stop(); } catch (_) {} }); o.disconnect(); }, fade * 1000 + 200);
   };
@@ -1482,8 +1504,41 @@ const AudioEngine = (() => {
     ng.gain.setValueAtTime(0.0001, t); ng.gain.exponentialRampToValueAtTime(amp * 0.25, t + 0.002); ng.gain.exponentialRampToValueAtTime(0.0001, t + 0.06);
     n.connect(hp); hp.connect(ng); ng.connect(input); n.start(t, Math.random()); n.stop(t + 0.08);
   };
-  api.templeBell = () => { api.bell(0.6, 293.66, 0.05); api.bell(0.42, 293.66, 2.6); api.bell(0.28, 293.66, 5.0); };
-  api.chime = () => api.bell(0.22, 587.33, 0.03);
+  api.templeBell = () => { api.bell(0.34, 293.66, 0.05); api.bell(0.24, 293.66, 2.6); api.bell(0.16, 293.66, 5.0); };
+  api.chime = () => api.bell(0.14, 587.33, 0.03);
+
+  /* Button sounds: short, soft mallet notes from the drone's own scale (C# pentatonic), quiet and dry, so they reward a
+   * tap without ever getting in the way. The counter's tap is barely there. Off with the sound switch. */
+  const N = { cs5: SA * 4, ds5: SA * 4.5, f5: SA * 5.04, gs5: SA * 6, as5: SA * 6.73, cs6: SA * 8 };
+  function bus() {
+    if (!uiBus) { uiBus = gain(1); uiBus.connect(comp); const send = gain(0.1); uiBus.connect(send); send.connect(verb); }
+    return uiBus;
+  }
+  function mallet(t, f, amp, dur = 0.16) {
+    [[1, amp, dur], [4, amp * 0.16, dur * 0.3]].forEach(([r, a, d]) => {   // a marimba-like body and a quick bright overtone
+      const o = osc('sine', f * r, t), g = gain(0);
+      g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(a, t + 0.005); g.gain.exponentialRampToValueAtTime(0.0001, t + d);
+      o.connect(g); g.connect(bus()); o.start(t); o.stop(t + d + 0.02);
+    });
+  }
+  const UI = {
+    tap: t => mallet(t, N.gs5, 0.05, 0.13),
+    tab: t => mallet(t, N.ds5, 0.05, 0.14),
+    go: t => { mallet(t, N.cs5, 0.055, 0.2); mallet(t + 0.075, N.gs5, 0.05, 0.26); },
+    on: t => { mallet(t, N.f5, 0.045, 0.12); mallet(t + 0.06, N.as5, 0.045, 0.18); },
+    off: t => { mallet(t, N.as5, 0.04, 0.12); mallet(t + 0.06, N.f5, 0.035, 0.16); },
+    back: t => { mallet(t, N.gs5, 0.04, 0.12); mallet(t + 0.06, N.ds5, 0.035, 0.15); },
+    count: t => {   // a soft wooden tick
+      const o = osc('sine', 1500, t), g = gain(0); o.frequency.exponentialRampToValueAtTime(900, t + 0.04);
+      g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(0.022, t + 0.003); g.gain.exponentialRampToValueAtTime(0.0001, t + 0.06);
+      o.connect(g); g.connect(bus()); o.start(t); o.stop(t + 0.08);
+    }
+  };
+  api.ui = kind => {
+    if (!settings.soundOn || document.hidden || !UI[kind] || !api.ensure()) return;
+    UI[kind](ctx.currentTime + 0.01);
+    if (!out) idleLater();
+  };
 
   /* Breath guidance: rising tone + airy noise on inhale, falling on exhale, tiny chime on holds */
   api.breathCue = phase => {
@@ -2246,22 +2301,29 @@ function tickSession() {
   renderTime();
 }
 
-/* Sounds: the recorded chants are muted while the microphone listens, or they would be counted */
-// Practice is silent for now: no chant recordings, drones, beads or bells (the audio engine stays for later)
-const SILENT = true;
+/* Session sound: the low Om drone, in mala and jaap alike, unless the sound switch is off */
 function startSound(resume) {
-  if (SILENT) return;
-  let snd = settings.sound;
-  if (Voice.active() && (snd === 'ram' || snd === 'chalisa')) { snd = 'mute'; if (!resume) setTimeout(() => toast(t('vMuted')), 1200); }
-  AudioEngine.startProfile(snd, resume);
+  AudioEngine.startProfile(settings.soundOn ? 'drone' : 'mute', resume);
 }
+function renderSoundBtn() {
+  const b = $('#p-sound'), on = !!settings.soundOn;
+  b.setAttribute('aria-checked', String(on));
+  b.setAttribute('aria-label', t(on ? 'soundOnAria' : 'soundOffAria'));
+  $('use', b).setAttribute('href', on ? '#i-sound' : '#i-sound-off');
+}
+$('#p-sound').addEventListener('click', () => {
+  settings.soundOn = !settings.soundOn; settings.sound = settings.soundOn ? 'drone' : 'mute'; persist();
+  if (settings.soundOn) { AudioEngine.ui('on'); if (session && !session.paused && !session.finished) startSound(true); }
+  else AudioEngine.stopProfile(0.4);
+  renderSoundBtn();
+});
 
 function countOne(source) {
   if (!session || session.finished) return false;
   if (session.paused) { if (source === 'tap') toast(t('tPausedTap')); return false; }
   session.count++;
   const n = session.count;
-  if (n % MALA === 0) { Haptics.mala(); AudioEngine.chime(); toast(t('tMala', { n: n / MALA })); } else Haptics.tick();
+  if (n % MALA === 0) { Haptics.mala(); AudioEngine.chime(); toast(t('tMala', { n: n / MALA })); } else { Haptics.tick(); if (source === 'tap') AudioEngine.ui('count'); }
   saveSession();
   renderCount(true);
   $('#sr-live').textContent = String(n);
@@ -2314,6 +2376,7 @@ function renderPractice(fresh) {
   if (mala) { if (fresh) pMala.set(session.count, true); }
   else setFigure($('#p-fig'), a.id, 'meditate');
   const paused = session.paused;
+  renderSoundBtn();
   $('#p-pause-ico').setAttribute('href', paused ? '#i-play' : '#i-pause');
   $('#p-pause').setAttribute('aria-label', t(paused ? 'resume' : 'pause'));
   $('#p-tap').setAttribute('aria-disabled', String(paused));
