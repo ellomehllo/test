@@ -1306,6 +1306,12 @@ const AudioEngine = (() => {
       if (!AC) return null;
       // ambient: follows the ring/silent switch and plays along with the person's own music
       try { if (navigator.audioSession) navigator.audioSession.type = 'ambient'; } catch (_) {}
+      // the phone lists playing sound on the lock screen; without a title it shows the page's host ("localhost")
+      try {
+        if ('mediaSession' in navigator && window.MediaMetadata)
+          navigator.mediaSession.metadata = new MediaMetadata({ title: 'Aradhya', artist: 'Naam Jaap',
+            artwork: [{ src: 'assets/av-hanuman-idle.webp', sizes: '512x512', type: 'image/webp' }] });
+      } catch (_) {}
       ctx = new AC();
       comp = ctx.createDynamicsCompressor();
       comp.threshold.value = -20; comp.knee.value = 18; comp.ratio.value = 3; comp.attack.value = 0.01; comp.release.value = 0.4;
