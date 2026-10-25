@@ -156,7 +156,7 @@
   body.lite-glass { --card: linear-gradient(180deg, rgba(12,30,34,.88), rgba(7,17,24,.94)); }
   body.lite-glass .icon-btn, body.lite-glass .token-pill { background: rgba(6,16,20,.74); }
   body.lite-glass .pick-ico { background: rgba(6,16,20,.78); }
-  body.lite-glass .paused-panel { background: linear-gradient(180deg, rgba(4,10,14,.78), rgba(4,10,14,.92)); }
+  body.lite-glass .paused-panel { background: linear-gradient(180deg, rgba(4,10,14,.97), #04090d); }   /* no blur: the counter behind mustn't show through */
   body.lite-glass .sheet-modal .bd { background: rgba(2,6,8,.82); }
 
   /* ---------- Home ---------- */
@@ -521,6 +521,61 @@
   }
   @media (prefers-reduced-motion: reduce) { .halo i, .halo::after, .figure.still img { animation: none !important; } .screen { transition-duration: .01ms; } }
   body.reduce-motion .halo i, body.reduce-motion .halo::after, body.reduce-motion .figure.still img, body.reduce-motion .voice-chip .vd { animation: none !important; }
+
+  /* ---------- Motion: touch feedback, entrances, panels. Transform and opacity only (cheap on phones); off when the
+     phone asks for reduced motion. Entrances fill 'backwards' only, so once done they never hold a transform that
+     would stop the press spring. Presses are tracked in script (.pressed): iOS never applies :active on touch. ---------- */
+  .card, .set-item, .set-link, .seg button, .mala-opt, .mantra-chip, .tab, .pack, .token-pill, .a-card, .link-btn, .pick, .resume-card {
+    transition: transform .4s cubic-bezier(.34,1.56,.64,1), background-color .2s, border-color .2s, color .2s, box-shadow .2s, opacity .2s; }
+  .btn-gold, .btn-line, .icon-btn, .mode-btn {
+    transition: transform .45s cubic-bezier(.34,1.56,.64,1), filter .2s, background-color .2s, border-color .2s, color .2s, box-shadow .2s, opacity .2s; }
+  .pressed:not(:disabled) { transform: scale(.955); transition: transform .08s ease-out, background-color .12s, filter .12s, opacity .12s !important; }
+  .btn-gold.pressed { transform: scale(.97); filter: brightness(.93); }
+  .card.pressed, .set-item.pressed, .set-link.pressed, .pack.pressed, .a-card.pressed, .resume-card.pressed, .btn-line.pressed { transform: scale(.975); }
+  .seg button.pressed, .mantra-chip.pressed, .mala-opt.pressed { transform: scale(.94); }
+  .tab.pressed, .pick.pressed { transform: none; }
+  .tab svg { transition: transform .4s cubic-bezier(.34,1.56,.64,1); }
+  .tab.pressed svg { transform: scale(.8); transition: transform .08s ease-out; }
+  .switch.pressed::after { transform: scale(.88); }
+  .switch[aria-checked="true"].pressed::after { transform: translateX(22px) scale(.88); }
+
+  @keyframes riseIn { from { opacity: 0; transform: translateY(14px); } }
+  @keyframes fadeIn { from { opacity: 0; } }
+  @keyframes fadeOut { to { opacity: 0; } }
+  .screen.is-on .page-head, .screen.is-on .page-body > *, .screen.is-on .a-grid > *, .screen.is-on .set-group,
+  #s-home.is-on .topbar, #s-home.is-on .home-row, #s-home.is-on .home-name, #s-home.is-on .stats-card, #s-home.is-on .home-start {
+    animation: riseIn .5s cubic-bezier(.2,.8,.2,1) backwards; }
+  .screen.is-on .page-body > :nth-child(2), .screen.is-on .a-grid > :nth-child(2), .screen.is-on .set-group:nth-child(2), #s-home.is-on .home-row { animation-delay: .05s; }
+  .screen.is-on .page-body > :nth-child(3), .screen.is-on .a-grid > :nth-child(3), .screen.is-on .set-group:nth-child(3) { animation-delay: .1s; }
+  .screen.is-on .page-body > :nth-child(4), .screen.is-on .a-grid > :nth-child(4), .screen.is-on .set-group:nth-child(4), #s-home.is-on .home-name { animation-delay: .15s; }
+  .screen.is-on .page-body > :nth-child(5), .screen.is-on .set-group:nth-child(5), #s-home.is-on .stats-card { animation-delay: .2s; }
+  .screen.is-on .page-body > :nth-child(n+6), .screen.is-on .set-group:nth-child(n+6), #s-home.is-on .home-start { animation-delay: .25s; }
+  #s-home.is-on .mode-pick { animation: fadeIn .6s .2s backwards; }
+  .paused-panel:not([hidden]) { animation: fadeIn .22s ease backwards; }
+  .paused-panel:not([hidden]) .paused-card, .paused-panel:not([hidden]) .paused-actions { animation: riseIn .42s cubic-bezier(.2,.8,.2,1) backwards; }
+  .paused-panel:not([hidden]) .paused-actions { animation-delay: .06s; }
+
+  .tab[aria-current="page"] svg { animation: tabPop .45s cubic-bezier(.34,1.56,.64,1); }
+  @keyframes tabPop { 0% { transform: scale(.8); } 55% { transform: scale(1.14); } 100% { transform: scale(1); } }
+  .tab[aria-current="page"]::after { animation: barIn .35s cubic-bezier(.2,.8,.2,1) backwards; }
+  @keyframes barIn { from { transform: scaleX(0); opacity: 0; } }
+
+  .sheet-card { animation: sheetUp .46s cubic-bezier(.2,.9,.24,1.04) backwards; }
+  @keyframes sheetUp { from { transform: translateY(70%); opacity: .4; } }
+  .sheet-modal:not([hidden]) .bd { animation: fadeIn .28s ease backwards; }
+  .sheet-modal.closing .sheet-card { animation: sheetDown .22s cubic-bezier(.4,0,.8,.4) forwards; }
+  .sheet-modal.closing .bd { animation: fadeOut .22s ease forwards; }
+  @keyframes sheetDown { to { transform: translateY(60%); opacity: 0; } }
+
+  #toast { transition: opacity .25s, transform .45s cubic-bezier(.34,1.56,.64,1); }
+  .tok-n { display: inline-block; }
+  .tok-n.bump { animation: tokBump .55s cubic-bezier(.34,1.56,.64,1); }
+  @keyframes tokBump { 40% { transform: scale(1.35); color: var(--gold-2); } }
+
+  @media (prefers-reduced-motion: reduce) {
+    .screen *, .sheet-card, .sheet-modal .bd, .tab::after, .tab svg, .tok-n { animation-duration: .01ms !important; animation-delay: 0s !important; }
+  }
+  body.reduce-motion .screen *, body.reduce-motion .sheet-card, body.reduce-motion .sheet-modal .bd { animation-duration: .01ms !important; animation-delay: 0s !important; }
 </style>
 </head>
 
@@ -1182,8 +1237,33 @@ const Haptics = {
   templeBell() { this.fire([650, 160, 480, 150, 340, 140, 230, 130, 150, 120, 90, 110, 50]); },
   mala()       { this.fire([70, 60, 70, 60, 160]); },
   tick()       { this.fire([14]); },
+  tap()        { this.fire([10]); },   // a light tick under the finger on the main controls (an iPhone selection tap)
   phase()      { this.fire([40]); }
 };
+
+/* Touch feedback: whatever is pressed gives way under the finger (.pressed, kept at least ~90 ms so a quick tap still
+ * shows) and springs back; the main controls also give a light haptic tick. iOS never applies :active on touch unless
+ * the page listens for touches, hence the tracking here. */
+(() => {
+  const PRESS = 'button, a[href], [role="button"], [role="switch"], [role="radio"]';
+  const TICK = '.btn-gold, .btn-line, .tab, .pick, [role="switch"], .seg button, .mala-opt, .mantra-chip, .a-card, .pack, .mode-btn, .set-link';
+  let cur = null, t0 = 0;
+  const release = () => {
+    if (!cur) return;
+    const el = cur; cur = null;
+    setTimeout(() => el.classList.remove('pressed'), Math.max(0, 90 - (performance.now() - t0)));
+  };
+  document.addEventListener('pointerdown', e => {
+    const el = e.target.closest(PRESS);
+    if (!el || el.disabled || el.id === 'p-tap') return;   // the counter has its own response
+    release(); cur = el; t0 = performance.now(); el.classList.add('pressed');
+  }, { passive: true });
+  document.addEventListener('pointerup', release, { passive: true });
+  document.addEventListener('pointercancel', release, { passive: true });
+  document.addEventListener('scroll', release, { capture: true, passive: true });   // a scroll isn't a press
+  document.addEventListener('touchstart', () => {}, { passive: true });             // lets iOS apply :active too
+  document.addEventListener('click', e => { const el = e.target.closest(TICK); if (el && !el.disabled) Haptics.tap(); }, true);
+})();
 
 /* ───────────────────────── 3 · AUDIO ENGINE ─────────────────────────
  * Everything is synthesised live — no audio files. Signal path:
@@ -1732,8 +1812,17 @@ const Wake = {
 /* Bottom sheets: open/close with focus return and Escape */
 function makeSheet(el, onOpen) {
   let lastFocus = null;
-  const close = () => { el.hidden = true; $$('video', el).forEach(v => v.pause()); if (lastFocus && lastFocus.focus) lastFocus.focus(); };
-  const open = () => { lastFocus = document.activeElement; el.hidden = false; if (onOpen) onOpen(); setTimeout(() => { const c = el.querySelector('[data-close].icon-btn'); if (c) c.focus(); }, 30); };
+  let closing = 0;
+  const close = () => {
+    if (el.hidden) return;
+    $$('video', el).forEach(v => v.pause());
+    if (lastFocus && lastFocus.focus) lastFocus.focus();
+    if (reduceMotion()) { el.hidden = true; return; }
+    el.classList.add('closing');   // slides away (CSS), then hides
+    clearTimeout(closing);
+    closing = setTimeout(() => { el.hidden = true; el.classList.remove('closing'); }, 210);
+  };
+  const open = () => { clearTimeout(closing); el.classList.remove('closing'); lastFocus = document.activeElement; el.hidden = false; if (onOpen) onOpen(); setTimeout(() => { const c = el.querySelector('[data-close].icon-btn'); if (c) c.focus(); }, 30); };
   el.querySelectorAll('[data-close]').forEach(b => b.addEventListener('click', close));
   document.addEventListener('keydown', e => { if (e.key === 'Escape' && !el.hidden) close(); });
   return { open, close };
@@ -2510,7 +2599,15 @@ const Reminders = (() => {
   return { supported: !!LN, sync, soon, plan, askOnce };
 })();
 
-function renderTokens() { $$('.tok-n').forEach(el => { el.textContent = fmtNum(tokenBalance()); }); }
+function renderTokens() {
+  const v = fmtNum(tokenBalance());
+  $$('.tok-n').forEach(el => {
+    if (el.textContent === v) return;
+    const had = el.textContent !== '' && el.textContent !== '0';
+    el.textContent = v;
+    if (had || v !== '0') { el.classList.remove('bump'); void el.offsetWidth; el.classList.add('bump'); }
+  });
+}
 function onRecordsChanged() {
   syncUnlocks(false); renderTokens(); Reminders.soon();
   if (current === 'home') renderHome();
