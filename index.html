@@ -262,6 +262,7 @@
   .wheel-item { height: 52px; scroll-snap-align: center; display: flex; align-items: center; justify-content: center; position: relative;
     font-family: var(--serif); font-size: 24px; font-weight: 500; color: var(--ivory-2); transition: color .15s, font-size .15s; cursor: pointer; }
   .wheel-item.on { font-size: 34px; font-weight: 700; color: var(--ivory); }
+  .word-note { text-align: center; margin-top: 4px; }
   .picker-unit { position: absolute; right: 22px; top: 130px; transform: translateY(-50%); font-size: 14px; color: var(--ivory-2); pointer-events: none; z-index: 2; }
   .or { display: flex; align-items: center; gap: 12px; color: var(--ivory-3); font-size: 14px; margin: 14px 0; }
   .or::before, .or::after { content: ''; flex: 1; height: 1px; background: var(--line-2); }
@@ -457,7 +458,6 @@
   .goal-card { padding: 14px; margin-top: 12px; }
   .goal-card .bar { height: 8px; border-radius: 9px; background: rgba(246,235,211,.1); overflow: hidden; margin: 10px 0 6px; }
   .goal-card .bar i { display: block; height: 100%; width: 0; background: linear-gradient(90deg, var(--gold-3), var(--gold-2)); transition: width .8s ease; }
-  .join-card { padding: 14px; margin-top: 12px; display: grid; gap: 10px; }
   .row-between { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
   .set-group { margin-top: 14px; }
   .set-group > h3 { font-size: 13px; letter-spacing: .06em; text-transform: uppercase; color: var(--gold-2); font-weight: 600; margin: 0 4px 6px; }
@@ -696,18 +696,15 @@
 
 <!-- ═══════════════ JAAP SETUP — timer ═══════════════ -->
 <section id="s-jaap-setup" class="screen" aria-labelledby="jaap-setup-h">
-  <header class="subbar"><button class="icon-btn" data-back data-t-aria="back" aria-label="वापस"><svg width="20" height="20"><use href="#i-back"/></svg></button><h1 id="jaap-setup-h" class="h-title" data-t="setTimer">समय चुनें</h1><span></span></header>
-  <p class="lead" data-t="setTimerSub">कितनी देर जप करना चाहते हैं?</p>
+  <header class="subbar"><button class="icon-btn" data-back data-t-aria="back" aria-label="वापस"><svg width="20" height="20"><use href="#i-back"/></svg></button><h1 id="jaap-setup-h" class="h-title" data-t="chooseWord">नाम चुनें</h1><span></span></header>
+  <p class="lead" data-t="chooseWordSub">किस नाम का जप करेंगे?</p>
   <div class="setup-body">
-    <div class="picker">
-      <div id="min-wheel" class="wheel" role="spinbutton" tabindex="0" data-t-aria="setTimer" aria-label="समय चुनें"></div>
-      <span class="picker-unit" data-t="minShort">मिनट</span>
+    <div class="picker word-picker">
+      <div id="word-wheel" class="wheel" role="listbox" tabindex="0" data-t-aria="chooseWord" aria-label="नाम चुनें"></div>
     </div>
-    <div class="mantra-row" id="jaap-mantras" role="group" data-t-aria="mantra" aria-label="मंत्र"></div>
+    <p class="note word-note" data-t="wordNote">समय अपने-आप दर्ज होता है — जब तक चाहें जप करें।</p>
   </div>
   <button id="jaap-start" class="btn-gold"><span data-t="start">शुरू करें</span></button>
-  <div class="or"><span data-t="or">या</span></div>
-  <button id="jaap-free" class="btn-ghost"><b data-t="noTimer">बिना समय के</b><small data-t="noTimerSub">सिर्फ़ जप गिनें</small></button>
 </section>
 
 <!-- ═══════════════ MALA SETUP ═══════════════ -->
@@ -854,11 +851,6 @@
       <ol class="board" id="board-list" aria-live="polite"></ol>
       <button id="board-more" class="btn-line board-more" hidden aria-controls="board-list"></button>
     </div>
-    <div class="card join-card" id="join-card">
-      <div><span id="com-name" style="font-size:16px;font-weight:600"></span></div>
-      <div class="row-between"><span style="font-size:15px" data-t="showMe">सूची में मेरा नाम दिखाएँ</span><button id="show-me" class="switch" role="switch" aria-checked="false" data-t-aria="showMe" aria-label="सूची में मेरा नाम दिखाएँ"></button></div>
-      <button id="save-me" class="btn-gold" style="min-height:50px;font-size:17px" data-t="save">सहेजें</button>
-    </div>
     <p class="note" id="com-offline" style="margin-top:12px" hidden></p>
   </div>
 </section>
@@ -916,13 +908,14 @@
         <div class="set-item"><div class="row-between"><span data-t="vibTitle">कंपन</span><button id="vib-test" class="link-btn" data-t="vibTest">जाँचें</button></div>
           <div class="seg" data-group="vib"><button data-value="off" data-t="vibOff">बंद</button><button data-value="gentle" data-t="vibGentle">हल्का</button><button data-value="medium" data-t="vibMedium">मध्यम</button><button data-value="strong" data-t="vibStrong">तेज़</button></div>
           <p class="sub" id="vib-note"></p></div>
-        <div class="set-item"><div class="row-between"><span data-t="breathSet">समय पूरा होने पर प्राणायाम</span><button id="sw-breath" class="switch" role="switch" aria-checked="true" data-t-aria="breathSet" aria-label="प्राणायाम"></button></div></div>
+        <div class="set-item"><div class="row-between"><span data-t="breathSet">जप के बाद प्राणायाम</span><button id="sw-breath" class="switch" role="switch" aria-checked="true" data-t-aria="breathSet" aria-label="प्राणायाम"></button></div></div>
       </div>
     </div>
     <div class="set-group"><h3 data-t="gVoice">आवाज़ से गिनती</h3>
       <div class="card set-list">
         <div class="set-item"><div class="row-between"><span data-t="voiceSet">बोलकर जप गिनें</span><button id="sw-voice" class="switch" role="switch" aria-checked="false" data-t-aria="voiceSet" aria-label="बोलकर जप गिनें"></button></div>
           <p class="sub" id="voice-note"></p></div>
+        <div class="set-item" id="engine-row" hidden><span data-t="engineSet">आवाज़ पहचानने का तरीका</span><div class="seg" id="engine-seg"><button data-engine="whisper">Whisper</button><button data-engine="apple">Apple</button></div></div>
       </div>
     </div>
     <div class="set-group"><h3 data-t="gLook">रूप</h3>
@@ -941,7 +934,7 @@
     <div class="set-group"><h3 data-t="gPrivacy">गोपनीयता और खाता</h3>
       <div class="card set-list">
         <div class="set-item"><div class="row-between"><span data-t="myName">आपका नाम</span><button class="link-btn" data-go="profile" id="set-name"></button></div></div>
-        <div class="set-item"><div class="row-between"><span data-t="showMe">सूची में मुझे दिखाएँ</span><span class="k" id="set-visible"></span></div></div>
+        <div class="set-item"><div class="row-between"><span data-t="showMe">सूची में मुझे दिखाएँ</span><button id="sw-showme" class="switch" role="switch" aria-checked="true" data-t-aria="showMe" aria-label="सूची में मुझे दिखाएँ"></button></div></div>
       </div>
     </div>
     <div class="set-group">
@@ -1089,9 +1082,9 @@ const saved = Store.read();
 const settings = Object.assign({
   // Hindi first for India; other visitors start in English (browser translation turned आराध्य into "Adorable")
   minutes: 25, sound: 'ram', vib: 'medium', lang: [...(navigator.languages || [navigator.language || ''])].some(l => /^(hi|mr|ne)\b|-IN$/i.test(l)) ? 'hi' : 'en',
-  goal: 108, aaradhya: 'hanuman', mantra: {}, malas: 1, bg: 'grove', homeMode: 'jaap',
+  goal: 108, aaradhya: 'hanuman', mantra: {}, jaapWord: 'ram', malas: 1, bg: 'grove', homeMode: 'jaap',
   breath: true,
-  voice: true,
+  voice: true, voiceEngine: 'whisper',   // iPhone: Whisper (bundled whisper-tiny) or Apple's recogniser
   remind: true, remindTime: '07:00', nudge: false
 }, saved.settings);
 delete settings.lockout; delete settings.holdFinish; delete settings.reduceMotion;   // removed settings: hold-to-finish (one tap + a yes/no question), reduced motion (the phone's own setting still applies)
@@ -1106,8 +1099,10 @@ settings.sound = settings.soundOn ? settings.sessionSound : 'mute';
 // Grove became the default background: move everyone still on the old default (forest) over, once
 if (!settings.bgV2) { if (settings.bg === 'forest') settings.bg = 'grove'; settings.bgV2 = 1; }
 // v1 only allowed 20–60 minutes in steps of 1; the new wheel uses fixed stops
-const MINUTE_STOPS = [1, 2, 3, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 75, 90, 120];
-settings.minutes = MINUTE_STOPS.reduce((a, b) => Math.abs(b - settings.minutes) < Math.abs(a - settings.minutes) ? b : a, 25);
+// the words to chant in a jaap (chosen on a wheel; a jaap has no timer, its time is simply recorded)
+const JAAP_WORDS = ['ram', 'radhe', 'om', 'narayan'];
+const WORD_LABEL = { ram: ['राम', 'Ram'], radhe: ['राधे', 'Radhe'], om: ['ॐ', 'Om'], narayan: ['नारायण', 'Narayan'] };
+if (!JAAP_WORDS.includes(settings.jaapWord)) settings.jaapWord = 'ram';
 const lifetime = Object.assign({ jaap: 0, sessions: 0, minutes: 0, day: '', dayJaap: 0 }, saved.lifetime);
 // v2 records: every finished session (local dates), Bhakti tokens, unlocked Aaradhyas, rewarded session ids
 const records = Object.assign({ history: [], tokens: 0, unlocked: ['hanuman'], rewarded: [] }, saved.records);
@@ -1122,7 +1117,7 @@ const I18N = {
     appName: 'साधना', profile: 'प्रोफ़ाइल', settings: 'सेटिंग्स', close: 'बंद करें', back: 'वापस', tokensAria: 'भक्ति टोकन',
     sankalp: 'आज का संकल्प', dailyGoal: 'दैनिक लक्ष्य', streak: 'लगातार', days: '{n} दिन', day1: '1 दिन', continue: 'जारी रखें',
     resumeTxt: 'चल रही साधना · {n} जप', mala: 'माला', malaSub: '108 मनकों का एक चक्र', jaap: 'जप', jaapSub: 'समय चुनें या खुला जप',
-    setTimer: 'समय चुनें', setTimerSub: 'कितनी देर जप करना चाहते हैं?', minShort: 'मिनट', start: 'शुरू करें', or: 'या',
+    setTimer: 'समय चुनें', setTimerSub: 'कितनी देर जप करना चाहते हैं?', chooseWord: 'नाम चुनें', chooseWordSub: 'किस नाम का जप करेंगे?', wordNote: 'समय अपने-आप दर्ज होता है — जब तक चाहें जप करें।', minShort: 'मिनट', start: 'शुरू करें', or: 'या',
     noTimer: 'बिना समय के', noTimerSub: 'सिर्फ़ जप गिनें', mantra: 'मंत्र', selectMala: 'माला चुनें', eachMala: 'एक माला = 108 जप',
     shareToday: 'आज की साधना शेयर करें', shareJaap: 'आज का जप', shareMalas: 'माला', shareStreak: 'दिन लगातार', shareText: 'आज मैंने {n} नाम जप किया 🙏 साधना ऐप पर मेरे साथ जप करें:', shareFail: 'शेयर नहीं हो पाया — फिर कोशिश करें',
     shopBal: 'आपके टोकन', packPopular: 'सबसे पसंदीदा', packValue: 'सबसे किफ़ायती', shopNeed: '{name} को खोलने के लिए {n} टोकन और चाहिए',
@@ -1175,7 +1170,7 @@ const I18N = {
     sRam: 'राम नाम', sBead: 'माला', sDrone: 'ॐ गूँज', sChalisa: 'चालीसा', sMute: 'शांत',
     vibTitle: 'कंपन', vibTest: 'जाँचें', vibOff: 'बंद', vibGentle: 'हल्का', vibMedium: 'मध्यम', vibStrong: 'तेज़',
     vibNote: 'हर जप पर हल्का कंपन · हर माला पर दो बार · अंत में घंटी जैसा कंपन', vibNone: 'इस फ़ोन या ब्राउज़र में कंपन नहीं चलता (जैसे iPhone)।',
-    breathSet: 'समय पूरा होने पर प्राणायाम', breathSetSub: 'समय वाले जप के बाद 5 मिनट साँस का अभ्यास', holdSet: 'पूर्ण करने के लिए दबाकर रखें', holdSetSub: 'जप के समय गलती से छूने पर साधना बंद न हो',
+    breathSet: 'जप के बाद प्राणायाम', breathSetSub: 'कम से कम एक माला के जप के बाद 5 मिनट साँस का अभ्यास', holdSet: 'पूर्ण करने के लिए दबाकर रखें', holdSetSub: 'जप के समय गलती से छूने पर साधना बंद न हो',
     gVoice: 'आवाज़ से गिनती', voiceSet: 'बोलकर जप गिनें',
    
     voiceUnsupported: 'इस ब्राउज़र/ऐप में आवाज़ पहचान उपलब्ध नहीं है — छूकर गिनें। (Chrome या Safari में खोलें)', voiceDenied: 'माइक की अनुमति नहीं मिली। ब्राउज़र की सेटिंग में माइक चालू करें, या छूकर गिनें।',
@@ -1187,7 +1182,7 @@ const I18N = {
     nudge: 'शाम 8 बजे साधना क्रम की याद', aboutTitle: 'साधना', aboutText: 'नाम जप और माला साधना का साथी — हर दिन थोड़ी भक्ति, थोड़ा ध्यान। 🙏 यह भक्ति साधना का साथी है, कोई चिकित्सा सेवा नहीं।', aboutOk: 'ठीक है', nudgeSub: 'शाम 8 बजे — केवल तब, जब आपका क्रम चल रहा हो और उस दिन जप न हुआ हो।',
     nDenied: 'सूचनाओं की अनुमति नहीं मिली — फ़ोन की सेटिंग्स में साधना के लिए सूचनाएँ चालू करें।',
     nDailyT: '🙏 जप का समय', nDailyB: '{name} आपकी प्रतीक्षा में हैं — एक माला भी काफ़ी है।', nNudgeT: '🔥 आपका {n} दिन का साधना क्रम', nNudgeB: 'आज रात 12 बजे टूट जाएगा — एक माला से इसे बचा लें।',
-    gPrivacy: 'गोपनीयता और खाता', privacySub: 'भक्त सूची में आपका प्रोफ़ाइल नाम सबको दिखता है (चाहें तो सूची से छिप सकते हैं)। आपकी फ़ोटो इसी फ़ोन पर रहती है।', about: 'साधना के बारे में',
+    engineSet: 'आवाज़ पहचानने का तरीका', gPrivacy: 'गोपनीयता और खाता', privacySub: 'भक्त सूची में आपका प्रोफ़ाइल नाम सबको दिखता है (चाहें तो सूची से छिप सकते हैं)। आपकी फ़ोटो इसी फ़ोन पर रहती है।', about: 'साधना के बारे में',
     getApp: 'ऐप डाउनलोड करें', appTitle: 'साधना ऐप', appSoon: 'Google Play पर जल्द आ रहा है', appSoonWhy: 'साधना Android ऐप जल्द ही Google Play पर आएगा — बिना इंटरनेट के जप, याद दिलाने की सुविधा और बोलकर गिनती के साथ।', appSoonNote: 'तब तक यहीं ब्राउज़र में जप करते रहें 🙏', appWhy: 'बिना इंटरनेट के भी जप करें — सारे वीडियो, राम नाम मंत्र और चालीसा फ़ोन में रहेंगे। इंटरनेट आते ही आपकी गिनती अपने-आप जुड़ जाएगी।',
     appStep1: 'नीचे दिए बटन से ऐप डाउनलोड करें', appStep2: 'डाउनलोड हुई फ़ाइल खोलें', appStep3: 'फ़ोन पूछे तो “इस स्रोत से ऐप की अनुमति दें” चालू करें', appStep4: '“इंस्टॉल” दबाएँ — हो गया 🙏', appDownload: 'ऐप डाउनलोड करें', appSize: 'केवल Android',
     tHalf: 'आधा समय पूरा 🙏', tMala: 'माला {n} पूरी — 108 जप 🙏', tHold: 'पूर्ण करने के लिए बटन दबाकर रखें', tNothing: 'साधना बंद — सहेजने को कुछ नहीं था', tPausedTap: 'साधना रुकी है — फिर शुरू करें',
@@ -1199,7 +1194,7 @@ const I18N = {
     appName: 'Sadhana', profile: 'Profile', settings: 'Settings', close: 'Close', back: 'Back', tokensAria: 'Bhakti tokens',
     sankalp: 'Today’s Sankalp', dailyGoal: 'Daily goal', streak: 'Streak', days: '{n} days', day1: '1 day', continue: 'Continue',
     resumeTxt: 'Session in progress · {n} Naam', mala: 'Mala', malaSub: '108 beads per round', jaap: 'Jaap', jaapSub: 'Set a timer or count freely',
-    setTimer: 'Set Timer', setTimerSub: 'Choose how long you want to practise', minShort: 'min', start: 'Start', or: 'or',
+    setTimer: 'Set Timer', setTimerSub: 'Choose how long you want to practise', chooseWord: 'Choose a name', chooseWordSub: 'Which name will you chant?', wordNote: 'Your time is recorded by itself — chant for as long as you like.', minShort: 'min', start: 'Start', or: 'or',
     noTimer: 'No Timer', noTimerSub: 'Just count repetitions', mantra: 'Mantra', selectMala: 'Select Mala Count', eachMala: 'Each mala = 108 repetitions',
     shareToday: 'Share today’s sadhana', shareJaap: 'Jaap today', shareMalas: 'Malas', shareStreak: 'Day streak', shareText: 'I chanted {n} names today 🙏 Chant with me on Sadhana:', shareFail: 'Couldn’t share — try again',
     shopBal: 'Your tokens', packPopular: 'Most popular', packValue: 'Best value', shopNeed: '{n} more tokens to unlock {name}',
@@ -1252,7 +1247,7 @@ const I18N = {
     sRam: 'Ram Naam', sBead: 'Beads', sDrone: 'Om hum', sChalisa: 'Chalisa', sMute: 'Silent',
     vibTitle: 'Vibration', vibTest: 'Test', vibOff: 'Off', vibGentle: 'Light', vibMedium: 'Medium', vibStrong: 'Strong',
     vibNote: 'A light tick for each count · two at each mala · a bell-like buzz at the end', vibNone: 'This phone or browser can’t vibrate (e.g. iPhone).',
-    breathSet: 'Pranayama when the timer ends', breathSetSub: '5 minutes of breathing after a timed jaap', holdSet: 'Hold to finish', holdSetSub: 'A stray touch can’t end your session',
+    breathSet: 'Pranayama after jaap', breathSetSub: '5 minutes of breathing after a jaap of at least one mala', holdSet: 'Hold to finish', holdSetSub: 'A stray touch can’t end your session',
     gVoice: 'Voice counting', voiceSet: 'Count by voice',
    
     voiceUnsupported: 'Speech recognition isn’t available in this browser or app — tap to count. (Try Chrome or Safari.)', voiceDenied: 'Microphone permission was denied. Allow the microphone in your browser settings, or tap to count.',
@@ -1264,7 +1259,7 @@ const I18N = {
     nudge: 'Streak reminder at 8 pm', aboutTitle: 'Sadhana', aboutText: 'A companion for naam jaap and mala practice — a little devotion every day. 🙏 A devotional practice, not a medical service.', aboutOk: 'OK', nudgeSub: "At 8 pm — only when you have a streak going and haven't chanted that day.",
     nDenied: 'Notifications are off — allow them for Sadhana in your phone settings.',
     nDailyT: '🙏 Time for jaap', nDailyB: '{name} is waiting for you — even one mala is enough.', nNudgeT: '🔥 Your {n}-day streak', nNudgeB: 'It ends at midnight — one mala keeps it going.',
-    gPrivacy: 'Privacy & account', privacySub: 'Your profile name is shown to everyone on the leaderboard (you can hide yourself from it). Your photo stays on this phone.', about: 'About Sadhana',
+    engineSet: 'Voice recogniser', gPrivacy: 'Privacy & account', privacySub: 'Your profile name is shown to everyone on the leaderboard (you can hide yourself from it). Your photo stays on this phone.', about: 'About Sadhana',
     getApp: 'Get the app', appTitle: 'Sadhana app', appSoon: 'Coming soon to Google Play', appSoonWhy: 'The Sadhana Android app is coming soon to Google Play — with offline chanting, reminders and counting by voice.', appSoonNote: 'Until then, keep chanting right here in your browser 🙏', appWhy: 'Chant even without internet — all videos, the Ram Naam chant and the Chalisa stay on your phone. Your count syncs automatically when you are back online.',
     appStep1: 'Download the app with the button below', appStep2: 'Open the downloaded file', appStep3: 'If asked, allow installing apps from this source', appStep4: 'Tap “Install” — done 🙏', appDownload: 'Download the app', appSize: 'Android only',
     tHalf: 'Halfway done 🙏', tMala: 'Mala {n} complete — 108 Naam 🙏', tHold: 'Press and hold to finish', tNothing: 'Session ended — nothing to save', tPausedTap: 'Paused — tap Resume to continue',
@@ -1667,10 +1662,12 @@ const RAM_WORD = /^(?:राम[ाः्]?|रम|r(?:a+|u|o)h?m+[ae]?|rome)$/i
 const MANTRAS = {
   // words = what the offline recogniser listens for (Hindi model vocabulary; ॐ is "ओम" there), key = the word counted
   // w = one whole spoken word that counts (Apple's recogniser writes a chanted Ram as राम, रम, Raam, Rum, Rom, Rahm …)
-  ram:     { hi: 'राम राम राम', en: 'Ram Ram Ram', re: /राम|\bra+m+a?\b/gi, w: RAM_WORD, per: 1, words: ['राम'], key: 'राम' },
+  ram:     { hi: 'राम राम राम', en: 'Ram Ram Ram', re: /राम|\bra+m+a?\b/gi, w: RAM_WORD, syl: 1, per: 1, words: ['राम'], key: 'राम' },
   shriram: { hi: 'श्री राम जय राम जय जय राम', en: 'Shri Ram Jai Ram Jai Jai Ram', re: /राम|\bra+m+a?\b/gi, w: RAM_WORD, per: 3, words: ['श्री', 'राम', 'जय'], key: 'राम' },
   hanuman: { hi: 'ॐ हं हनुमते नमः', en: 'Om Ham Hanumate Namah', re: /हनुमते|हनुमत|hanumat[ae]?/gi, per: 1, words: ['ओम', 'हं', 'हनुमते', 'नमः'], key: 'हनुमते' },
-  narayan: { hi: 'नारायण नारायण', en: 'Narayan Narayan', re: /नारायण|narayana?/gi, per: 1, words: ['नारायण'], key: 'नारायण' },
+  narayan: { hi: 'नारायण नारायण', en: 'Narayan Narayan', re: /नारायण|narayana?/gi, w: /^(?:नारायण[ाः]?|नारायन|narayan[a]?|narayanan|naryan)$/i, syl: 2, per: 1, words: ['नारायण'], key: 'नारायण' },   // syl: beats per chanted word (Na-ra-yan blurs to about two)
+  radhe:   { hi: 'राधे राधे', en: 'Radhe Radhe', re: /राधे|radhey?/gi, w: /^(?:राधे|राधा|राधें|रादे|radhe[y]?|radha|rade[y]?|raadhe|radhi|rathi|rathe)$/i, syl: 2, per: 1, words: ['राधे'], key: 'राधे' },
+  om:      { hi: 'ॐ', en: 'Om', re: /ॐ|ओम|\bom\b/gi, w: /^(?:ॐ|ओम्?|ओं|om+|ohm|aum|ome|oum|um+|aa?n|on|aun)$/i, syl: 1, per: 1, words: ['ओम'], key: 'ओम' },   // Whisper often hears a hummed Om as Um / An
   shiv:    { hi: 'ॐ नमः शिवाय', en: 'Om Namah Shivaya', re: /शिवाय|शिवा|shivaa?ya?/gi, per: 1, words: ['ओम', 'नमः', 'शिवाय'], key: 'शिवाय' }
 };
 const AARADHYA = [
@@ -2393,7 +2390,7 @@ function beginSession(mode, opts) {
   if (session) { toast(t('tRestored')); go('practice', true); renderPractice(); Glance.liveStart(); return; }
   const a = aById(settings.aaradhya);
   session = {
-    id: `${wall().toString(36)}-${Math.random().toString(36).slice(2, 8)}`, mode, aaradhya: a.id, mantra: mantraFor(a),
+    id: `${wall().toString(36)}-${Math.random().toString(36).slice(2, 8)}`, mode, aaradhya: a.id, mantra: opts.mantra || mantraFor(a),
     timerMin: mode === 'jaap' ? (opts.minutes || 0) : 0, target: mode === 'mala' ? MALA * opts.malas : 0, malas: opts.malas || 0,
     count: 0, activeMs: 0, runSince: wall(), paused: false, startedAt: wall(), halfFired: false, finished: false, beat: wall()
   };
@@ -2491,7 +2488,7 @@ function finishSession(completed) {
   if (s.count === 0 && s.activeMs < 60000) { toast(t('tNothing')); go('home'); return; }
   const result = recordSession(s, completed);
   if (completed) Haptics.templeBell();
-  if (completed && s.mode === 'jaap' && s.timerMin && settings.breath) startPranayama(s, result);
+  if (completed && s.mode === 'jaap' && settings.breath) startPranayama(s, result);
   else showComplete(s, result);
 }
 
@@ -2577,7 +2574,8 @@ function askFinish() {
 }
 $('#p-finish').addEventListener('click', askFinish);
 $('#paused-finish').addEventListener('click', askFinish);
-$('#finish-yes').addEventListener('click', () => { FinishSheet.close(); finishSession(false); });
+// a jaap has no timer: finishing after at least one full mala counts as completing it (the bonus, and pranayama)
+$('#finish-yes').addEventListener('click', () => { FinishSheet.close(); finishSession(!!session && session.mode === 'jaap' && session.count >= MALA); });
 $('#p-back').addEventListener('click', () => { pauseSession(); go('home'); });
 $('#paused-back').addEventListener('click', () => go('home'));
 onEnter.practice = () => { if (!session) { go('home'); return; } renderPractice(true); };
@@ -2702,7 +2700,7 @@ const Voice = (() => {
       // iPhone: the page's own sounds have to allow the microphone too, or WebKit would switch it off
       if (IS_IOS) try { navigator.audioSession.type = 'play-and-record'; } catch (_) {}
       const m = mantra();
-      await NV.start({ words: m.words, hints: m.en.split(/\s+/), match: m.w ? m.w.source : undefined });   // the first start loads the model (a few seconds)
+      await NV.start({ words: m.words, hints: m.en.split(/\s+/), match: m.w ? m.w.source : undefined, syllables: m.syl || 0, engine: settings.voiceEngine === 'apple' ? 'apple' : 'whisper' });   // the first start loads the model (a few seconds)
       running = true;
       if (!want) { nativeHalt(); return; }
       if (pausedFlag) { NV.pause().catch(() => {}); set('paused'); return; }
@@ -2955,33 +2953,31 @@ function renderMantraChips(box) {
 }
 
 /* Jaap setup — vertical minute wheel */
-const Wheel = (() => {
-  const el = $('#min-wheel'), ROW = 52;
-  el.innerHTML = '<div class="wheel-pad"></div>' + MINUTE_STOPS.map((m, i) => `<div class="wheel-item" data-i="${i}">${m}</div>`).join('') + '<div class="wheel-pad"></div>';
-  const items = $$('.wheel-item', el);
-  let shown = -1, saveT = 0;
-  const pad = () => parseFloat(getComputedStyle($('.wheel-pad', el)).height) || 104;
+const WordWheel = (() => {
+  const el = $('#word-wheel'), ROW = 52;
+  let items = [], shown = -1, saveT = 0;
+  const label = id => WORD_LABEL[id][settings.lang === 'en' ? 1 : 0];
   const indexNow = () => Math.min(items.length - 1, Math.max(0, Math.round(el.scrollTop / ROW)));
   function mark(i) {
     if (i === shown) return;
-    if (shown >= 0) { items[shown].classList.remove('on'); Haptics.fire([8]); }
-    shown = i; items[i].classList.add('on');
-    settings.minutes = MINUTE_STOPS[i];
-    el.setAttribute('aria-valuenow', String(settings.minutes));
-    el.setAttribute('aria-valuetext', `${settings.minutes} ${t('minShort')}`);
+    if (shown >= 0 && items[shown]) { items[shown].classList.remove('on'); items[shown].setAttribute('aria-selected', 'false'); Haptics.fire([8]); }
+    shown = i; items[i].classList.add('on'); items[i].setAttribute('aria-selected', 'true');
+    settings.jaapWord = JAAP_WORDS[i];
     clearTimeout(saveT); saveT = setTimeout(persist, 250);
   }
-  el.addEventListener('scroll', () => mark(indexNow()), { passive: true });
   const goTo = (i, smooth = true) => { i = Math.min(items.length - 1, Math.max(0, i)); el.scrollTo({ top: i * ROW, behavior: smooth && !reduceMotion() ? 'smooth' : 'auto' }); mark(i); };
-  items.forEach((it, i) => it.addEventListener('click', () => goTo(i)));
+  function build() {
+    el.innerHTML = '<div class="wheel-pad"></div>' + JAAP_WORDS.map((w, i) => `<div class="wheel-item" role="option" aria-selected="false" data-i="${i}">${label(w)}</div>`).join('') + '<div class="wheel-pad"></div>';
+    items = $$('.wheel-item', el); shown = -1;
+    items.forEach((it, i) => it.addEventListener('click', () => goTo(i)));
+  }
+  el.addEventListener('scroll', () => { if (items.length) mark(indexNow()); }, { passive: true });
   el.addEventListener('keydown', e => { const k = { ArrowDown: 1, ArrowRight: 1, ArrowUp: -1, ArrowLeft: -1 }[e.key]; if (k) { e.preventDefault(); goTo(indexNow() + k); } });
-  el.setAttribute('aria-valuemin', String(MINUTE_STOPS[0])); el.setAttribute('aria-valuemax', String(MINUTE_STOPS[MINUTE_STOPS.length - 1]));
-  void pad;
-  return { sync: () => goTo(Math.max(0, MINUTE_STOPS.indexOf(settings.minutes)), false) };
+  // rebuilt on every visit, so the words follow the chosen language
+  return { sync: () => { build(); goTo(Math.max(0, JAAP_WORDS.indexOf(settings.jaapWord)), false); } };
 })();
-onEnter['jaap-setup'] = () => { renderMantraChips($('#jaap-mantras')); requestAnimationFrame(() => Wheel.sync()); };
-$('#jaap-start').addEventListener('click', () => beginSession('jaap', { minutes: settings.minutes }));
-$('#jaap-free').addEventListener('click', () => beginSession('jaap', { minutes: 0 }));
+onEnter['jaap-setup'] = () => requestAnimationFrame(() => WordWheel.sync());
+$('#jaap-start').addEventListener('click', () => beginSession('jaap', { minutes: 0, mantra: JAAP_WORDS.includes(settings.jaapWord) ? settings.jaapWord : 'ram' }));
 
 /* Mala setup */
 const MALA_CHOICES = [1, 3, 5, 10];
@@ -3381,14 +3377,13 @@ const Community = (() => {
   async function load() {
     /* app-strip:start */
     if (DEMO_BOARD) {                                   // test data only: never shown without ?demoboard
-      $('#join-card').hidden = true; $('#board-period').hidden = false;
+      $('#board-period').hidden = false;
       $('#com-offline').hidden = false; $('#com-offline').textContent = 'TEST DATA (?demoboard): 200 generated devotees on this device only — top 50 shown, as the server would return.';
       render(DemoBoard.leaderboard(period), DemoBoard.myRank(period), true);
       return;
     }
     /* app-strip:end */
     const ok = Cloud.ready;
-    $('#join-card').hidden = !ok;
     $('#com-offline').hidden = true; $('#board-period').hidden = !ok;
     if (!ok) { note(t('cloudOff')); return; }
     renderAccount();
@@ -3398,20 +3393,10 @@ const Community = (() => {
       render(rows, mine, !!(Cloud.profile && Cloud.profile.show_on_leaderboard));
     } catch (e) { note(t('cloudErr')); }
   }
-  function renderAccount() {
-    if (!Cloud.ready) return;
-    const p = Cloud.profile || {};
-    $('#com-name').textContent = myLabel();
-    $('#show-me').setAttribute('aria-checked', String(!!p.show_on_leaderboard));
-  }
+  function renderAccount() { /* the leaderboard switch lives in Settings now */ }
   $$('#board-period button').forEach(b => b.addEventListener('click', () => {
     period = b.dataset.p; expanded = false; $$('#board-period button').forEach(x => x.setAttribute('aria-pressed', String(x === b))); load();
   }));
-  $('#show-me').addEventListener('click', e => { const sw = e.currentTarget; sw.setAttribute('aria-checked', String(sw.getAttribute('aria-checked') !== 'true')); });
-  $('#save-me').addEventListener('click', async () => {
-    const showMe = $('#show-me').getAttribute('aria-checked') === 'true';
-    try { await Cloud.saveProfile(showMe); toast(t('savedOk')); load(); } catch (_) { toast(t('cloudErr')); }
-  });
   $('#board-list').addEventListener('click', async e => {
     const b = e.target.closest('.rep'); if (!b) return;
     if (!confirm(t('reportQ', { name: b.dataset.name }))) return;
@@ -3525,6 +3510,8 @@ function renderVoiceNote(extra) {
 function renderSettings() {
   syncers.forEach(f => f());
   $$('#lang-seg button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.lang === settings.lang)));
+  $('#engine-row').hidden = !IS_IOS || !Voice.supported;
+  $$('#engine-seg button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.engine === settings.voiceEngine)));
   setSwitch('#sw-breath', settings.breath);
   setSwitch('#sw-remind', settings.remind && Reminders.supported); setSwitch('#sw-nudge', settings.nudge && Reminders.supported);
   $('#sw-remind').disabled = !Reminders.supported; $('#nudge-item').hidden = !Reminders.supported;
@@ -3536,11 +3523,18 @@ function renderSettings() {
   renderVoiceNote(Voice.state === 'denied' ? t('voiceDenied') : '');
   const p = Cloud.profile || {};
   $('#set-name').textContent = Profile.name() || t('notSet');
-  $('#set-visible').textContent = p.show_on_leaderboard ? t('visOn') : t('visOff');
+  setSwitch('#sw-showme', p.show_on_leaderboard !== false);   // on by default: everyone is on the leaderboard unless they turn it off
 }
 onEnter.settings = renderSettings;
 $$('#lang-seg button').forEach(b => b.addEventListener('click', () => { settings.lang = b.dataset.lang; persist(); applyLang(); Reminders.soon(); }));
+$$('#engine-seg button').forEach(b => b.addEventListener('click', () => { settings.voiceEngine = b.dataset.engine; persist(); renderSettings(); }));
 $('#sw-breath').addEventListener('click', () => { settings.breath = !settings.breath; persist(); renderSettings(); });
+$('#sw-showme').addEventListener('click', async e => {
+  const sw = e.currentTarget, on = sw.getAttribute('aria-checked') !== 'true';
+  setSwitch('#sw-showme', on);
+  try { await Cloud.init(); if (!Cloud.ready) throw new Error('offline'); await Cloud.saveProfile(on); Community.load(); }
+  catch (_) { setSwitch('#sw-showme', !on); toast(t('needOnline')); }
+});
 async function toggleReminder(key) {
   settings[key] = !settings[key]; persist(); renderSettings();
   if (!(await Reminders.sync(settings[key]))) { settings[key] = false; persist(); renderSettings(); toast(t('nDenied')); }
