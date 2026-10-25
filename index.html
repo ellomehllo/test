@@ -1090,7 +1090,7 @@ const settings = Object.assign({
 }, saved.settings);
 delete settings.lockout; delete settings.holdFinish; delete settings.reduceMotion;   // removed settings: hold-to-finish (one tap + a yes/no question), reduced motion (the phone's own setting still applies)
 if (!settings.voiceV2) { settings.voice = true; settings.voiceV2 = 1; }   // voice counting became solid (offline in the app) and on by default
-const SESSION_SOUNDS = ['tranquil', 'wind', 'drone'];   // the order the session's sound button goes round, then off
+const SESSION_SOUNDS = ['tranquil'];   // the session's sound button plays or pauses the one backdrop track
 // sound came back: a quiet backdrop in sessions and soft sounds on buttons, on by default; one switch turns all of it off
 if (!settings.soundV2) { settings.soundOn = true; settings.soundV2 = 1; }
 // the tranquil backdrop became the session sound; wind & leaves and the Om vibration stay a tap away
@@ -1141,7 +1141,7 @@ const I18N = {
     achFirst: 'पहला जप', achMala1: 'पहली माला', achMala10: '10 माला', achMala108: '108 माला', achJaap1008: '1,008 जप', achJaap10008: '10,008 जप',
     achStreak3: '3 दिन लगातार', achStreak7: '7 दिन लगातार', achStreak30: '30 दिन लगातार', achHour: '1 घंटा साधना', achAaradhya: 'नया आराध्य', achAll: 'सभी आराध्य',
     editInProfile: 'प्रोफ़ाइल में बदलें', nameNotSet: 'नाम अभी नहीं लिखा',
-    nMala: '{n} माला', startMala: 'माला शुरू करें', startJaap: 'जप शुरू करें', practiceType: 'साधना का प्रकार', pauseBack: 'रोककर वापस जाएँ', soundNowAria: 'ध्वनि: {s} (बदलने के लिए छुएँ)', soundOffAria: 'ध्वनि बंद (चालू करने के लिए छुएँ)', sndTranquil: 'शांत धुन 🎶', sndWind: 'हवा और पत्ते 🍃', sndOm: 'ॐ गूँज', sndOff: 'ध्वनि बंद', tapAria: 'एक जप गिनें',
+    nMala: '{n} माला', startMala: 'माला शुरू करें', startJaap: 'जप शुरू करें', practiceType: 'साधना का प्रकार', pauseBack: 'रोककर वापस जाएँ', soundNowAria: 'ध्वनि चालू (बंद करने के लिए छुएँ)', soundOffAria: 'ध्वनि बंद (चालू करने के लिए छुएँ)', sndTranquil: 'शांत धुन 🎶', sndWind: 'हवा और पत्ते 🍃', sndOm: 'ॐ गूँज', sndOff: 'ध्वनि बंद', tapAria: 'एक जप गिनें',
     malaProgress: 'माला प्रगति', undo: 'वापस लें', pause: 'रोकें', resume: 'फिर शुरू करें', finish: 'पूर्ण करें', holdFinish: 'दबाकर रखें',
     paused: 'रुका हुआ', reps: 'जप', activeTime: 'सक्रिय समय', timeLeft: 'बाकी समय', elapsed: 'बीता समय', totalMalas: 'कुल माला', target: 'लक्ष्य',
     modeJaap: 'नाम जप', modeMala: 'माला जप', timedSub: '{m} मिनट', freeSub: 'खुला जप', malaOf: 'माला {a} / {b}',
@@ -1218,7 +1218,7 @@ const I18N = {
     achFirst: 'First jaap', achMala1: 'First mala', achMala10: '10 malas', achMala108: '108 malas', achJaap1008: '1,008 jaap', achJaap10008: '10,008 jaap',
     achStreak3: '3-day streak', achStreak7: '7-day streak', achStreak30: '30-day streak', achHour: '1 hour of practice', achAaradhya: 'New Aaradhya', achAll: 'All Aaradhya',
     editInProfile: 'Edit in profile', nameNotSet: 'No name yet',
-    nMala: '{n} mala', startMala: 'Start Mala', startJaap: 'Start Jaap', practiceType: 'Practice type', pauseBack: 'Pause and go back', soundNowAria: 'Sound: {s} (tap to change)', soundOffAria: 'Sound off (tap to turn on)', sndTranquil: 'Tranquil music 🎶', sndWind: 'Wind & leaves 🍃', sndOm: 'Om vibration', sndOff: 'Sound off', tapAria: 'Count one repetition',
+    nMala: '{n} mala', startMala: 'Start Mala', startJaap: 'Start Jaap', practiceType: 'Practice type', pauseBack: 'Pause and go back', soundNowAria: 'Sound on (tap to turn off)', soundOffAria: 'Sound off (tap to turn on)', sndTranquil: 'Tranquil music 🎶', sndWind: 'Wind & leaves 🍃', sndOm: 'Om vibration', sndOff: 'Sound off', tapAria: 'Count one repetition',
     malaProgress: 'Mala progress', undo: 'Undo', pause: 'Pause', resume: 'Resume', finish: 'Finish', holdFinish: 'Hold',
     paused: 'Paused', reps: 'Repetitions', activeTime: 'Active time', timeLeft: 'Time left', elapsed: 'Time elapsed', totalMalas: 'Total malas', target: 'Target',
     modeJaap: 'Naam Jaap', modeMala: 'Mala Jaap', timedSub: '{m} min', freeSub: 'Free count', malaOf: 'Mala {a} of {b}',
@@ -1569,8 +1569,8 @@ const AudioEngine = (() => {
     const t = ctx.currentTime;
     out = gain(0); out._nodes = [];
     out.gain.setValueAtTime(0, t);
-    if (name === 'tranquil') {   // quiet, in the background: fades in, then rises a touch while the session settles
-      out.gain.linearRampToValueAtTime(0.05, t + 4); out.gain.linearRampToValueAtTime(0.08, t + 16);
+    if (name === 'tranquil') {   // in the background: fades in, then rises a little while the session settles
+      out.gain.linearRampToValueAtTime(0.16, t + 4); out.gain.linearRampToValueAtTime(0.24, t + 16);
     } else if (name === 'wind') {   // stays very low: fades in, then rises a touch while the session settles
       out.gain.linearRampToValueAtTime(0.04, t + 4); out.gain.linearRampToValueAtTime(0.06, t + 16);   // barely there, by ear
     } else if (name === 'drone') {   // the same: at the level its fade-out passes through, rising a touch
@@ -2422,7 +2422,7 @@ function tickSession() {
 
 /* Session sound, in mala and jaap alike: the tranquil backdrop, wind & leaves or the Om vibration, unless sound is off.
  * The header button goes round tranquil → wind → Om vibration → off (every sound off) → tranquil. */
-const SOUND_UI = { tranquil: ['#i-sound', 'sndTranquil'], wind: ['#i-leaf', 'sndWind'], drone: ['#i-om', 'sndOm'] };
+const SOUND_UI = { tranquil: ['#i-sound', 'sndTranquil'] };
 function startSound(resume) {
   AudioEngine.startProfile(settings.soundOn ? settings.sessionSound : 'mute', resume);
 }
@@ -2433,11 +2433,9 @@ function renderSoundBtn() {
   b.setAttribute('aria-label', on ? t('soundNowAria', { s: t(name) }) : t('soundOffAria'));
   $('use', b).setAttribute('href', on ? icon : '#i-sound-off');
 }
+// on or off (the crossed speaker): plays or pauses the backdrop music
 $('#p-sound').addEventListener('click', () => {
-  const i = SESSION_SOUNDS.indexOf(settings.sessionSound);
-  if (!settings.soundOn) { settings.soundOn = true; settings.sessionSound = SESSION_SOUNDS[0]; }
-  else if (i < SESSION_SOUNDS.length - 1) settings.sessionSound = SESSION_SOUNDS[i + 1];
-  else settings.soundOn = false;
+  settings.soundOn = !settings.soundOn; settings.sessionSound = 'tranquil';
   settings.sound = settings.soundOn ? settings.sessionSound : 'mute'; persist();
   if (settings.soundOn) { AudioEngine.ui('on'); if (session && !session.paused && !session.finished) startSound(true); }
   else AudioEngine.stopProfile(0.4);
@@ -2450,7 +2448,7 @@ function countOne(source) {
   if (session.paused) { if (source === 'tap') toast(t('tPausedTap')); return false; }
   session.count++;
   const n = session.count;
-  if (n % MALA === 0) { Haptics.mala(); toast(t('tMala', { n: n / MALA })); } else { Haptics.tick(); if (source === 'tap') AudioEngine.ui('count'); }
+  if (n % MALA === 0) { Haptics.mala(); toast(t('tMala', { n: n / MALA })); } else Haptics.tick();   // a tap is felt, not heard
   saveSession();
   renderCount(true);
   Glance.liveUpdate();
