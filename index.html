@@ -1404,20 +1404,27 @@ const AudioEngine = (() => {
     knock(dest, t + 0.045 + Math.random() * 0.02, 2300, 0.17);
   }
 
-  /* Deep resonant drone (sub Sa + Sa + Pa, a growling resonant saw, and a breath of air) */
+  /* Om drone, tanpura style: a still bed of pure tones (Sa, Pa, upper Sa, a light low Sa) that breathes very slowly,
+   * and soft plucked strings going round Pa–Sa–Sa–low Sa. Pure sines only: no noise, no filter sweeps and no detuned
+   * pairs, which beat against each other and rumble like an engine in earphones. */
   function startDrone(dest, nodes) {
     const t = ctx.currentTime;
-    const body = gain(0.55); body.connect(dest);
-    const ampL = osc('sine', 0.09, t), ampG = gain(0.2); ampL.connect(ampG); ampG.connect(body.gain);
-    [[SA / 2, 'sine', 0.6], [SA, 'sine', 0.22], [SA * 0.75, 'triangle', 0.09], [SA * 1.5, 'sine', 0.05]].forEach(([f, type, a]) => {
-      const o = osc(type, f, t), g = gain(a); o.connect(g); g.connect(body); o.start(t); nodes.push(o);
+    const body = gain(0.5); body.connect(dest);
+    const breath = osc('sine', 0.05, t), breathG = gain(0.08); breath.connect(breathG); breathG.connect(body.gain);
+    [[SA / 2, 0.12], [SA, 0.42], [SA * 1.5, 0.12], [SA * 2, 0.08]].forEach(([f, a]) => {   // low Sa kept light: earphones make it rumble
+      const o = osc('sine', f, t), g = gain(a); o.connect(g); g.connect(body); o.start(t); nodes.push(o);
     });
-    const saw = osc('sawtooth', SA / 2, t); saw.detune.value = 4;
-    const lp = filt('lowpass', 240, 7), lfo = osc('sine', 0.045, t), lfoG = gain(110);
-    lfo.connect(lfoG); lfoG.connect(lp.frequency);
-    const sg = gain(0.12); saw.connect(lp); lp.connect(sg); sg.connect(body);
-    const n = noise(), nb = filt('bandpass', 320, 0.7), ng = gain(0.05); n.connect(nb); nb.connect(ng); ng.connect(body);
-    [saw, lfo, ampL, n].forEach(x => { x.start(t); nodes.push(x); });
+    breath.start(t); nodes.push(breath);
+  }
+  const TANPURA = [SA * 0.75, SA, SA, SA / 2];   // Pa, Sa, Sa, low Sa
+  function tanpura(dest, t, f, amp = 0.11) {
+    const g = gain(0); g.connect(dest);
+    g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(amp, t + 0.035); g.gain.exponentialRampToValueAtTime(0.0001, t + 4.4);
+    const lp = filt('lowpass', 2000, 0.5);
+    lp.frequency.setValueAtTime(2000, t); lp.frequency.exponentialRampToValueAtTime(800, t + 3.2); lp.connect(g);
+    [[1, 1], [2, 0.5], [3, 0.26], [4, 0.14], [5, 0.07]].forEach(([r, a]) => {   // a string's warm overtones
+      const o = osc('sine', f * r, t), og = gain(a); o.connect(og); og.connect(lp); o.start(t); o.stop(t + 4.5);
+    });
   }
 
   /* Look-ahead scheduler: beads click at natural human intervals */
@@ -1430,7 +1437,10 @@ const AudioEngine = (() => {
         const at = nextBeat;
         setTimeout(() => { if (dest === out && api.onBead) api.onBead(); }, Math.max(0, (at - ctx.currentTime) * 1000));
         nextBeat += 1 + Math.random();          // every 1–2 s, like a human hand
-      }
+      } else if (current === 'drone') {
+        tanpura(dest, nextBeat, TANPURA[beat % 4]);
+        nextBeat += beat % 4 === 3 ? 1.9 : 1.25;   // an unhurried round, with a breath after the low Sa
+      } else return;
       beat++;
     }
   }
@@ -1463,7 +1473,7 @@ const AudioEngine = (() => {
     } else out.gain.linearRampToValueAtTime(1, t + 0.5);
     out.connect(input);
     if (name === 'drone') startDrone(out, out._nodes);
-    else { const dest = out; nextBeat = t + 0.15; beat = 0; schedule(dest); sched = setInterval(() => schedule(dest), 120); }
+    const dest = out; nextBeat = t + (name === 'drone' ? 1.2 : 0.15); beat = 0; schedule(dest); sched = setInterval(() => schedule(dest), 120);
   };
 
   api.stopProfile = (fade = 0.8) => {
