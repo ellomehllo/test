@@ -1,7 +1,8 @@
 <!DOCTYPE html>
-<html lang="hi">
+<html lang="hi" translate="no">
 <head>
 <meta charset="UTF-8">
+<meta name="google" content="notranslate">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
 <meta name="theme-color" content="#06120E">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -1050,7 +1051,8 @@ const Store = {
 };
 const saved = Store.read();
 const settings = Object.assign({
-  minutes: 25, sound: 'ram', vib: 'medium', lang: 'hi',
+  // Hindi first for India; other visitors start in English (browser translation turned आराध्य into "Adorable")
+  minutes: 25, sound: 'ram', vib: 'medium', lang: [...(navigator.languages || [navigator.language || ''])].some(l => /^(hi|mr|ne)\b|-IN$/i.test(l)) ? 'hi' : 'en',
   goal: 108, aaradhya: 'hanuman', mantra: {}, malas: 1, bg: 'grove', homeMode: 'jaap',
   breath: true,
   voice: true,
