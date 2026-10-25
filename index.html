@@ -416,6 +416,7 @@
   .board .tt { font-family: var(--serif); font-size: 19px; font-weight: 600; }
   .board li.gap { justify-content: center; padding: 0; min-height: 0; border: 0; background: none; color: var(--ivory-3); letter-spacing: .3em; }
   .board .nm small { font-size: 12px; color: var(--ivory-3); }
+  .board .rep { flex: none; width: 32px; height: 32px; margin: -6px -8px -6px -4px; display: grid; place-items: center; border-radius: 50%; color: var(--ivory-3); opacity: .7; }
   .board-more { width: 100%; margin-top: 8px; min-height: 46px; font-size: 15px; }
   .board li.empty { justify-content: center; text-align: center; color: var(--ivory-2); font-size: 14.5px; padding: 18px 14px; }
   .goal-card { padding: 14px; margin-top: 12px; }
@@ -615,6 +616,7 @@
     <symbol id="i-mic" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5V21"/></g></symbol>
     <symbol id="i-clock" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/></g></symbol>
     <symbol id="i-chev" viewBox="0 0 24 24"><path d="m9 5 7 7-7 7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-flag" viewBox="0 0 24 24"><path d="M5 21V4m0 0h11l-1.6 4L16 12H5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></symbol>
     <symbol id="i-download" viewBox="0 0 24 24"><path d="M12 3v12M7 10l5 5 5-5M5 21h14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
   </defs>
 </svg>
@@ -811,7 +813,7 @@
       <button id="board-more" class="btn-line board-more" hidden aria-controls="board-list"></button>
     </div>
     <div class="card join-card" id="join-card">
-      <div><span id="com-name" style="font-size:16px;font-weight:600"></span><p class="sub" data-t="anonNote" style="margin-top:4px">सूची में आप केवल इसी नंबर से दिखते हैं — आपका नाम या फ़ोटो कभी नहीं।</p></div>
+      <div><span id="com-name" style="font-size:16px;font-weight:600"></span><p class="sub" id="com-note" style="margin-top:4px"></p></div>
       <div class="row-between"><span style="font-size:15px" data-t="showMe">सूची में मेरा नाम दिखाएँ</span><button id="show-me" class="switch" role="switch" aria-checked="false" data-t-aria="showMe" aria-label="सूची में मेरा नाम दिखाएँ"></button></div>
       <button id="save-me" class="btn-gold" style="min-height:50px;font-size:17px" data-t="save">सहेजें</button>
     </div>
@@ -828,7 +830,7 @@
       <button id="photo-btn" class="link-btn" aria-haspopup="dialog" data-t="changePhoto">फ़ोटो बदलें</button>
       <input id="photo-file" type="file" accept="image/*" hidden>
       <div class="name-row">
-        <input id="prof-name" class="text-in" maxlength="40" autocomplete="nickname" data-t-ph="namePh" placeholder="जैसे: राम भक्त सुनील" data-t-aria="myName" aria-label="आपका नाम">
+        <input id="prof-name" class="text-in" maxlength="24" autocomplete="nickname" data-t-ph="namePh" placeholder="जैसे: राम भक्त सुनील" data-t-aria="myName" aria-label="आपका नाम">
         <button id="prof-name-save" class="btn-gold" data-t="save">सहेजें</button>
       </div>
     </div>
@@ -1076,7 +1078,8 @@ const I18N = {
     shopBal: 'आपके टोकन', shopNote: 'जप से हर घंटे लगभग 18 टोकन मिलते हैं। टोकन कभी ख़त्म नहीं होते।', packPopular: 'सबसे पसंदीदा', packValue: 'सबसे किफ़ायती',
     shopSoon: 'टोकन ख़रीदना जल्द शुरू होगा — तब तक जप से कमाएँ 🙏', shopPending: 'मंज़ूरी का इंतज़ार है — मंज़ूर होते ही टोकन जुड़ जाएँगे', shopTest: 'टेस्ट ख़रीद — टोकन नहीं जुड़े', shopPaidLater: 'भुगतान मिल गया — आपके टोकन थोड़ी देर में जुड़ जाएँगे 🙏',
     tokensNoteShop: 'भक्ति टोकन साधना से मिलते हैं — या दुकान से। टोकन आपके खाते में ऑनलाइन सुरक्षित रहते हैं।', shopThanks: '{n} टोकन जुड़ गए 🙏', shopFail: 'ख़रीद पूरी नहीं हुई — फिर कोशिश करें', getMore: 'टोकन लें · {n} और चाहिए',
-    bhaktN: 'भक्त #{n}', youTag: '(आप)', anonNote: 'सूची में आप केवल इसी नंबर से दिखते हैं — आपका नाम या फ़ोटो कभी नहीं।',
+    bhaktN: 'भक्त #{n}', youTag: '(आप)', anonNote: 'सूची में सब आपको इसी नाम से देखते हैं। नाम प्रोफ़ाइल में बदलें।', anonNoName: 'प्रोफ़ाइल में नाम लिखें, तब तक आप इसी नंबर से दिखते हैं।',
+    nameBad: 'यह नाम सूची के लायक नहीं है — कोई और नाम लिखें', nameLong: 'नाम 24 अक्षरों तक रखें', reportQ: '“{name}” नाम की शिकायत करें? यह नाम आपको फिर नहीं दिखेगा।', reported: 'शिकायत भेज दी। धन्यवाद 🙏', reportAria: 'इस नाम की शिकायत करें', hiddenName: 'छिपा हुआ नाम',
     privacyPolicy: 'गोपनीयता नीति', support: 'मदद और संपर्क', deleteData: 'मेरा सारा डेटा मिटाएँ', deleteSub: 'खाता, गिनती, साधना क्रम, टोकन और खुले आराध्य — फ़ोन से और हमारे सर्वर से',
     deleteQ: 'सब कुछ मिटा दें?', deleteMsg: 'आपका खाता, सारा जप, साधना क्रम, भक्ति टोकन और खुले आराध्य हमेशा के लिए मिट जाएँगे — इस फ़ोन से और हमारे सर्वर से। यह वापस नहीं हो सकता।',
     deleteNo: 'नहीं, रहने दें', deleteYes: 'हाँ, सब मिटाएँ', deleteFail: 'मिटा नहीं पाए — इंटरनेट से जुड़कर फिर कोशिश करें',
@@ -1114,7 +1117,7 @@ const I18N = {
     community: 'सत्संग', weekly: 'भक्त सूची', comGoals: 'सामूहिक लक्ष्य', pWeek: 'इस हफ़्ते', pMonth: 'इस महीने', pAll: 'अब तक',
     togetherNaam: 'सभी भक्तों का कुल जप', devotees: '{n} भक्त', nextGoal: 'अगला पड़ाव: {n} जप', boardEmpty: 'अभी सूची में कोई भक्त नहीं है — “सूची में मुझे दिखाएँ” चालू करके पहले बनें!',
     boardLoading: 'लोड हो रहा है…', cloudOff: 'ऑनलाइन सत्संग अभी उपलब्ध नहीं है — इंटरनेट जुड़ने पर दिखेगा। आपका जप फ़ोन में सुरक्षित है।', cloudErr: 'कुछ गड़बड़ हुई, फिर कोशिश करें',
-    joinTitle: 'सत्संग से जुड़ें', joinSub: 'चाहें तो भक्त सूची में एक नंबर वाले भक्त के रूप में दिखें। आपकी गिनती केवल आपके फ़ोन से आती है।',
+    joinTitle: 'सत्संग से जुड़ें', joinSub: 'भक्त सूची में आप अपने नाम से दिखते हैं और दूसरों के नाम देखते हैं। आपकी गिनती केवल आपके फ़ोन से आती है।',
     myName: 'आपका नाम', namePh: 'जैसे: राम भक्त सुनील', showMe: 'सूची में मुझे दिखाएँ', save: 'सहेजें', savedOk: 'सहेज लिया 🙏', needName: 'पहले अपना नाम लिखें',
     saveTitle: 'अपना जप सुरक्षित रखें', saveSub: 'ईमेल जोड़ें — फ़ोन बदलने पर भी आपकी गिनती मिलेगी।', emailPh: 'आपका ईमेल', sendLink: 'ईमेल पर लिंक भेजें',
     linkSent: 'ईमेल में लिंक भेजा है — उसे खोलें 🙏', linked: 'जुड़ा हुआ ईमेल: {e}', logout: 'लॉग आउट', badEmail: 'सही ईमेल लिखें', notSet: 'नहीं लिखा', visOn: 'दिख रहा है', visOff: 'छिपा है',
@@ -1134,7 +1137,7 @@ const I18N = {
     nudge: 'शाम 8 बजे साधना क्रम की याद', aboutTitle: 'आराध्य', aboutText: 'नाम जप और माला साधना का साथी — हर दिन थोड़ी भक्ति, थोड़ा ध्यान। 🙏', aboutOk: 'ठीक है', nudgeSub: 'शाम 8 बजे — केवल तब, जब आपका क्रम चल रहा हो और उस दिन जप न हुआ हो।',
     nDenied: 'सूचनाओं की अनुमति नहीं मिली — फ़ोन की सेटिंग्स में आराध्य के लिए सूचनाएँ चालू करें।',
     nDailyT: '🙏 जप का समय', nDailyB: '{name} आपकी प्रतीक्षा में हैं — एक माला भी काफ़ी है।', nNudgeT: '🔥 आपका {n} दिन का साधना क्रम', nNudgeB: 'आज रात 12 बजे टूट जाएगा — एक माला से इसे बचा लें।',
-    gPrivacy: 'गोपनीयता और खाता', privacySub: 'आपका नाम और फ़ोटो इसी फ़ोन पर रहते हैं। भक्त सूची में आप केवल एक नंबर वाले भक्त के रूप में दिखते हैं — और वह भी तभी जब आप चालू करें।', about: 'आराध्य के बारे में',
+    gPrivacy: 'गोपनीयता और खाता', privacySub: 'भक्त सूची में आपका प्रोफ़ाइल नाम सबको दिखता है (चाहें तो सूची से छिप सकते हैं)। आपकी फ़ोटो इसी फ़ोन पर रहती है।', about: 'आराध्य के बारे में',
     getApp: 'ऐप डाउनलोड करें', appTitle: 'आराध्य ऐप', appSoon: 'Google Play पर जल्द आ रहा है', appSoonWhy: 'आराध्य Android ऐप जल्द ही Google Play पर आएगा — बिना इंटरनेट के जप, याद दिलाने की सुविधा और बोलकर गिनती के साथ।', appSoonNote: 'तब तक यहीं ब्राउज़र में जप करते रहें 🙏', appWhy: 'बिना इंटरनेट के भी जप करें — सारे वीडियो, राम नाम मंत्र और चालीसा फ़ोन में रहेंगे। इंटरनेट आते ही आपकी गिनती अपने-आप जुड़ जाएगी।',
     appStep1: 'नीचे दिए बटन से ऐप डाउनलोड करें', appStep2: 'डाउनलोड हुई फ़ाइल खोलें', appStep3: 'फ़ोन पूछे तो “इस स्रोत से ऐप की अनुमति दें” चालू करें', appStep4: '“इंस्टॉल” दबाएँ — हो गया 🙏', appDownload: 'ऐप डाउनलोड करें', appSize: 'केवल Android',
     tHalf: 'आधा समय पूरा 🙏', tMala: 'माला {n} पूरी — 108 जप 🙏', tHold: 'पूर्ण करने के लिए बटन दबाकर रखें', tNothing: 'साधना बंद — सहेजने को कुछ नहीं था', tPausedTap: 'साधना रुकी है — फिर शुरू करें',
@@ -1151,7 +1154,8 @@ const I18N = {
     shopBal: 'Your tokens', shopNote: 'Chanting earns about 18 tokens an hour. Tokens never expire.', packPopular: 'Most popular', packValue: 'Best value',
     shopSoon: 'Buying tokens opens soon — until then, earn them by chanting 🙏', shopPending: 'Waiting for approval — the tokens arrive once it is approved', shopTest: 'Test purchase — no tokens added', shopPaidLater: 'Payment received — your tokens will be added shortly 🙏',
     tokensNoteShop: 'Bhakti tokens come from practice — or from the shop. They are kept online with your account.', shopThanks: '{n} tokens added 🙏', shopFail: "The purchase didn't complete — try again", getMore: 'Get tokens · {n} more needed',
-    bhaktN: 'Bhakt #{n}', youTag: '(you)', anonNote: 'On the list you appear only as this number — never your name or photo.',
+    bhaktN: 'Bhakt #{n}', youTag: '(you)', anonNote: 'Everyone on the list sees you by this name. Change it in your profile.', anonNoName: 'Add a name in your profile; until then you appear as this number.',
+    nameBad: 'That name can’t go on the list — please choose another', nameLong: 'Keep the name to 24 characters', reportQ: 'Report the name “{name}”? You won’t see it again.', reported: 'Report sent. Thank you 🙏', reportAria: 'Report this name', hiddenName: 'Hidden name',
     privacyPolicy: 'Privacy policy', support: 'Help & contact', deleteData: 'Delete my data', deleteSub: 'Account, counts, streaks, tokens and unlocked Aaradhya — from this phone and our server',
     deleteQ: 'Delete everything?', deleteMsg: 'Your account, all your jaap, streaks, Bhakti tokens and unlocked Aaradhya will be deleted for good — from this phone and from our server. This cannot be undone.',
     deleteNo: 'Keep my data', deleteYes: 'Delete everything', deleteFail: "Couldn't delete — connect to the internet and try again",
@@ -1189,7 +1193,7 @@ const I18N = {
     community: 'Community', weekly: 'Leaderboard', comGoals: 'Community goal', pWeek: 'This week', pMonth: 'This month', pAll: 'All time',
     togetherNaam: 'All devotees together', devotees: '{n} devotees', nextGoal: 'Next milestone: {n} Naam', boardEmpty: 'Nobody on the list yet — turn on “Show me on the list” and be the first!',
     boardLoading: 'Loading…', cloudOff: 'The online community isn’t available right now — it appears when you are online. Your jaap is safe on this phone.', cloudErr: 'Something went wrong, please try again',
-    joinTitle: 'Join the community', joinSub: 'If you wish, appear on the leaderboard as a numbered Bhakt. Counts come only from your own phone.',
+    joinTitle: 'Join the community', joinSub: 'You appear on the leaderboard by your name and see everyone else’s. Counts come only from your own phone.',
     myName: 'Your name', namePh: 'e.g. Ram bhakt Sunil', showMe: 'Show me on the list', save: 'Save', savedOk: 'Saved 🙏', needName: 'Please write your name first',
     saveTitle: 'Keep your jaap safe', saveSub: 'Add an email — your count stays with you even on a new phone.', emailPh: 'Your email', sendLink: 'Send link to email',
     linkSent: 'We emailed you a link — open it 🙏', linked: 'Linked email: {e}', logout: 'Log out', badEmail: 'Please enter a valid email', notSet: 'Not set', visOn: 'Visible', visOff: 'Hidden',
@@ -1209,7 +1213,7 @@ const I18N = {
     nudge: 'Streak reminder at 8 pm', aboutTitle: 'Aradhya', aboutText: 'A companion for naam jaap and mala practice — a little devotion every day. 🙏', aboutOk: 'OK', nudgeSub: "At 8 pm — only when you have a streak going and haven't chanted that day.",
     nDenied: 'Notifications are off — allow them for Aradhya in your phone settings.',
     nDailyT: '🙏 Time for jaap', nDailyB: '{name} is waiting for you — even one mala is enough.', nNudgeT: '🔥 Your {n}-day streak', nNudgeB: 'It ends at midnight — one mala keeps it going.',
-    gPrivacy: 'Privacy & account', privacySub: 'Your name and photo stay on this phone. On the leaderboard you appear only as a numbered Bhakt, and only if you turn it on.', about: 'About Aradhya',
+    gPrivacy: 'Privacy & account', privacySub: 'Your profile name is shown to everyone on the leaderboard (you can hide yourself from it). Your photo stays on this phone.', about: 'About Aradhya',
     getApp: 'Get the app', appTitle: 'Aradhya app', appSoon: 'Coming soon to Google Play', appSoonWhy: 'The Aradhya Android app is coming soon to Google Play — with offline chanting, reminders and counting by voice.', appSoonNote: 'Until then, keep chanting right here in your browser 🙏', appWhy: 'Chant even without internet — all videos, the Ram Naam chant and the Chalisa stay on your phone. Your count syncs automatically when you are back online.',
     appStep1: 'Download the app with the button below', appStep2: 'Open the downloaded file', appStep3: 'If asked, allow installing apps from this source', appStep4: 'Tap “Install” — done 🙏', appDownload: 'Download the app', appSize: 'Android only',
     tHalf: 'Halfway done 🙏', tMala: 'Mala {n} complete — 108 Naam 🙏', tHold: 'Press and hold to finish', tNothing: 'Session ended — nothing to save', tPausedTap: 'Paused — tap Resume to continue',
@@ -1618,6 +1622,21 @@ function recordSession(s, completed) {
 
 
 /* ───────────────────────── 6 · CLOUD — Supabase (anonymous sign-in first; email can be linked later) ───────────────────────── */
+/* A name goes on a public list: the same checks as the server's clean_display_name(), for an answer straight away */
+function nameProblem(raw) {
+  const n = String(raw || '').trim().replace(/\s+/g, ' '), l = n.toLowerCase();
+  if (!n) return null;
+  if ([...n].length > 24) return 'nameLong';
+  const w = re => new RegExp(`(^|[^\\p{L}\\p{N}])(${re})(?![\\p{L}\\p{N}])`, 'u');
+  if (/[<>@/\\:#$%^&*=_+!?;"`~|{}[\]]/.test(n) || /(https?|www\.|\.(com|in|net|org|me|io)\b)/.test(l) || /[0-9]{5,}/.test(n)
+    || /(fuck|motherf|madarchod|maderchod|behenchod|behnchod|bhenchod|bhanchod|chutiya|chutia|chootiya|bhosd|nigg|faggot|asshole)/.test(l)
+    || w('shit|bitch|cunt|dick|pussy|porn|sex|sexy|nude|rape|slut|whore|bastard|fag|mc|bc|bsdk|lund|lauda|lavda|loda|gaand|gand|gandu|randi|harami|haramkhor|kamina|kutta|kutti|chod|chodu|jhant|tatte|suar').test(l)
+    || /(चुतिया|चूतिया|मादरचोद|बहनचोद|बहनचो|भोसड़|भोसडी|लौड़ा|लौडा|रंडी|हरामी|हरामखोर|कमीना|चोदू|झांट)/.test(n)
+    || /(^|\s)(लंड|गांड|गांडू|चोद)(\s|$)/.test(n)
+    || w('admin|administrator|moderator|official|support|aradhya|aaradhya|vanarsathi').test(l)) return 'nameBad';
+  return null;
+}
+
 const Cloud = (() => {
   const api = { ready: false, user: null, profile: null, stats: null, days: [] };
   const QKEY = 'naam-jaap-sadhna.queue';
@@ -1661,6 +1680,13 @@ const Cloud = (() => {
   async function loadProfile() {
     const { data } = await sb.from('profiles').select('display_name, show_on_leaderboard').eq('id', api.user.id).maybeSingle();
     api.profile = data || null;
+    if (!data) {   // first time: on the list by default, under the profile name if there is one
+      const name = (records.profile && records.profile.name) || '';
+      const row = { id: api.user.id, show_on_leaderboard: true, display_name: name && !nameProblem(name) ? name : null };
+      let r = await sb.from('profiles').upsert(row);
+      if (r.error && row.display_name) { row.display_name = null; r = await sb.from('profiles').upsert(row); }
+      if (!r.error) api.profile = { show_on_leaderboard: true, display_name: row.display_name };
+    }
   }
   async function refreshStats() {
     if (!api.ready) return;
@@ -1724,7 +1750,19 @@ const Cloud = (() => {
   async function saveProfile(show) {
     const { error } = await sb.from('profiles').upsert({ id: api.user.id, show_on_leaderboard: !!show });
     if (error) throw error;
-    api.profile = { show_on_leaderboard: !!show };
+    api.profile = Object.assign({}, api.profile, { show_on_leaderboard: !!show });
+  }
+  // the name everyone sees on the list; the server refuses names that don't belong there (name_not_allowed)
+  async function saveName(name) {
+    if (NO_CLOUD || !api.ready) return;
+    const { error } = await sb.from('profiles').upsert({ id: api.user.id, display_name: name || null });
+    if (error) throw error;
+    api.profile = Object.assign({ show_on_leaderboard: true }, api.profile, { display_name: name || null });
+  }
+  async function reportName(ref) {
+    if (!api.ready) throw new Error('offline');
+    const { error } = await sb.rpc('report_name', { p_ref: ref });
+    if (error) throw error;
   }
   // the 4 digits this account appears under on the leaderboard (same as public.bhakt_code() on the server)
   const myCode = () => (api.user ? String(parseInt(api.user.id.replace(/-/g, '').slice(0, 8), 16) % 10000).padStart(4, '0') : '····');
@@ -1762,7 +1800,7 @@ const Cloud = (() => {
   const resume = () => { if (!api.ready) init().then(() => { onRecordsChanged(); Community.renderAccount(); }); else flush().then(refreshStats); };
   addEventListener('online', resume);
   document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') resume(); });
-  Object.assign(api, { init, record, refreshStats, unlock, fileUrl, pending: readQ, myCode, deleteAccount, applePurchase, saveProfile, leaderboard, myRank, totalsAll, linkEmail, signOut, loadProfile });
+  Object.assign(api, { init, record, refreshStats, unlock, fileUrl, pending: readQ, myCode, deleteAccount, applePurchase, saveProfile, saveName, reportName, leaderboard, myRank, totalsAll, linkEmail, signOut, loadProfile });
   return api;
 })();
 
@@ -2952,16 +2990,22 @@ const Community = (() => {
   const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
   const note = msg => { $('#board-list').innerHTML = `<li class="empty">${esc(msg)}</li>`; $('#board-more').hidden = true; };
   let expanded = false, lastRows = [], lastMine = null, lastListed = true;
-  // the server sends a 4-digit code instead of a name (only the test leaderboard has names)
-  const label = n => (/^\d{4}$/.test(n || '') ? t('bhaktN', { n }) : n);
-  const row = r => `<li class="${r.is_me ? 'me' : ''}"><span class="rk">${r.rank}</span><span class="nm">${esc(label(r.display_name))}${r.is_me ? ` <small>${esc(t('youTag'))}</small>` : ''}</span><span class="tt">${fmtNum(+r.total)}</span></li>`;
+  // the server sends the chosen name, or a 4-digit code for someone without one; names you reported stay hidden here
+  records.hiddenRefs = records.hiddenRefs || [];
+  const isCode = n => /^\d{4}$/.test(n || '');
+  const hidden = r => !r.is_me && r.ref && records.hiddenRefs.includes(r.ref);
+  const label = r => (hidden(r) ? t('hiddenName') : isCode(r.display_name) ? t('bhaktN', { n: r.display_name }) : r.display_name);
+  const reportBtn = r => (!r.is_me && r.ref && !isCode(r.display_name) && !hidden(r)
+    ? `<button class="rep" data-ref="${esc(r.ref)}" data-name="${esc(r.display_name)}" aria-label="${esc(t('reportAria'))}"><svg width="16" height="16" aria-hidden="true"><use href="#i-flag"/></svg></button>` : '');
+  const row = r => `<li class="${r.is_me ? 'me' : ''}"><span class="rk">${r.rank}</span><span class="nm">${esc(label(r))}${r.is_me ? ` <small>${esc(t('youTag'))}</small>` : ''}</span><span class="tt">${fmtNum(+r.total)}</span>${reportBtn(r)}</li>`;
+  const myLabel = () => (Cloud.profile && Cloud.profile.display_name) || t('bhaktN', { n: Cloud.myCode() });
   // top 10 (or all on "show more"); your own row is pinned underneath whenever it isn't in view
   function render(rows = lastRows, mine = lastMine, listed = lastListed) {
     lastRows = rows; lastMine = mine; lastListed = listed;
     const shown = expanded ? rows : rows.slice(0, 10);
     let html = shown.map(row).join('');
     if (mine && +mine.total > 0 && !shown.some(r => r.is_me)) {
-      const myName = listed ? t('bhaktN', { n: Cloud.myCode() }) : t('you');
+      const myName = listed ? myLabel() : t('you');
       html += `<li class="gap" aria-hidden="true">⋯</li><li class="me"><span class="rk">${mine.rank}</span><span class="nm">${esc(myName)}${listed ? '' : ` <small>${esc(t('youHidden'))}</small>`}</span><span class="tt">${fmtNum(+mine.total)}</span></li>`;
     }
     if (!rows.length && !html) { note(t('boardEmpty')); return; }
@@ -2995,7 +3039,8 @@ const Community = (() => {
   function renderAccount() {
     if (!Cloud.ready) return;
     const p = Cloud.profile || {};
-    $('#com-name').textContent = t('bhaktN', { n: Cloud.myCode() });
+    $('#com-name').textContent = myLabel();
+    $('#com-note').textContent = t(p.display_name ? 'anonNote' : 'anonNoName');
     $('#show-me').setAttribute('aria-checked', String(!!p.show_on_leaderboard));
   }
   $$('#board-period button').forEach(b => b.addEventListener('click', () => {
@@ -3006,6 +3051,12 @@ const Community = (() => {
     const showMe = $('#show-me').getAttribute('aria-checked') === 'true';
     try { await Cloud.saveProfile(showMe); toast(t('savedOk')); load(); } catch (_) { toast(t('cloudErr')); }
   });
+  $('#board-list').addEventListener('click', async e => {
+    const b = e.target.closest('.rep'); if (!b) return;
+    if (!confirm(t('reportQ', { name: b.dataset.name }))) return;
+    records.hiddenRefs = [...new Set([...records.hiddenRefs, b.dataset.ref])].slice(-200); persist(); render();
+    try { await Cloud.reportName(b.dataset.ref); toast(t('reported')); } catch (_) { toast(t('cloudErr')); }
+  });
   $('#board-more').addEventListener('click', () => { expanded = !expanded; render(); if (!expanded) $('#board-list').scrollIntoView({ block: 'nearest' }); });
   return { load, renderAccount };
 })();
@@ -3014,7 +3065,7 @@ const Community = (() => {
 const Profile = (() => {
   records.profile = Object.assign({ name: '', photo: '', aaradhyaPhoto: '' }, records.profile);
   const pr = records.profile;
-  const name = () => pr.name;                        // stays on this phone; the leaderboard only ever shows a numbered Bhakt
+  const name = () => pr.name;                        // also the name everyone sees on the leaderboard
   function avatarHTML() {
     if (pr.photo) return `<img src="${pr.photo}" alt="">`;
     if (pr.aaradhyaPhoto) return `<img class="aar" src="assets/av-${pr.aaradhyaPhoto}-idle.webp?v=${AV}" alt="">`;
@@ -3035,8 +3086,12 @@ const Profile = (() => {
     syncers.forEach(f => f()); $('#pf-sessions').textContent = fmtNum(Math.max(lifetime.sessions, records.history.length)); $('#pf-tokens').textContent = fmtNum(tokenBalance());
   }
   async function saveName() {
-    const v = $('#prof-name').value.trim().slice(0, 40);
-    pr.name = v; persist(); toast(t('nameSaved'));
+    const v = $('#prof-name').value.trim().replace(/\s+/g, ' ');
+    const bad = nameProblem(v);
+    if (bad) { toast(t(bad)); return; }
+    try { await Cloud.saveName(v); }
+    catch (e) { toast(t(/too_long/.test(e && e.message) ? 'nameLong' : /not_allowed/.test(e && e.message) ? 'nameBad' : 'cloudErr')); if (/not_allowed|too_long/.test(e && e.message)) return; }
+    pr.name = v; persist(); toast(t('nameSaved')); Community.renderAccount();
   }
   // a phone photo is cropped square and shrunk to 256 px so it fits comfortably in local storage
   function usePhoto(file) {
