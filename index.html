@@ -916,7 +916,7 @@
       <div class="card set-list">
         <div class="set-item"><div class="row-between"><span data-t="voiceSet">बोलकर जप गिनें</span><button id="sw-voice" class="switch" role="switch" aria-checked="false" data-t-aria="voiceSet" aria-label="बोलकर जप गिनें"></button></div>
           <p class="sub" id="voice-note"></p></div>
-        <div class="set-item" id="engine-row" hidden><span data-t="engineSet">आवाज़ पहचानने का तरीका</span><div class="seg" id="engine-seg"><button data-engine="whisper">Whisper</button><button data-engine="apple">Apple</button></div></div>
+        <div class="set-item" id="engine-row" hidden><span data-t="engineSet">आवाज़ पहचानने का तरीका</span><div class="seg" id="engine-seg"><button data-engine="vosk">Vosk</button><button data-engine="apple">Apple</button></div></div>
       </div>
     </div>
     <div class="set-group"><h3 data-t="gLook">रूप</h3>
@@ -1085,7 +1085,7 @@ const settings = Object.assign({
   minutes: 25, sound: 'ram', vib: 'medium', lang: [...(navigator.languages || [navigator.language || ''])].some(l => /^(hi|mr|ne)\b|-IN$/i.test(l)) ? 'hi' : 'en',
   goal: 108, aaradhya: 'hanuman', mantra: {}, jaapWord: 'ram', malas: 1, bg: 'grove', homeMode: 'jaap',
   breath: true,
-  voice: true, voiceEngine: 'whisper',   // iPhone: Whisper (bundled whisper-tiny) or Apple's recogniser
+  voice: true, voiceEngine: 'vosk',   // iPhone: Vosk (the same offline Hindi model as Android) or Apple's recogniser
   remind: true, remindTime: '07:00', nudge: false
 }, saved.settings);
 delete settings.lockout; delete settings.holdFinish; delete settings.reduceMotion;   // removed settings: hold-to-finish (one tap + a yes/no question), reduced motion (the phone's own setting still applies)
@@ -1104,6 +1104,7 @@ if (!settings.bgV2) { if (settings.bg === 'forest') settings.bg = 'grove'; setti
 const JAAP_WORDS = ['ram', 'radhe', 'om', 'narayan'];
 const WORD_LABEL = { ram: ['राम', 'Ram'], radhe: ['राधे', 'Radhe'], om: ['ॐ', 'Om'], narayan: ['नारायण', 'Narayan'] };
 if (!JAAP_WORDS.includes(settings.jaapWord)) settings.jaapWord = 'ram';
+if (settings.voiceEngine !== 'apple') settings.voiceEngine = 'vosk';   // Whisper was replaced by Vosk
 const lifetime = Object.assign({ jaap: 0, sessions: 0, minutes: 0, day: '', dayJaap: 0 }, saved.lifetime);
 // v2 records: every finished session (local dates), Bhakti tokens, unlocked Aaradhyas, rewarded session ids
 const records = Object.assign({ history: [], tokens: 0, unlocked: ['hanuman'], rewarded: [] }, saved.records);
@@ -2656,10 +2657,11 @@ const Voice = (() => {
   const set = st => { api.state = st; api.render(); };
   api.active = () => settings.voice && api.supported && api.state !== 'denied';
   const mantra = () => MANTRAS[session && session.mantra] || MANTRAS.ram;
-  // Vosk (Android) answers in Devanagari with exactly the grammar's words; Apple's recogniser and the browser may write either script
+  const voskMode = () => !!NV && (!IS_IOS || settings.voiceEngine !== 'apple');   // Vosk answers with exactly the grammar's words
+  // Vosk (Android and iPhone) answers in Devanagari with exactly the grammar's words; Apple's recogniser and the browser may write either script
   const hits = text => {
     const m = mantra();
-    if (NV && !IS_IOS) return text.split(/\s+/).filter(w => w === m.key).length;
+    if (voskMode()) return text.split(/\s+/).filter(w => w === m.key).length;
     if (m.w) return text.toLowerCase().split(/[\s.,!?।|-]+/).filter(w => m.w.test(w)).length;
     return (text.match(new RegExp(m.re.source, 'gi')) || []).length;
   };
@@ -2675,11 +2677,11 @@ const Voice = (() => {
   // the word still being spoken can change, so it normally waits for the next word or the end of the phrase; Apple's
   // recogniser often ends a phrase after a pause without repeating it, so on iPhone every word counts as soon as it's heard
   // iPhone counts single-word mantras itself, by when each word was said ('hit' events), so the text is ignored then
-  const nativeHits = () => NV && IS_IOS && !!mantra().w;
+  const nativeHits = () => NV && IS_IOS && settings.voiceEngine === 'apple' && !!mantra().w;
   function partial(text) {
     if (nativeHits()) return;
     const words = text.trim().split(/\s+/);
-    const n = hits((NV && IS_IOS ? words : words.slice(0, -1)).join(' '));
+    const n = hits((NV && IS_IOS && settings.voiceEngine === 'apple' ? words : words.slice(0, -1)).join(' '));
     if (n > seen) { add(n - seen); seen = n; }
   }
   function final(text) { if (nativeHits()) return; add(hits(text) - seen); seen = 0; }
@@ -2699,7 +2701,7 @@ const Voice = (() => {
       // iPhone: the page's own sounds have to allow the microphone too, or WebKit would switch it off
       if (IS_IOS) try { navigator.audioSession.type = 'play-and-record'; } catch (_) {}
       const m = mantra();
-      await NV.start({ words: m.words, hints: m.en.split(/\s+/), match: m.w ? m.w.source : undefined, syllables: m.syl || 0, engine: settings.voiceEngine === 'apple' ? 'apple' : 'whisper' });   // the first start loads the model (a few seconds)
+      await NV.start({ words: m.words, hints: m.en.split(/\s+/), match: m.w ? m.w.source : undefined, syllables: m.syl || 0, engine: settings.voiceEngine === 'apple' ? 'apple' : 'vosk' });   // the first start loads the model (a few seconds)
       running = true;
       if (!want) { nativeHalt(); return; }
       if (pausedFlag) { NV.pause().catch(() => {}); set('paused'); return; }
