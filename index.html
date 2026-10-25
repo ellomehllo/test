@@ -7,9 +7,9 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<title>Aradhya</title>
-<meta name="application-name" content="Aradhya">
-<meta name="apple-mobile-web-app-title" content="Aradhya">
+<title>Sadhana</title>
+<meta name="application-name" content="Sadhana">
+<meta name="apple-mobile-web-app-title" content="Sadhana">
 
 <!-- Fonts: Mukta (UI — Devanagari + Latin), Cormorant Garamond (numbers, headings), Tiro Devanagari (mantras) -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -441,6 +441,8 @@
   .set-list .sub:empty { display: none; }
   .shop-bal { display: flex; align-items: center; justify-content: center; gap: 8px; margin: 0 0 18px; color: var(--ivory-2); font-size: 15px; }
   .shop-bal b { color: var(--ivory); font-size: 18px; }
+  .shop-need { margin: -8px 0 16px; text-align: center; color: var(--gold-2); font-size: 14px; }
+  .pack[data-suggest="true"] { border-color: var(--gold); box-shadow: 0 0 0 1px var(--gold), 0 0 22px rgba(217,168,78,.28); }
   .packs { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
   .pack { position: relative; display: grid; justify-items: center; gap: 3px; padding: 20px 10px 14px; text-align: center; color: var(--ivory); }
   .pack .coin { width: 26px; height: 26px; }
@@ -629,7 +631,7 @@
 <!-- ═══════════════ HOME (Jaap tab) ═══════════════ -->
 <section id="s-home" class="screen tabbed is-on" aria-labelledby="home-brand">
   <header class="topbar">
-    <h1 id="home-brand" class="brand"><svg width="22" height="22"><use href="#i-lotus"/></svg><span data-t="appName">आराध्य</span></h1>
+    <h1 id="home-brand" class="brand"><svg width="22" height="22"><use href="#i-lotus"/></svg><span data-t="appName">साधना</span></h1>
     <button class="token-pill" data-to="aaradhya" data-t-aria="tokensAria" aria-label="भक्ति टोकन"><span class="coin" aria-hidden="true"></span><span class="tok-n num">0</span></button>
     <button class="icon-btn" data-go="settings" data-t-aria="settings" aria-label="सेटिंग्स"><svg width="20" height="20"><use href="#i-gear"/></svg></button>
   </header>
@@ -910,7 +912,7 @@
         <a class="set-item set-link" href="https://vanarsathi.online/privacy.html" target="_blank" rel="noopener"><div class="row-between"><span data-t="privacyPolicy">गोपनीयता नीति</span><span class="k" aria-hidden="true">↗</span></div></a>
         <a class="set-item set-link" href="https://vanarsathi.online/support.html" target="_blank" rel="noopener"><div class="row-between"><span data-t="support">मदद और संपर्क</span><span class="k" aria-hidden="true">↗</span></div></a>
         <button class="set-item set-link set-danger" id="set-delete"><div class="row-between"><span data-t="deleteData">मेरा सारा डेटा मिटाएँ</span></div></button>
-        <button class="set-item set-link" id="set-about"><div class="row-between"><span data-t="about">आराध्य के बारे में</span><span class="k">v2.2.0</span></div></button>
+        <button class="set-item set-link" id="set-about"><div class="row-between"><span data-t="about">साधना के बारे में</span><span class="k">v2.3.0</span></div></button>
       </div>
     </div>
   </div>
@@ -933,6 +935,7 @@
     <div class="grip" aria-hidden="true"></div>
     <div class="sheet-head"><h2 id="shop-h" data-t="bhaktiTokens">भक्ति टोकन</h2><button class="icon-btn" data-close data-t-aria="close" aria-label="बंद करें"><svg width="18" height="18"><use href="#i-close"/></svg></button></div>
     <p class="shop-bal"><span data-t="shopBal">आपके टोकन</span><span class="coin" aria-hidden="true"></span><b id="shop-bal" class="num">0</b></p>
+    <p id="shop-need" class="shop-need" hidden></p>
     <div id="shop-packs" class="packs"></div>
   </div>
 </div>
@@ -941,9 +944,9 @@
   <div class="sheet-card confirm-card">
     <div class="grip" aria-hidden="true"></div>
     <svg class="confirm-ico" width="44" height="44" aria-hidden="true"><use href="#i-lotus"/></svg>
-    <h2 id="about-h" data-t="aboutTitle">आराध्य</h2>
+    <h2 id="about-h" data-t="aboutTitle">साधना</h2>
     <p class="lead" data-t="aboutText"></p>
-    <p class="pill-note" style="margin:6px 0 14px">v2.2.0 · vanarsathi.online</p>
+    <p class="pill-note" style="margin:6px 0 14px">v2.3.0 · vanarsathi.online</p>
     <div class="confirm-actions" style="grid-template-columns:1fr"><button class="btn-gold" data-close data-t="aboutOk">ठीक है</button></div>
   </div>
 </div>
@@ -992,7 +995,7 @@
   <div class="bd" data-close></div>
   <div class="sheet-card">
     <div class="grip" aria-hidden="true"></div>
-    <div class="sheet-head"><h2 id="app-title-h" data-t="appTitle">आराध्य ऐप</h2><button class="icon-btn" data-close data-t-aria="close" aria-label="बंद करें"><svg width="18" height="18"><use href="#i-close"/></svg></button></div>
+    <div class="sheet-head"><h2 id="app-title-h" data-t="appTitle">साधना ऐप</h2><button class="icon-btn" data-close data-t-aria="close" aria-label="बंद करें"><svg width="18" height="18"><use href="#i-close"/></svg></button></div>
     <p class="lead" style="text-align:left;margin-bottom:14px" data-t="appSoonWhy"></p>
     <button class="btn-gold" disabled data-t="appSoon">Google Play पर जल्द आ रहा है</button>
     <p class="pill-note" style="margin-top:10px" data-t="appSoonNote"></p>
@@ -1078,12 +1081,12 @@ const reduceMotion = () => SYS_REDUCED;
 /* ── Words on screen: Hindi first, plain English as the alternative ── */
 const I18N = {
   hi: {
-    appName: 'आराध्य', profile: 'प्रोफ़ाइल', settings: 'सेटिंग्स', close: 'बंद करें', back: 'वापस', tokensAria: 'भक्ति टोकन',
+    appName: 'साधना', profile: 'प्रोफ़ाइल', settings: 'सेटिंग्स', close: 'बंद करें', back: 'वापस', tokensAria: 'भक्ति टोकन',
     sankalp: 'आज का संकल्प', dailyGoal: 'दैनिक लक्ष्य', streak: 'लगातार', days: '{n} दिन', day1: '1 दिन', continue: 'जारी रखें',
     resumeTxt: 'चल रही साधना · {n} जप', mala: 'माला', malaSub: '108 मनकों का एक चक्र', jaap: 'जप', jaapSub: 'समय चुनें या खुला जप',
     setTimer: 'समय चुनें', setTimerSub: 'कितनी देर जप करना चाहते हैं?', minShort: 'मिनट', start: 'शुरू करें', or: 'या',
     noTimer: 'बिना समय के', noTimerSub: 'सिर्फ़ जप गिनें', mantra: 'मंत्र', selectMala: 'माला चुनें', eachMala: 'एक माला = 108 जप',
-    shopBal: 'आपके टोकन', packPopular: 'सबसे पसंदीदा', packValue: 'सबसे किफ़ायती',
+    shopBal: 'आपके टोकन', packPopular: 'सबसे पसंदीदा', packValue: 'सबसे किफ़ायती', shopNeed: '{name} को खोलने के लिए {n} टोकन और चाहिए',
     shopSoon: 'टोकन ख़रीदना जल्द शुरू होगा — तब तक जप से कमाएँ 🙏', shopPending: 'मंज़ूरी का इंतज़ार है — मंज़ूर होते ही टोकन जुड़ जाएँगे', shopTest: 'टेस्ट ख़रीद — टोकन नहीं जुड़े', shopPaidLater: 'भुगतान मिल गया — आपके टोकन थोड़ी देर में जुड़ जाएँगे 🙏',
     shopThanks: '{n} टोकन जुड़ गए 🙏', shopFail: 'ख़रीद पूरी नहीं हुई — फिर कोशिश करें', getMore: 'टोकन लें · {n} और चाहिए',
     bhaktN: 'भक्त #{n}', youTag: '(आप)',
@@ -1142,11 +1145,11 @@ const I18N = {
     vMuted: 'आवाज़ से गिनती चालू है, इसलिए रिकॉर्ड किया जप नहीं बजेगा (वरना वही गिना जाता)', vNet: 'आवाज़ पहचान के लिए इंटरनेट चाहिए',
     gLook: 'रूप', bgSet: 'पृष्ठभूमि', bgForest: 'वन', bgClouds: 'बादल', bgKailash: 'कैलाश', bgGrove: 'उपवन', motionSet: 'कम हलचल', motionSetSub: 'चलती तस्वीरों की जगह स्थिर चित्र — बैटरी और डेटा भी बचता है',
     gNotify: 'सूचनाएँ', reminder: 'रोज़ जप की याद', remindAt: 'समय', remindSub: 'चुने हुए समय पर याद — जिस दिन जप हो चुका हो, उस दिन नहीं।', remindAppOnly: 'याद दिलाने की सुविधा Android ऐप में मिलती है।',
-    nudge: 'शाम 8 बजे साधना क्रम की याद', aboutTitle: 'आराध्य', aboutText: 'नाम जप और माला साधना का साथी — हर दिन थोड़ी भक्ति, थोड़ा ध्यान। 🙏 यह भक्ति साधना का साथी है, कोई चिकित्सा सेवा नहीं।', aboutOk: 'ठीक है', nudgeSub: 'शाम 8 बजे — केवल तब, जब आपका क्रम चल रहा हो और उस दिन जप न हुआ हो।',
-    nDenied: 'सूचनाओं की अनुमति नहीं मिली — फ़ोन की सेटिंग्स में आराध्य के लिए सूचनाएँ चालू करें।',
+    nudge: 'शाम 8 बजे साधना क्रम की याद', aboutTitle: 'साधना', aboutText: 'नाम जप और माला साधना का साथी — हर दिन थोड़ी भक्ति, थोड़ा ध्यान। 🙏 यह भक्ति साधना का साथी है, कोई चिकित्सा सेवा नहीं।', aboutOk: 'ठीक है', nudgeSub: 'शाम 8 बजे — केवल तब, जब आपका क्रम चल रहा हो और उस दिन जप न हुआ हो।',
+    nDenied: 'सूचनाओं की अनुमति नहीं मिली — फ़ोन की सेटिंग्स में साधना के लिए सूचनाएँ चालू करें।',
     nDailyT: '🙏 जप का समय', nDailyB: '{name} आपकी प्रतीक्षा में हैं — एक माला भी काफ़ी है।', nNudgeT: '🔥 आपका {n} दिन का साधना क्रम', nNudgeB: 'आज रात 12 बजे टूट जाएगा — एक माला से इसे बचा लें।',
-    gPrivacy: 'गोपनीयता और खाता', privacySub: 'भक्त सूची में आपका प्रोफ़ाइल नाम सबको दिखता है (चाहें तो सूची से छिप सकते हैं)। आपकी फ़ोटो इसी फ़ोन पर रहती है।', about: 'आराध्य के बारे में',
-    getApp: 'ऐप डाउनलोड करें', appTitle: 'आराध्य ऐप', appSoon: 'Google Play पर जल्द आ रहा है', appSoonWhy: 'आराध्य Android ऐप जल्द ही Google Play पर आएगा — बिना इंटरनेट के जप, याद दिलाने की सुविधा और बोलकर गिनती के साथ।', appSoonNote: 'तब तक यहीं ब्राउज़र में जप करते रहें 🙏', appWhy: 'बिना इंटरनेट के भी जप करें — सारे वीडियो, राम नाम मंत्र और चालीसा फ़ोन में रहेंगे। इंटरनेट आते ही आपकी गिनती अपने-आप जुड़ जाएगी।',
+    gPrivacy: 'गोपनीयता और खाता', privacySub: 'भक्त सूची में आपका प्रोफ़ाइल नाम सबको दिखता है (चाहें तो सूची से छिप सकते हैं)। आपकी फ़ोटो इसी फ़ोन पर रहती है।', about: 'साधना के बारे में',
+    getApp: 'ऐप डाउनलोड करें', appTitle: 'साधना ऐप', appSoon: 'Google Play पर जल्द आ रहा है', appSoonWhy: 'साधना Android ऐप जल्द ही Google Play पर आएगा — बिना इंटरनेट के जप, याद दिलाने की सुविधा और बोलकर गिनती के साथ।', appSoonNote: 'तब तक यहीं ब्राउज़र में जप करते रहें 🙏', appWhy: 'बिना इंटरनेट के भी जप करें — सारे वीडियो, राम नाम मंत्र और चालीसा फ़ोन में रहेंगे। इंटरनेट आते ही आपकी गिनती अपने-आप जुड़ जाएगी।',
     appStep1: 'नीचे दिए बटन से ऐप डाउनलोड करें', appStep2: 'डाउनलोड हुई फ़ाइल खोलें', appStep3: 'फ़ोन पूछे तो “इस स्रोत से ऐप की अनुमति दें” चालू करें', appStep4: '“इंस्टॉल” दबाएँ — हो गया 🙏', appDownload: 'ऐप डाउनलोड करें', appSize: 'केवल Android',
     tHalf: 'आधा समय पूरा 🙏', tMala: 'माला {n} पूरी — 108 जप 🙏', tHold: 'पूर्ण करने के लिए बटन दबाकर रखें', tNothing: 'साधना बंद — सहेजने को कुछ नहीं था', tPausedTap: 'साधना रुकी है — फिर शुरू करें',
     tRestored: 'आपकी पिछली साधना वहीं से जारी है 🙏', tNoVib: 'इस फ़ोन में कंपन नहीं चलता', tVibOff: 'कंपन बंद है', tFast: 'टेस्ट मोड: मिनट की जगह सेकंड', tUndoNone: 'वापस लेने को कुछ नहीं',
@@ -1154,12 +1157,12 @@ const I18N = {
     sk: ['वर्तमान में रहें, दयालु रहें।', 'आज मीठा बोलें।', 'किसी की निःस्वार्थ सेवा करें।', 'एक चिंता को छोड़ दें।', 'गति नहीं, प्रेम से जप करें।', 'इस साँस के लिए आभार।', 'जल्दी क्षमा करें।']
   },
   en: {
-    appName: 'Aradhya', profile: 'Profile', settings: 'Settings', close: 'Close', back: 'Back', tokensAria: 'Bhakti tokens',
+    appName: 'Sadhana', profile: 'Profile', settings: 'Settings', close: 'Close', back: 'Back', tokensAria: 'Bhakti tokens',
     sankalp: 'Today’s Sankalp', dailyGoal: 'Daily goal', streak: 'Streak', days: '{n} days', day1: '1 day', continue: 'Continue',
     resumeTxt: 'Session in progress · {n} Naam', mala: 'Mala', malaSub: '108 beads per round', jaap: 'Jaap', jaapSub: 'Set a timer or count freely',
     setTimer: 'Set Timer', setTimerSub: 'Choose how long you want to practise', minShort: 'min', start: 'Start', or: 'or',
     noTimer: 'No Timer', noTimerSub: 'Just count repetitions', mantra: 'Mantra', selectMala: 'Select Mala Count', eachMala: 'Each mala = 108 repetitions',
-    shopBal: 'Your tokens', packPopular: 'Most popular', packValue: 'Best value',
+    shopBal: 'Your tokens', packPopular: 'Most popular', packValue: 'Best value', shopNeed: '{n} more tokens to unlock {name}',
     shopSoon: 'Buying tokens opens soon — until then, earn them by chanting 🙏', shopPending: 'Waiting for approval — the tokens arrive once it is approved', shopTest: 'Test purchase — no tokens added', shopPaidLater: 'Payment received — your tokens will be added shortly 🙏',
     shopThanks: '{n} tokens added 🙏', shopFail: "The purchase didn't complete — try again", getMore: 'Get tokens · {n} more needed',
     bhaktN: 'Bhakt #{n}', youTag: '(you)',
@@ -1218,11 +1221,11 @@ const I18N = {
     vMuted: 'Voice counting is on, so the recorded chant won’t play (it would be counted)', vNet: 'Speech recognition needs an internet connection',
     gLook: 'Appearance', bgSet: 'Background', bgForest: 'Forest', bgClouds: 'Clouds', bgKailash: 'Kailash', bgGrove: 'Grove', motionSet: 'Reduced motion', motionSetSub: 'Still pictures instead of animation — also saves battery and data',
     gNotify: 'Notifications', reminder: 'Daily jaap reminder', remindAt: 'Time', remindSub: "A reminder at your chosen time — skipped on days you've already chanted.", remindAppOnly: 'Reminders are available in the Android app.',
-    nudge: 'Streak reminder at 8 pm', aboutTitle: 'Aradhya', aboutText: 'A companion for naam jaap and mala practice — a little devotion every day. 🙏 A devotional practice, not a medical service.', aboutOk: 'OK', nudgeSub: "At 8 pm — only when you have a streak going and haven't chanted that day.",
-    nDenied: 'Notifications are off — allow them for Aradhya in your phone settings.',
+    nudge: 'Streak reminder at 8 pm', aboutTitle: 'Sadhana', aboutText: 'A companion for naam jaap and mala practice — a little devotion every day. 🙏 A devotional practice, not a medical service.', aboutOk: 'OK', nudgeSub: "At 8 pm — only when you have a streak going and haven't chanted that day.",
+    nDenied: 'Notifications are off — allow them for Sadhana in your phone settings.',
     nDailyT: '🙏 Time for jaap', nDailyB: '{name} is waiting for you — even one mala is enough.', nNudgeT: '🔥 Your {n}-day streak', nNudgeB: 'It ends at midnight — one mala keeps it going.',
-    gPrivacy: 'Privacy & account', privacySub: 'Your profile name is shown to everyone on the leaderboard (you can hide yourself from it). Your photo stays on this phone.', about: 'About Aradhya',
-    getApp: 'Get the app', appTitle: 'Aradhya app', appSoon: 'Coming soon to Google Play', appSoonWhy: 'The Aradhya Android app is coming soon to Google Play — with offline chanting, reminders and counting by voice.', appSoonNote: 'Until then, keep chanting right here in your browser 🙏', appWhy: 'Chant even without internet — all videos, the Ram Naam chant and the Chalisa stay on your phone. Your count syncs automatically when you are back online.',
+    gPrivacy: 'Privacy & account', privacySub: 'Your profile name is shown to everyone on the leaderboard (you can hide yourself from it). Your photo stays on this phone.', about: 'About Sadhana',
+    getApp: 'Get the app', appTitle: 'Sadhana app', appSoon: 'Coming soon to Google Play', appSoonWhy: 'The Sadhana Android app is coming soon to Google Play — with offline chanting, reminders and counting by voice.', appSoonNote: 'Until then, keep chanting right here in your browser 🙏', appWhy: 'Chant even without internet — all videos, the Ram Naam chant and the Chalisa stay on your phone. Your count syncs automatically when you are back online.',
     appStep1: 'Download the app with the button below', appStep2: 'Open the downloaded file', appStep3: 'If asked, allow installing apps from this source', appStep4: 'Tap “Install” — done 🙏', appDownload: 'Download the app', appSize: 'Android only',
     tHalf: 'Halfway done 🙏', tMala: 'Mala {n} complete — 108 Naam 🙏', tHold: 'Press and hold to finish', tNothing: 'Session ended — nothing to save', tPausedTap: 'Paused — tap Resume to continue',
     tRestored: 'Your last session is waiting where you left it 🙏', tNoVib: 'This phone can’t vibrate', tVibOff: 'Vibration is off', tFast: 'Test mode: minutes run as seconds', tUndoNone: 'Nothing to undo',
@@ -1309,7 +1312,7 @@ const AudioEngine = (() => {
       // the phone lists playing sound on the lock screen; without a title it shows the page's host ("localhost")
       try {
         if ('mediaSession' in navigator && window.MediaMetadata)
-          navigator.mediaSession.metadata = new MediaMetadata({ title: 'Aradhya', artist: 'Naam Jaap',
+          navigator.mediaSession.metadata = new MediaMetadata({ title: 'Sadhana', artist: 'Naam Jaap',
             artwork: [{ src: 'assets/av-hanuman-idle.webp', sizes: '512x512', type: 'image/webp' }] });
       } catch (_) {}
       ctx = new AC();
@@ -2965,9 +2968,10 @@ function openASheet(a) {
   } else {
     $('#a-sheet-status').textContent = t('lockedHow', { h: fmtDur(a.unlockMin * 60000), n: a.cost });
     go1.textContent = t('unlockFor', { n: a.cost });
-    if (bal < a.cost) {
-      go1.disabled = true; alt.hidden = false; alt.disabled = !Shop.visible();
-      alt.textContent = t(Shop.visible() ? 'getMore' : 'needTokens', { n: a.cost - bal });
+    // short of tokens: the button opens the shop (or, while it is closed, says how many are missing)
+    if (bal < a.cost && !Shop.visible()) {
+      go1.disabled = true; alt.hidden = false; alt.disabled = true;
+      alt.textContent = t('needTokens', { n: a.cost - bal });
     }
   }
 }
@@ -2981,7 +2985,7 @@ async function downloadChar(a) {
 $('#a-sheet-go').addEventListener('click', async () => {
   const a = sheetA; if (!a) return;
   if (!isUnlocked(a)) {
-    if (tokenBalance() < a.cost) return;
+    if (tokenBalance() < a.cost) { if (Shop.visible()) Shop.open({ need: a.cost - tokenBalance(), a }); return; }
     if (!SERVER_UNLOCKS) {
       records.tokens -= a.cost; records.unlocked.push(a.id); persist();
       toast(t('unlockedNow', { name: aName(a) }));
@@ -3066,9 +3070,16 @@ const Billing = (() => {
 })();
 const Shop = (() => {
   const visible = () => Billing.available || SHOP_PREVIEW;
+  let want = null;   // { need, a }: opened from a locked Aaradhya, short of `need` tokens
   function render() {
-    $('#shop-bal').textContent = fmtNum(tokenBalance());
-    $('#shop-packs').innerHTML = TOKEN_PACKS.map(k => `<button class="card pack" data-id="${k.id}" aria-label="${fmtNum(k.tokens)} ${t('bhaktiTokens')} — ₹${k.inr}">
+    const bal = tokenBalance(), need = want ? Math.max(0, want.a.cost - bal) : 0;
+    $('#shop-bal').textContent = fmtNum(bal);
+    const note = $('#shop-need');
+    note.hidden = !need;
+    if (need) note.textContent = t('shopNeed', { n: fmtNum(need), name: aName(want.a) });
+    // the smallest pack that covers what's missing
+    const pick = need ? (TOKEN_PACKS.find(k => k.tokens >= need) || TOKEN_PACKS[TOKEN_PACKS.length - 1]).id : '';
+    $('#shop-packs').innerHTML = TOKEN_PACKS.map(k => `<button class="card pack" data-id="${k.id}" data-suggest="${k.id === pick}" aria-label="${fmtNum(k.tokens)} ${t('bhaktiTokens')} — ${Billing.prices[k.id] || `₹${k.inr}`}">
       ${k.tag ? `<span class="pack-tag">${t(k.tag)}</span>` : ''}<span class="coin" aria-hidden="true"></span>
       <b class="num">${fmtNum(k.tokens)}</b><small>${settings.lang === 'en' ? k.en : k.hi}</small><span class="pack-price">${Billing.prices[k.id] || `₹${k.inr}`}</span></button>`).join('');
     $$('#shop-packs .pack').forEach(b => b.addEventListener('click', () => buy(TOKEN_PACKS.find(k => k.id === b.dataset.id))));
@@ -3086,9 +3097,17 @@ const Shop = (() => {
       else if (e && e.pending) toast(t('shopPending'));
       else if (!(e && e.cancelled)) toast(t('shopFail'));
     }
-    render(); renderTokens();
+    renderTokens();
+    // bought enough for the Aaradhya they came for: back to its sheet, where unlocking is now one tap
+    if (want && tokenBalance() >= want.a.cost) { const a = want.a; sheet.close(); openASheet(a); return; }
+    render();
   }
-  return { visible, open: sheet.open };
+  function open(w) {
+    want = w && w.a ? w : null;
+    if (want) ASheet.close();   // the shop takes its place; it comes back once enough tokens are bought
+    sheet.open();
+  }
+  return { visible, open };
 })();
 $('#a-sheet-alt').addEventListener('click', () => { if (Shop.visible()) Shop.open(); });
 
