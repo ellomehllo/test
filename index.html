@@ -787,7 +787,6 @@
   <div class="page-body scroll">
     <p class="note" data-t="aarIntro" style="margin-bottom:10px">जिनका ध्यान करते हुए जप करना चाहें, उन्हें चुनें। साधना के समय से नए आराध्य खुलते हैं।</p>
     <div class="a-grid" id="a-grid"></div>
-    <p class="note" id="tokens-note" data-t="tokensNote" style="margin-top:12px">भक्ति टोकन केवल साधना से मिलते हैं — इन्हें खरीदा नहीं जा सकता। टोकन आपके खाते में ऑनलाइन सुरक्षित रहते हैं।</p>
   </div>
 </section>
 
@@ -815,7 +814,7 @@
       <button id="board-more" class="btn-line board-more" hidden aria-controls="board-list"></button>
     </div>
     <div class="card join-card" id="join-card">
-      <div><span id="com-name" style="font-size:16px;font-weight:600"></span><p class="sub" id="com-note" style="margin-top:4px"></p></div>
+      <div><span id="com-name" style="font-size:16px;font-weight:600"></span></div>
       <div class="row-between"><span style="font-size:15px" data-t="showMe">सूची में मेरा नाम दिखाएँ</span><button id="show-me" class="switch" role="switch" aria-checked="false" data-t-aria="showMe" aria-label="सूची में मेरा नाम दिखाएँ"></button></div>
       <button id="save-me" class="btn-gold" style="min-height:50px;font-size:17px" data-t="save">सहेजें</button>
     </div>
@@ -850,7 +849,6 @@
       <span class="k" data-t="dailyGoal">दैनिक लक्ष्य</span>
       <div class="seg" data-group="goal"><button data-value="108">108</button><button data-value="216">216</button><button data-value="540">540</button><button data-value="1080">1080</button></div>
     </div>
-    <p class="note" data-t="idNote" style="margin-top:14px"></p>
   </div>
 </section>
 
@@ -934,7 +932,6 @@
     <div class="sheet-head"><h2 id="shop-h" data-t="bhaktiTokens">भक्ति टोकन</h2><button class="icon-btn" data-close data-t-aria="close" aria-label="बंद करें"><svg width="18" height="18"><use href="#i-close"/></svg></button></div>
     <p class="shop-bal"><span data-t="shopBal">आपके टोकन</span><span class="coin" aria-hidden="true"></span><b id="shop-bal" class="num">0</b></p>
     <div id="shop-packs" class="packs"></div>
-    <p class="note" data-t="shopNote" style="margin-top:14px;text-align:center"></p>
   </div>
 </div>
 <div id="about-sheet" class="sheet-modal" role="dialog" aria-modal="true" aria-labelledby="about-h" hidden>
@@ -1083,10 +1080,10 @@ const I18N = {
     resumeTxt: 'चल रही साधना · {n} जप', mala: 'माला', malaSub: '108 मनकों का एक चक्र', jaap: 'जप', jaapSub: 'समय चुनें या खुला जप',
     setTimer: 'समय चुनें', setTimerSub: 'कितनी देर जप करना चाहते हैं?', minShort: 'मिनट', start: 'शुरू करें', or: 'या',
     noTimer: 'बिना समय के', noTimerSub: 'सिर्फ़ जप गिनें', mantra: 'मंत्र', selectMala: 'माला चुनें', eachMala: 'एक माला = 108 जप',
-    shopBal: 'आपके टोकन', shopNote: 'जप से हर घंटे लगभग 18 टोकन मिलते हैं। टोकन कभी ख़त्म नहीं होते।', packPopular: 'सबसे पसंदीदा', packValue: 'सबसे किफ़ायती',
+    shopBal: 'आपके टोकन', packPopular: 'सबसे पसंदीदा', packValue: 'सबसे किफ़ायती',
     shopSoon: 'टोकन ख़रीदना जल्द शुरू होगा — तब तक जप से कमाएँ 🙏', shopPending: 'मंज़ूरी का इंतज़ार है — मंज़ूर होते ही टोकन जुड़ जाएँगे', shopTest: 'टेस्ट ख़रीद — टोकन नहीं जुड़े', shopPaidLater: 'भुगतान मिल गया — आपके टोकन थोड़ी देर में जुड़ जाएँगे 🙏',
-    tokensNoteShop: 'भक्ति टोकन साधना से मिलते हैं — या दुकान से। टोकन आपके खाते में ऑनलाइन सुरक्षित रहते हैं।', shopThanks: '{n} टोकन जुड़ गए 🙏', shopFail: 'ख़रीद पूरी नहीं हुई — फिर कोशिश करें', getMore: 'टोकन लें · {n} और चाहिए',
-    bhaktN: 'भक्त #{n}', youTag: '(आप)', anonNote: 'सूची में सब आपको इसी नाम से देखते हैं। नाम प्रोफ़ाइल में बदलें।', anonNoName: 'प्रोफ़ाइल में नाम लिखें, तब तक आप इसी नंबर से दिखते हैं।',
+    shopThanks: '{n} टोकन जुड़ गए 🙏', shopFail: 'ख़रीद पूरी नहीं हुई — फिर कोशिश करें', getMore: 'टोकन लें · {n} और चाहिए',
+    bhaktN: 'भक्त #{n}', youTag: '(आप)',
     nameBad: 'यह नाम सूची के लायक नहीं है — कोई और नाम लिखें', nameLong: 'नाम 24 अक्षरों तक रखें', reportQ: '“{name}” नाम की शिकायत करें? यह नाम आपको फिर नहीं दिखेगा।', reported: 'शिकायत भेज दी। धन्यवाद 🙏', reportAria: 'इस नाम की शिकायत करें', hiddenName: 'छिपा हुआ नाम',
     privacyPolicy: 'गोपनीयता नीति', support: 'मदद और संपर्क', deleteData: 'मेरा सारा डेटा मिटाएँ', deleteSub: 'खाता, गिनती, साधना क्रम, टोकन और खुले आराध्य — फ़ोन से और हमारे सर्वर से',
     deleteQ: 'सब कुछ मिटा दें?', deleteMsg: 'आपका खाता, सारा जप, साधना क्रम, भक्ति टोकन और खुले आराध्य हमेशा के लिए मिट जाएँगे — इस फ़ोन से और हमारे सर्वर से। यह वापस नहीं हो सकता।',
@@ -1099,7 +1096,7 @@ const I18N = {
     finishSaved: 'क्या आप अभी साधना पूर्ण करना चाहते हैं? आपका जप सहेज लिया जाएगा।', finishYes: 'हाँ, पूर्ण करें', finishNo: 'नहीं, जारी रखें',
     profileT: 'मेरी प्रोफ़ाइल', changePhoto: 'फ़ोटो बदलें', photoUpload: 'फ़ोन से फ़ोटो चुनें', photoAaradhya: 'आराध्य का चित्र लगाएँ', photoRemove: 'फ़ोटो हटाएँ',
     nameSaved: 'नाम सहेज लिया 🙏', achievements: 'उपलब्धियाँ', earned: 'मिल गई', locked: 'बाकी', sessionsK: 'साधनाएँ', tokensK: 'भक्ति टोकन', aaradhyaK: 'खुले आराध्य',
-    idNote: 'आपकी पहचान इसी फ़ोन से जुड़ी है — कोई ईमेल या फ़ोन नंबर नहीं चाहिए। ऐप हटाने या ब्राउज़र का डेटा मिटाने पर यह पहचान चली जाती है।',
+   
     achFirst: 'पहला जप', achMala1: 'पहली माला', achMala10: '10 माला', achMala108: '108 माला', achJaap1008: '1,008 जप', achJaap10008: '10,008 जप',
     achStreak3: '3 दिन लगातार', achStreak7: '7 दिन लगातार', achStreak30: '30 दिन लगातार', achHour: '1 घंटा साधना', achAaradhya: 'नया आराध्य', achAll: 'सभी आराध्य',
     editInProfile: 'प्रोफ़ाइल में बदलें', nameNotSet: 'नाम अभी नहीं लिखा',
@@ -1113,7 +1110,7 @@ const I18N = {
     doneTitle: 'जप पूर्ण', doneTitleMala: 'माला पूर्ण', doneEarly: 'साधना सहेजी गई', doneSub: 'उठने से पहले एक पल शांत बैठें।', time: 'समय', malas: 'माला',
     youEarned: 'आपने कमाए', bhaktiTokens: 'भक्ति टोकन', earnFull: 'लक्ष्य पूरा करने पर 3 + हर पूरी माला पर 2', earnPart: 'हर पूरी माला पर 1 टोकन', earnNone: 'पूरी माला होने पर टोकन मिलते हैं',
     aaradhya: 'आराध्य', aarIntro: 'जिनका ध्यान करते हुए जप करना चाहें, उन्हें चुनें। साधना के समय से नए आराध्य खुलते हैं।',
-    tokensNote: 'भक्ति टोकन केवल साधना से मिलते हैं — इन्हें खरीदा नहीं जा सकता। टोकन आपके खाते में ऑनलाइन सुरक्षित रहते हैं।',
+   
     selected: 'चुने हुए', unlocked: 'खुला', practiceOf: '{a} / {b} साधना', choose: 'चुनें', chosen: 'चुने गए ✓', unlockFor: '{n} टोकन से खोलें',
     lockedHow: '{h} की साधना पूरी होने पर अपने-आप खुलेगा — या {n} भक्ति टोकन से।', needTokens: 'अभी {n} टोकन और चाहिए', unlockedNow: '{name} अब खुल गए 🙏',
     unlocking: 'खुल रहा है…', needOnline: 'खोलने के लिए इंटरनेट से जुड़ें', getChar: '{name} डाउनलोड करें', getCharNote: 'एक बार डाउनलोड ({mb} MB) — फिर बिना इंटरनेट के चलेगा',
@@ -1124,7 +1121,7 @@ const I18N = {
     stNote: 'कैलेंडर में वे दिन हैं जिन पर इस फ़ोन पर या आपके ऑनलाइन खाते में साधना दर्ज हुई।', stNoteOff: 'कैलेंडर में इस फ़ोन पर दर्ज साधना है। ऑनलाइन जुड़ने पर पुराने दिन भी दिखेंगे।',
     community: 'सत्संग', weekly: 'भक्त सूची', comGoals: 'सामूहिक लक्ष्य', pWeek: 'इस हफ़्ते', pMonth: 'इस महीने', pAll: 'अब तक',
     togetherNaam: 'सभी भक्तों का कुल जप', devotees: '{n} भक्त', nextGoal: 'अगला पड़ाव: {n} जप', boardEmpty: 'अभी सूची में कोई भक्त नहीं है — “सूची में मुझे दिखाएँ” चालू करके पहले बनें!',
-    boardLoading: 'लोड हो रहा है…', cloudOff: 'ऑनलाइन सत्संग अभी उपलब्ध नहीं है — इंटरनेट जुड़ने पर दिखेगा। आपका जप फ़ोन में सुरक्षित है।', cloudErr: 'कुछ गड़बड़ हुई, फिर कोशिश करें',
+    boardLoading: 'लोड हो रहा है…', cloudOff: 'इंटरनेट जुड़ने पर भक्त सूची दिखेगी।', cloudErr: 'कुछ गड़बड़ हुई, फिर कोशिश करें',
     joinTitle: 'सत्संग से जुड़ें', joinSub: 'भक्त सूची में आप अपने नाम से दिखते हैं और दूसरों के नाम देखते हैं। आपकी गिनती केवल आपके फ़ोन से आती है।',
     myName: 'आपका नाम', namePh: 'जैसे: राम भक्त सुनील', showMe: 'सूची में मुझे दिखाएँ', save: 'सहेजें', savedOk: 'सहेज लिया 🙏', needName: 'पहले अपना नाम लिखें',
     saveTitle: 'अपना जप सुरक्षित रखें', saveSub: 'ईमेल जोड़ें — फ़ोन बदलने पर भी आपकी गिनती मिलेगी।', emailPh: 'आपका ईमेल', sendLink: 'ईमेल पर लिंक भेजें',
@@ -1159,10 +1156,10 @@ const I18N = {
     resumeTxt: 'Session in progress · {n} Naam', mala: 'Mala', malaSub: '108 beads per round', jaap: 'Jaap', jaapSub: 'Set a timer or count freely',
     setTimer: 'Set Timer', setTimerSub: 'Choose how long you want to practise', minShort: 'min', start: 'Start', or: 'or',
     noTimer: 'No Timer', noTimerSub: 'Just count repetitions', mantra: 'Mantra', selectMala: 'Select Mala Count', eachMala: 'Each mala = 108 repetitions',
-    shopBal: 'Your tokens', shopNote: 'Chanting earns about 18 tokens an hour. Tokens never expire.', packPopular: 'Most popular', packValue: 'Best value',
+    shopBal: 'Your tokens', packPopular: 'Most popular', packValue: 'Best value',
     shopSoon: 'Buying tokens opens soon — until then, earn them by chanting 🙏', shopPending: 'Waiting for approval — the tokens arrive once it is approved', shopTest: 'Test purchase — no tokens added', shopPaidLater: 'Payment received — your tokens will be added shortly 🙏',
-    tokensNoteShop: 'Bhakti tokens come from practice — or from the shop. They are kept online with your account.', shopThanks: '{n} tokens added 🙏', shopFail: "The purchase didn't complete — try again", getMore: 'Get tokens · {n} more needed',
-    bhaktN: 'Bhakt #{n}', youTag: '(you)', anonNote: 'Everyone on the list sees you by this name. Change it in your profile.', anonNoName: 'Add a name in your profile; until then you appear as this number.',
+    shopThanks: '{n} tokens added 🙏', shopFail: "The purchase didn't complete — try again", getMore: 'Get tokens · {n} more needed',
+    bhaktN: 'Bhakt #{n}', youTag: '(you)',
     nameBad: 'That name can’t go on the list — please choose another', nameLong: 'Keep the name to 24 characters', reportQ: 'Report the name “{name}”? You won’t see it again.', reported: 'Report sent. Thank you 🙏', reportAria: 'Report this name', hiddenName: 'Hidden name',
     privacyPolicy: 'Privacy policy', support: 'Help & contact', deleteData: 'Delete my data', deleteSub: 'Account, counts, streaks, tokens and unlocked Aaradhya — from this phone and our server',
     deleteQ: 'Delete everything?', deleteMsg: 'Your account, all your jaap, streaks, Bhakti tokens and unlocked Aaradhya will be deleted for good — from this phone and from our server. This cannot be undone.',
@@ -1175,7 +1172,7 @@ const I18N = {
     finishSaved: 'Do you want to finish now? Your jaap will be saved.', finishYes: 'Yes, finish', finishNo: 'No, continue',
     profileT: 'My profile', changePhoto: 'Change photo', photoUpload: 'Choose a photo', photoAaradhya: 'Use an Aaradhya picture', photoRemove: 'Remove photo',
     nameSaved: 'Name saved 🙏', achievements: 'Achievements', earned: 'Earned', locked: 'To go', sessionsK: 'Sessions', tokensK: 'Bhakti tokens', aaradhyaK: 'Aaradhya unlocked',
-    idNote: 'Your identity is tied to this phone — no email or phone number needed. Uninstalling the app or clearing browser data removes it.',
+   
     achFirst: 'First jaap', achMala1: 'First mala', achMala10: '10 malas', achMala108: '108 malas', achJaap1008: '1,008 jaap', achJaap10008: '10,008 jaap',
     achStreak3: '3-day streak', achStreak7: '7-day streak', achStreak30: '30-day streak', achHour: '1 hour of practice', achAaradhya: 'New Aaradhya', achAll: 'All Aaradhya',
     editInProfile: 'Edit in profile', nameNotSet: 'No name yet',
@@ -1189,7 +1186,7 @@ const I18N = {
     doneTitle: 'Jaap Complete', doneTitleMala: 'Mala Complete', doneEarly: 'Session saved', doneSub: 'Sit quietly for a moment before you get up.', time: 'Time', malas: 'Mala',
     youEarned: 'You earned', bhaktiTokens: 'Bhakti Tokens', earnFull: 'Goal reached: 3 + 2 for each full mala', earnPart: '1 token for each full mala', earnNone: 'Tokens come with each full mala',
     aaradhya: 'Aaradhya', aarIntro: 'Choose whom you wish to meditate on while you chant. More Aaradhya open with your practice time.',
-    tokensNote: 'Bhakti tokens come only from practice — they can never be bought. Tokens are kept online with your account.',
+   
     selected: 'Selected', unlocked: 'Unlocked', practiceOf: '{a} / {b} practice', choose: 'Choose', chosen: 'Chosen ✓', unlockFor: 'Unlock with {n} tokens',
     lockedHow: 'Opens by itself after {h} of practice — or with {n} Bhakti tokens.', needTokens: '{n} more tokens needed', unlockedNow: '{name} is now unlocked 🙏',
     unlocking: 'Unlocking…', needOnline: 'Connect to the internet to unlock', getChar: 'Download {name}', getCharNote: 'One-time download ({mb} MB) — then it works offline',
@@ -1200,7 +1197,7 @@ const I18N = {
     stNote: 'The calendar shows days with practice recorded on this phone or in your online account.', stNoteOff: 'The calendar shows practice recorded on this phone. Older days appear once you are online.',
     community: 'Community', weekly: 'Leaderboard', comGoals: 'Community goal', pWeek: 'This week', pMonth: 'This month', pAll: 'All time',
     togetherNaam: 'All devotees together', devotees: '{n} devotees', nextGoal: 'Next milestone: {n} Naam', boardEmpty: 'Nobody on the list yet — turn on “Show me on the list” and be the first!',
-    boardLoading: 'Loading…', cloudOff: 'The online community isn’t available right now — it appears when you are online. Your jaap is safe on this phone.', cloudErr: 'Something went wrong, please try again',
+    boardLoading: 'Loading…', cloudOff: 'The leaderboard appears when you’re online.', cloudErr: 'Something went wrong, please try again',
     joinTitle: 'Join the community', joinSub: 'You appear on the leaderboard by your name and see everyone else’s. Counts come only from your own phone.',
     myName: 'Your name', namePh: 'e.g. Ram bhakt Sunil', showMe: 'Show me on the list', save: 'Save', savedOk: 'Saved 🙏', needName: 'Please write your name first',
     saveTitle: 'Keep your jaap safe', saveSub: 'Add an email — your count stays with you even on a new phone.', emailPh: 'Your email', sendLink: 'Send link to email',
@@ -2889,7 +2886,6 @@ function renderAaradhya() {
       <span class="ai"><h3>${aName(a)}</h3><span class="am">${mText(a.mantras[0])}</span><span class="ast">${status}</span>${prog}</span></button>`;
   }).join('');
   $$('#a-grid .a-card').forEach(b => b.addEventListener('click', () => openASheet(aById(b.dataset.a))));
-  $('#tokens-note').textContent = t(Shop.visible() ? 'tokensNoteShop' : 'tokensNote');
   renderTokens();
 }
 function openASheet(a) {
@@ -2946,7 +2942,7 @@ $('#a-sheet-go').addEventListener('click', async () => {
 });
 onEnter.aaradhya = renderAaradhya;
 $$('.token-pill').forEach(b => b.addEventListener('click', () => {
-  if (Shop.visible()) Shop.open(); else if (b.dataset.to) go(b.dataset.to); else toast(t('tokensNote'));
+  if (Shop.visible()) Shop.open(); else if (b.dataset.to) go(b.dataset.to);
 }));
 
 /* Bhakti token shop. Payments go through Google Play / App Store billing (Billing below); until that is connected the
@@ -3164,7 +3160,6 @@ const Community = (() => {
     if (!Cloud.ready) return;
     const p = Cloud.profile || {};
     $('#com-name').textContent = myLabel();
-    $('#com-note').textContent = t(p.display_name ? 'anonNote' : 'anonNoName');
     $('#show-me').setAttribute('aria-checked', String(!!p.show_on_leaderboard));
   }
   $$('#board-period button').forEach(b => b.addEventListener('click', () => {
