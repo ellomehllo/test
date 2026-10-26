@@ -9,11 +9,13 @@ const APNS = 'https://api.push.apple.com/3/device/';
 const json = (b: unknown, s = 200) => new Response(JSON.stringify(b), { status: s, headers: { 'Content-Type': 'application/json' } });
 const b64url = (b: ArrayBuffer | Uint8Array) => btoa(String.fromCharCode(...new Uint8Array(b))).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
 const enc = (o: unknown) => b64url(new TextEncoder().encode(JSON.stringify(o)));
+// a PEM key's body as bytes, however the secret was pasted: headers, real line breaks, literal "\n" and stray
+// characters are all dropped, leaving only base64
+const pemBytes = (pem: string) => Uint8Array.from(atob(pem.replace(/-----[^-]*-----/g, '').replace(/\\n/g, '').replace(/[^A-Za-z0-9+/=]/g, '')), c => c.charCodeAt(0));
 
 // APNs accepts a JWT signed with the .p8 key (ES256), valid up to an hour
 async function apnsJwt(): Promise<string> {
-  const pem = Deno.env.get('APNS_KEY_P8')!.replace(/-----[^-]+-----|\s/g, '');
-  const key = await crypto.subtle.importKey('pkcs8', Uint8Array.from(atob(pem), c => c.charCodeAt(0)), { name: 'ECDSA', namedCurve: 'P-256' }, false, ['sign']);
+  const key = await crypto.subtle.importKey('pkcs8', pemBytes(Deno.env.get('APNS_KEY_P8')!), { name: 'ECDSA', namedCurve: 'P-256' }, false, ['sign']);
   const head = enc({ alg: 'ES256', kid: Deno.env.get('APNS_KEY_ID') }), claims = enc({ iss: Deno.env.get('APNS_TEAM_ID'), iat: Math.floor(Date.now() / 1000) });
   const sig = await crypto.subtle.sign({ name: 'ECDSA', hash: 'SHA-256' }, key, new TextEncoder().encode(`${head}.${claims}`));
   return `${head}.${claims}.${b64url(sig)}`;
@@ -24,8 +26,7 @@ async function fcmAuth(): Promise<{ token: string; project: string } | null> {
   const raw = Deno.env.get('FCM_SERVICE_ACCOUNT');
   if (!raw) return null;
   const sa = JSON.parse(raw);
-  const pem = String(sa.private_key).replace(/-----[^-]+-----|\s/g, '');
-  const key = await crypto.subtle.importKey('pkcs8', Uint8Array.from(atob(pem), c => c.charCodeAt(0)), { name: 'RSASSA-PKCS1-v1_5', hash: 'SHA-256' }, false, ['sign']);
+  const key = await crypto.subtle.importKey('pkcs8', pemBytes(String(sa.private_key)), { name: 'RSASSA-PKCS1-v1_5', hash: 'SHA-256' }, false, ['sign']);
   const now = Math.floor(Date.now() / 1000);
   const head = enc({ alg: 'RS256', typ: 'JWT' });
   const claims = enc({ iss: sa.client_email, scope: 'https://www.googleapis.com/auth/firebase.messaging', aud: 'https://oauth2.googleapis.com/token', iat: now, exp: now + 3600 });
