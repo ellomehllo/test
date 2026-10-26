@@ -1933,10 +1933,10 @@ const Cloud = (() => {
     const { error } = await sb.from('profiles').upsert({ id: api.user.id, avatar: avatar || null });
     if (!error) api.profile = Object.assign({ show_on_leaderboard: true }, api.profile, { avatar: avatar || null });
   }
-  // iPhone push: this phone's APNs token, kept against the account so send-push can reach it
-  async function savePushToken(token) {
+  // push: this phone's token (APNs on iPhone, Firebase on Android), kept against the account so send-push can reach it
+  async function savePushToken(token, platform) {
     if (NO_CLOUD || !api.ready || !api.user || !token) return;
-    const { error } = await sb.from('push_tokens').upsert({ token, user_id: api.user.id, updated_at: new Date().toISOString() });
+    const { error } = await sb.from('push_tokens').upsert({ token, platform, user_id: api.user.id, updated_at: new Date().toISOString() });
     if (error) console.warn('[push] token not saved', error.message);
   }
   async function reportName(ref) {
@@ -3612,16 +3612,17 @@ if (session) {
   toast(t('tRestored'));
 }
 // connect as soon as the (deferred) Supabase library has run
-/* Push notifications (iPhone app): once notifications are allowed (the reminders ask), register with Apple's push
- * service and keep the token on the account, so messages from send-push arrive. Never asks for permission itself. */
+/* Push notifications (iPhone and Android apps): once notifications are allowed (the reminders ask), register with
+ * Apple's push service or Firebase and keep the token on the account, so messages from send-push arrive. Never asks
+ * for permission itself. */
 const Push = (() => {
   const LN = nativePlugin('LocalNotifications');
   async function sync() {
-    if (!IS_IOS || !NATIVE || !NATIVE.pushRegister || !LN) return;
+    if (!IS_APP || !NATIVE || !NATIVE.pushRegister || !LN) return;
     try {
       if ((await LN.checkPermissions()).display !== 'granted') return;
       const { token } = await NATIVE.pushRegister();
-      await Cloud.savePushToken(token);
+      await Cloud.savePushToken(token, IS_IOS ? 'ios' : 'android');
     } catch (e) { console.warn('[push]', e && e.message); }
   }
   return { sync };
