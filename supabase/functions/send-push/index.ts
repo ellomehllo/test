@@ -25,7 +25,11 @@ async function apnsJwt(): Promise<string> {
 async function fcmAuth(): Promise<{ token: string; project: string } | null> {
   const raw = Deno.env.get('FCM_SERVICE_ACCOUNT');
   if (!raw) return null;
-  const sa = JSON.parse(raw);
+  let sa: any;
+  try { sa = JSON.parse(raw); } catch (_) { throw new Error('FCM_SERVICE_ACCOUNT is not JSON (starts with ' + JSON.stringify(raw.slice(0, 12)) + ')'); }
+  if (sa.type !== 'service_account' || !sa.private_key || !sa.client_email) {
+    throw new Error('FCM_SERVICE_ACCOUNT is not a Firebase service-account key; it has: ' + Object.keys(sa).join(', '));
+  }
   const key = await crypto.subtle.importKey('pkcs8', pemBytes(String(sa.private_key)), { name: 'RSASSA-PKCS1-v1_5', hash: 'SHA-256' }, false, ['sign']);
   const now = Math.floor(Date.now() / 1000);
   const head = enc({ alg: 'RS256', typ: 'JWT' });
@@ -41,6 +45,11 @@ async function fcmAuth(): Promise<{ token: string; project: string } | null> {
 }
 
 Deno.serve(async req => {
+  try { return await handle(req); }
+  catch (e) { console.error('[send-push]', e); return json({ error: e instanceof Error ? e.message : String(e) }, 500); }
+});
+
+async function handle(req: Request): Promise<Response> {
   if (req.method !== 'POST') return json({ error: 'POST only' }, 405);
   const secret = Deno.env.get('PUSH_SECRET');
   if (!secret || req.headers.get('x-push-secret') !== secret) return json({ error: 'not allowed' }, 401);
@@ -85,4 +94,4 @@ Deno.serve(async req => {
   }
   if (gone.length) await db.from('push_tokens').delete().in('token', gone);
   return json({ phones: rows?.length ?? 0, iphones: ios.length, androids: android.length, sent, failed, reasons, removed: gone.length });
-});
+}
