@@ -1933,6 +1933,11 @@ const Cloud = (() => {
     const { error } = await sb.from('profiles').upsert({ id: api.user.id, avatar: avatar || null });
     if (!error) api.profile = Object.assign({ show_on_leaderboard: true }, api.profile, { avatar: avatar || null });
   }
+  // iPhone push: this phone's APNs token, kept against the account so send-push can reach it
+  async function savePushToken(token) {
+    if (NO_CLOUD || !api.ready || !api.user || !token) return;
+    await sb.from('push_tokens').upsert({ token, user_id: api.user.id, updated_at: new Date().toISOString() });
+  }
   async function reportName(ref) {
     if (!api.ready) throw new Error('offline');
     const { error } = await sb.rpc('report_name', { p_ref: ref });
@@ -1974,7 +1979,7 @@ const Cloud = (() => {
   const resume = () => { if (!api.ready) init().then(() => { onRecordsChanged(); Community.renderAccount(); }); else flush().then(refreshStats); };
   addEventListener('online', resume);
   document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') resume(); });
-  Object.assign(api, { init, record, refreshStats, unlock, fileUrl, pending: readQ, myCode, deleteAccount, applePurchase, purchasesLive, saveProfile, saveName, saveAvatar, reportName, leaderboard, myRank, totalsAll, linkEmail, signOut, loadProfile });
+  Object.assign(api, { init, record, refreshStats, unlock, fileUrl, pending: readQ, myCode, deleteAccount, applePurchase, purchasesLive, saveProfile, saveName, saveAvatar, savePushToken, reportName, leaderboard, myRank, totalsAll, linkEmail, signOut, loadProfile });
   return api;
 })();
 
@@ -2847,7 +2852,7 @@ const Reminders = (() => {
   async function askOnce() {
     if (!LN || settings.notifAsked || !(settings.remind || settings.nudge)) return;
     settings.notifAsked = 1; persist();
-    if (!(await sync(true))) { settings.remind = settings.nudge = false; persist(); }
+    if (!(await sync(true))) { settings.remind = settings.nudge = false; persist(); } else Push.sync();
   }
   if (LN) document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') soon(); });
   return { supported: !!LN, sync, soon, plan, askOnce };
@@ -3606,7 +3611,21 @@ if (session) {
   toast(t('tRestored'));
 }
 // connect as soon as the (deferred) Supabase library has run
-const startCloud = () => { Cloud.init().then(() => { onRecordsChanged(); Profile.syncAvatar(); }); Billing.init(); };
+/* Push notifications (iPhone app): once notifications are allowed (the reminders ask), register with Apple's push
+ * service and keep the token on the account, so messages from send-push arrive. Never asks for permission itself. */
+const Push = (() => {
+  const LN = nativePlugin('LocalNotifications');
+  async function sync() {
+    if (!IS_IOS || !NATIVE || !NATIVE.pushRegister || !LN) return;
+    try {
+      if ((await LN.checkPermissions()).display !== 'granted') return;
+      const { token } = await NATIVE.pushRegister();
+      await Cloud.savePushToken(token);
+    } catch (e) { console.warn('[push]', e && e.message); }
+  }
+  return { sync };
+})();
+const startCloud = () => { Cloud.init().then(() => { onRecordsChanged(); Profile.syncAvatar(); Push.sync(); }); Billing.init(); };
 if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', startCloud); else startCloud();
 if (FAST) setTimeout(() => toast(t('tFast')), 400);
 </script>
