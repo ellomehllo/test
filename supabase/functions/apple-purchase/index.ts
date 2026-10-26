@@ -31,7 +31,7 @@ Deno.serve(async req => {
   try { jws = String((await req.json()).jws || ''); } catch (_) { /* answered below */ }
   try {
     if (peek(jws).environment === 'Xcode') return reply({ status: 'test' });
-    const tx = checkTransaction(verifyAppleJws(jws), { bundleId: BUNDLE_ID, userId: user.id, products: PRODUCTS, environments: ENVIRONMENTS });
+    const tx = checkTransaction(await verifyAppleJws(jws), { bundleId: BUNDLE_ID, userId: user.id, products: PRODUCTS, environments: ENVIRONMENTS });
     const admin = createClient(url, Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!);
     const { data, error } = await admin.rpc('credit_purchase', { p_user: user.id, p_store: 'appstore', p_product: tx.productId, p_order: tx.transactionId });
     if (error) throw new Error(error.message);
