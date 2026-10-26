@@ -2803,6 +2803,8 @@ $('#voice-chip').addEventListener('click', () => Voice.toggle());
 const Reminders = (() => {
   const LN = nativePlugin('LocalNotifications');
   const DAILY = 100, NUDGE = 200, AHEAD = 14, NUDGE_HOUR = 20;   // ids 100–113 daily, 200–201 nudges
+  // isExactNotification false: a reminder a few minutes late is fine, and exact alarms make Android open its
+  // 'Alarms & reminders' permission screen on every launch
   let chain = Promise.resolve(), timer = 0;
   function plan() {
     const out = [], days = practiceDays(), today = todayKey(), done = days.has(today), cur = streaks().cur, now = Date.now();
@@ -2811,14 +2813,14 @@ const Reminders = (() => {
       const day = new Date(); day.setDate(day.getDate() + d);
       if (settings.remind && !(d === 0 && done)) {
         const at = new Date(day); at.setHours(hh, mm, 0, 0);
-        if (at.getTime() > now + 30000) out.push({ id: DAILY + d, title: t('nDailyT'), body: `${t('sankalp')}: ${sankalpFor(day)}\n${t('nDailyB', { name: aName(aById(settings.aaradhya)) })}`, schedule: { at, allowWhileIdle: true } });
+        if (at.getTime() > now + 30000) out.push({ id: DAILY + d, title: t('nDailyT'), body: `${t('sankalp')}: ${sankalpFor(day)}\n${t('nDailyB', { name: aName(aById(settings.aaradhya)) })}`, schedule: { at, allowWhileIdle: true }, isExactNotification: false });
       }
     }
     // the streak breaks tonight if it's going and today isn't done; if today is done, tomorrow evening is the next risk
     // (any later evening only comes after a day without opening the app, when the streak has already ended)
     if (settings.nudge && cur > 0) {
       const d = done ? 1 : 0, at = new Date(); at.setDate(at.getDate() + d); at.setHours(NUDGE_HOUR, 0, 0, 0);
-      if (at.getTime() > now + 30000) out.push({ id: NUDGE + d, title: t('nNudgeT', { n: cur }), body: t('nNudgeB'), schedule: { at, allowWhileIdle: true } });
+      if (at.getTime() > now + 30000) out.push({ id: NUDGE + d, title: t('nNudgeT', { n: cur }), body: t('nNudgeB'), schedule: { at, allowWhileIdle: true }, isExactNotification: false });
     }
     return out;
   }
