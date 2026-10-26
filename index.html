@@ -1936,7 +1936,8 @@ const Cloud = (() => {
   // iPhone push: this phone's APNs token, kept against the account so send-push can reach it
   async function savePushToken(token) {
     if (NO_CLOUD || !api.ready || !api.user || !token) return;
-    await sb.from('push_tokens').upsert({ token, user_id: api.user.id, updated_at: new Date().toISOString() });
+    const { error } = await sb.from('push_tokens').upsert({ token, user_id: api.user.id, updated_at: new Date().toISOString() });
+    if (error) console.warn('[push] token not saved', error.message);
   }
   async function reportName(ref) {
     if (!api.ready) throw new Error('offline');
