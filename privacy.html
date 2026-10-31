@@ -24,7 +24,7 @@
 <body>
 <main>
   <h1>Privacy policy</h1>
-  <p class="muted">Sadhana (the app and vanarsathi.online) · Last updated 25 October 2026</p>
+  <p class="muted">Sadhana (the app and vanarsathi.online) · Last updated 31 October 2026</p>
 
   <div class="card">
     <strong>In short:</strong> you never have to give us your email or phone number. The app records how much jaap you do,
@@ -41,6 +41,9 @@
     <li><strong>Your profile name.</strong> The name you write on your profile, shown to everyone on the leaderboard. Leave it empty to appear as a numbered Bhakt.</li>
     <li><strong>Your leaderboard choice.</strong> Whether you appear on the leaderboard (on unless you turn it off).</li>
     <li><strong>Name reports.</strong> If you report someone's name, we keep that you reported it until the report is dealt with.</li>
+    <li><strong>Notification token.</strong> If you allow notifications, the push token your phone's notification service
+      gives the app (Apple's on iPhone, Google's Firebase Cloud Messaging on Android), kept with your account ID so we can send
+      you reminders and announcements. It is deleted when you delete your data.</li>
     <li><strong>Token purchases.</strong> If you buy Bhakti tokens in the app: the App Store or Google Play order number, the pack and the date, so the tokens reach your account exactly once. Payment itself is handled by Apple or Google; we never see your card, Apple Account or Google Account payment details.</li>
   </ul>
 
@@ -81,7 +84,8 @@
   <h2>Who helps us run Sadhana</h2>
   <ul>
     <li><strong>Supabase</strong> stores the account ID, sessions and unlocks described above (servers in Tokyo, Japan) and serves the Aaradhya animations you download.</li>
-    <li><strong>Apple</strong> handles in-app payments and, on iPhone, speech recognition as described above.</li>
+    <li><strong>Apple</strong> handles in-app payments and notifications on iPhone and, there, speech recognition as described above.</li>
+    <li><strong>Google</strong> handles in-app payments (Google Play) and notifications (Firebase Cloud Messaging) on Android.</li>
     <li><strong>Cloudflare</strong> hosts vanarsathi.online and, like any web host, briefly processes your IP address to deliver the pages.</li>
     <li>On the website only, fonts come from <strong>Google Fonts</strong> and one script from <strong>jsDelivr</strong>, which receive your IP address when they load. The app has these files built in.</li>
   </ul>
@@ -104,8 +108,9 @@
     <h2>सार (हिंदी में)</h2>
     <p>आप हमें अपना ईमेल या फ़ोन नंबर कभी नहीं देते। ऐप एक बिना-नाम वाले खाता नंबर से आपकी जप-गिनती, मिनट और तारीख़ सहेजता है,
       ताकि आपकी गिनती, साधना क्रम और भक्ति टोकन सुरक्षित रहें। प्रोफ़ाइल में लिखा नाम भक्त सूची में सबको दिखता है (नाम न लिखें तो
-      “भक्त #4821” जैसा नंबर); सूची से आप ख़ुद को कभी भी हटा सकते हैं। आपकी फ़ोटो इसी फ़ोन पर रहती है। भक्ति टोकन iPhone ऐप में
-      ख़रीदे भी जा सकते हैं — भुगतान पूरी तरह Apple करता है, हमें केवल ख़रीद का नंबर, पैक और तारीख़ मिलती है; रिफ़ंड Apple से माँगें।
+      “भक्त #4821” जैसा नंबर); सूची से आप ख़ुद को कभी भी हटा सकते हैं। आपकी फ़ोटो इसी फ़ोन पर रहती है। भक्ति टोकन iPhone और Android ऐप में
+      ख़रीदे भी जा सकते हैं — भुगतान पूरी तरह Apple या Google करता है, हमें केवल ख़रीद का नंबर, पैक और तारीख़ मिलती है; रिफ़ंड Apple या
+      Google Play से माँगें। सूचनाएँ चालू करने पर आपके फ़ोन का सूचना टोकन आपके खाते के साथ रखा जाता है, ताकि हम आपको याद दिला सकें।
       टोकन केवल आराध्य खोलने के लिए हैं, इनका कोई नकद मूल्य नहीं। कोई विज्ञापन या ट्रैकिंग नहीं, आपका डेटा कभी बेचा नहीं जाता।
       <em>सेटिंग्स → मेरा सारा डेटा मिटाएँ</em> से आप कभी भी सब कुछ मिटा सकते हैं (ख़रीदे हुए टोकन भी)।</p>
   </div>
