@@ -1888,12 +1888,22 @@ const Cloud = (() => {
     try { msg = (await error.context.json()).error || msg; } catch (_) {}
     return { error: msg };
   }
-  // whether the server can credit App Store purchases yet: until the apple-purchase function is deployed it answers
-  // 404, and the shop stays hidden rather than take money it can't turn into tokens
-  async function purchasesLive() {
+  // the google-purchase function checks a Google Play purchase token with the Play Developer API and credits the tokens
+  async function googlePurchase(productId, purchaseToken) {
+    await init();
+    if (!api.ready) throw new Error('offline');
+    const { data, error } = await sb.functions.invoke('google-purchase', { body: { productId, purchaseToken } });
+    if (!error) return data;
+    let msg = error.message;
+    try { msg = (await error.context.json()).error || msg; } catch (_) {}
+    return { error: msg };
+  }
+  // whether the server can credit this store's purchases yet: until its function (apple-purchase / google-purchase) is
+  // deployed it answers 404, and the shop stays hidden rather than take money it can't turn into tokens
+  async function purchasesLive(fn) {
     await init();
     if (!api.ready) return false;
-    const { error } = await sb.functions.invoke('apple-purchase', { body: {} });
+    const { error } = await sb.functions.invoke(fn, { body: {} });
     if (!error) return true;
     const status = error.context && error.context.status;
     return !!status && status !== 404;
@@ -1980,7 +1990,7 @@ const Cloud = (() => {
   const resume = () => { if (!api.ready) init().then(() => { onRecordsChanged(); Community.renderAccount(); }); else flush().then(refreshStats); };
   addEventListener('online', resume);
   document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') resume(); });
-  Object.assign(api, { init, record, refreshStats, unlock, fileUrl, pending: readQ, myCode, deleteAccount, applePurchase, purchasesLive, saveProfile, saveName, saveAvatar, savePushToken, reportName, leaderboard, myRank, totalsAll, linkEmail, signOut, loadProfile });
+  Object.assign(api, { init, record, refreshStats, unlock, fileUrl, pending: readQ, myCode, deleteAccount, applePurchase, googlePurchase, purchasesLive, saveProfile, saveName, saveAvatar, savePushToken, reportName, leaderboard, myRank, totalsAll, linkEmail, signOut, loadProfile });
   return api;
 })();
 
@@ -3088,15 +3098,16 @@ const TOKEN_PACKS = [
   { id: 'tokens_350', tokens: 700, inr: 99, hi: 'माला', en: 'Mala', tag: 'packPopular' },
   { id: 'tokens_800', tokens: 1600, inr: 199, hi: 'कलश', en: 'Kalash', tag: 'packValue' }
 ];
-/* Billing. iOS app: StoreKit 2 through the VanarStore plugin. Each signed purchase goes to the apple-purchase function,
- * which checks it with Apple's certificates and credits the tokens; only then is the StoreKit transaction finished, so
- * a purchase cut off half-way is credited on the next launch. Google Play billing isn't connected yet.        */
+/* Billing, through the VanarStore plugin. iOS app: StoreKit 2; each signed purchase goes to the apple-purchase function,
+ * which checks it with Apple's certificates. Android app: Google Play Billing; each purchase token goes to the
+ * google-purchase function, which checks it with Google Play. Only once the server has credited the tokens is the
+ * purchase finished (consumed on Android), so a purchase cut off half-way is credited on the next launch.        */
 const Billing = (() => {
   const VS = nativePlugin('VanarStore');
   const api = { available: false, prices: {} };
   const settled = r => r && (r.status === 'credited' || r.status === 'test');
   async function credit(tx) {
-    const r = await Cloud.applePurchase(tx.jws);
+    const r = IS_IOS ? await Cloud.applePurchase(tx.jws) : await Cloud.googlePurchase(tx.productId, tx.purchaseToken);
     if (settled(r)) await VS.finish({ transactionId: tx.transactionId });
     return r;
   }
@@ -3115,8 +3126,8 @@ const Billing = (() => {
     try {
       const { products = [] } = await VS.products({ ids: TOKEN_PACKS.map(k => k.id) });
       products.forEach(p => { api.prices[p.id] = p.displayPrice; });
-      // the shop opens only when the App Store has the packs and the server is ready to credit them
-      api.available = products.length > 0 && await Cloud.purchasesLive();
+      // the shop opens only when the store has the packs and the server is ready to credit them
+      api.available = products.length > 0 && await Cloud.purchasesLive(IS_IOS ? 'apple-purchase' : 'google-purchase');
     } catch (e) { console.warn('[billing]', e && e.message); }
     await Cloud.init();
     if (Cloud.ready) retryUnfinished();
@@ -3132,7 +3143,7 @@ const Billing = (() => {
       const code = e && e.code;
       throw Object.assign(new Error(code || 'failed'), { cancelled: code === 'CANCELLED', pending: code === 'PENDING' });
     }
-    // Apple has the payment from here on: if the check fails it is retried (next visit or launch), never bought twice
+    // the store has the payment from here on: if the check fails it is retried (next visit or launch), never bought twice
     let r = null;
     try { r = await credit(tx); } catch (_) { /* r stays null */ }
     if (!settled(r)) throw Object.assign(new Error((r && r.error) || 'not credited yet'), { paid: true });
