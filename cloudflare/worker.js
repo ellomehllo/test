@@ -7,6 +7,8 @@ const DOWNLOAD_TYPES = { apk: 'application/vnd.android.package-archive' };
 export default {
   async fetch(request, env) {
     const url = new URL(request.url);
+    // the APK is no longer handed out: the Android app now comes from the Google Play test, so old download links go to the site
+    if (url.pathname.endsWith('.apk')) return Response.redirect(url.origin + '/', 302);
     if (url.pathname.startsWith('/download/') && env.DOWNLOADS) return download(request, env, url.pathname.slice(10));
     const range = request.headers.get('Range');
     if (!range) return withRanges(await env.ASSETS.fetch(request));
